@@ -1,0 +1,7 @@
+relre:\.user$
+relre:\.suo$
+relre:^_ReSharper.MicroParser/
+relre:^MicroParser/obj/
+relre:^MicroParser/bin/
+relre:^TestParser/bin/
+relre:^TestParser/obj/
