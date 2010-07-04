@@ -42,10 +42,9 @@ namespace TestParser
 
          var p_eos = Parser.EndOfStream ();
 
-         var p_spaces = CharParser.SkipWhitespace();
+         var p_spaces = CharParser.SkipWhitespace(1);
 
          Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString(token).KeepLeft(p_spaces);
-
 
          var p_value = CharParser
             .ParseInt()
@@ -61,7 +60,7 @@ namespace TestParser
             .Map(s => new AstNode_Variable { Name = s } as IAstNode);
 
 
-         var p_term = Parser.Choice (p_variable,p_value).KeepLeft (p_spaces);
+         var p_term = Parser.Choice (p_variable, p_value);
 
          var p = Parser
             .Tuple2(p_variable, p_token ("=").KeepRight(p_term))
@@ -69,7 +68,7 @@ namespace TestParser
             ;
          // ReSharper restore InconsistentNaming
 
-         const string text = "z0Test = 9";
+         const string text = "z0Test = 9  ";
 
          {
             var ps = ParserState.Create(0, text);
