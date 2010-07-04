@@ -168,8 +168,9 @@ namespace MicroParser
       {
          return new
                    {
-                      Position = m_position,
-                      Current = m_position < m_text.Length ? new string (m_text[m_position], 1) : "EOS",
+                      Position,
+                      EndOfStream,
+                      Current = !EndOfStream ? new string(m_text[m_position], 1) : "End of stream",
                    }.ToString ();
       }
 
