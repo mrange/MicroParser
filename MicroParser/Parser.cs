@@ -113,9 +113,9 @@ namespace MicroParser
                {
                   var trailingResult = parser(state);
 
-                  if (result.State.HasError())
+                  if (trailingResult.State.HasError())
                   {
-                     return result;
+                     return trailingResult;
                   }
 
                   accu = combiner(accu, separatorResult.Value, trailingResult.Value);
