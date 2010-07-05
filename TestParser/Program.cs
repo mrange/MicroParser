@@ -93,10 +93,23 @@ namespace TestParser
             .KeepLeft (p_spaces)
             .Map (tuple => new AstNode_Variable { Root = tuple.Item1, Names = tuple.Item2} as IAstNode);
 
-         CharSatify rootOp = '+';
-         var allOps = rootOp.Or ('-').Or ('+').Or ('*').Or ('/');
+         var allOps = new CharSatify(
+            "op",
+            (c, i) =>
+               {
+                  switch (c)
+                  {
+                     case '+':
+                     case '-':
+                     case '*':
+                     case '/':
+                        return true;
+                     default:
+                        return false;
+                  }
+               });
 
-         var p_op = CharParser.ManyCharSatisfy (allOps, 1, 1);
+         var p_op = CharParser.ManyCharSatisfy (allOps, 1, 1).KeepLeft (p_spaces);
 
          var p_ast_redirect = Parser.Redirect<IAstNode> ();
 
@@ -114,7 +127,7 @@ namespace TestParser
             ;
          // ReSharper restore InconsistentNaming
 
-         const string text = "x + (3 * y)";
+         const string text = "x.y+(3 * y.z.e) ";
 
          {
             var ps = ParserState.Create (0, text);
