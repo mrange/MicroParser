@@ -36,14 +36,17 @@ namespace TestParser
 
    public sealed class AstNode_Variable : IAstNode
    {
-      public string Name;
+      public string Root;
+      public string[] Names;
+
       public override string ToString ()
       {
          return new
-         {
-            NodeType = "Variable",
-            Name,
-         }.ToString ();
+                   {
+                      NodeType = "Variable",
+                      Root,
+                      Names = Names.Concatenate (", ", "[", "]"),
+                   }.ToString ();
       }
    }
 
@@ -70,26 +73,31 @@ namespace TestParser
             .KeepLeft (p_spaces)
             .Map (i => new AstNode_IntValue { Value = i } as IAstNode);
 
-         var p_variable = CharParser
+         var p_identifier = CharParser
             .ManyCharSatisfy2 (
                CharParser.SatisyLetter,
                CharParser.SatisyLetterOrDigit,
-               1)
+               1);
+
+         var p_variable = 
+            Parser.Tuple (
+               p_identifier,
+               p_token (".").KeepRight (p_identifier).Many ())
             .KeepLeft (p_spaces)
-            .Map (s => new AstNode_Variable { Name = s } as IAstNode);
+            .Map (tuple => new AstNode_Variable { Root = tuple.Item1, Names = tuple.Item2} as IAstNode);
 
 
          var p_term = Parser.Choice (p_string_value, p_variable, p_int_value);
 
          var p = Parser
-            .Tuple2 (p_variable, p_token ("=").KeepRight (p_term))
+            .Tuple (p_variable, p_token ("=").KeepRight (p_term))
             .KeepLeft (p_eos)
             ;
          // ReSharper restore InconsistentNaming
 
          //const string text = "z0Test = \"Test\"  ";
          //const string text = "z0Test = 9  ";
-         const string text = "z0Test = var  ";
+         const string text = "z0Test = var.te329.Tjo  ";
 
          {
             var ps = ParserState.Create (0, text);

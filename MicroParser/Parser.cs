@@ -5,6 +5,33 @@ namespace MicroParser
 {
    public static class Parser
    {
+      public static bool IsSuccessful(this ParserReply_State state)
+      {
+         return state == ParserReply_State.Successful;
+      }
+
+      public static bool HasConsistentState(this ParserReply_State state)
+      {
+         return 
+            (state & ParserReply_State.FatalError_StateIsNotRestored) 
+               == 0;
+      }
+
+      public static bool HasFatalError(this ParserReply_State state)
+      {
+         return state >= ParserReply_State.FatalError;
+      }
+
+      public static bool HasError(this ParserReply_State state)
+      {
+         return state >= ParserReply_State.Error;
+      }
+
+      public static bool HasNonFatalError (this ParserReply_State state)
+      {
+         return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
+      }
+
 
       public static ParserFunction<TValue> Return<TValue>(TValue value)
       {
@@ -33,7 +60,7 @@ namespace MicroParser
          return state =>
                    {
                       var firstResult = firstParser (state);
-                      if (firstResult.State >= ParserReply_State.Error)
+                      if (firstResult.State.HasError ())
                       {
                          return firstResult.Failure<TValue2>();
                       }
@@ -50,12 +77,56 @@ namespace MicroParser
          {
             var firstResult = firstParser (state);
 
-            if (firstResult.State != ParserReply_State.Successful)
+            if (firstResult.State.HasError ())
             {
                return firstResult.Failure<TValue2>();
             }
 
             return ParserReply<TValue2>.Success (firstResult.ParserState, mapper (firstResult.Value));
+         };
+      }
+
+      public static ParserFunction<TValue[]> Many<TValue>(this ParserFunction<TValue> parser, int minCount = 0, int maxCount = int.MaxValue)
+      {
+         VerifyMinAndMaxCount (minCount, maxCount);;
+
+         return state =>
+         {
+            var result = new List<TValue> (Math.Max (minCount, 16));
+
+            // Collect required
+
+            for (var iter = 0; iter < minCount; ++iter)
+            {
+               var parserResult = parser (state);
+
+               if (parserResult.State.HasError ())
+               {
+                  return parserResult.Failure<TValue[]> ();
+               }
+
+               result.Add(parserResult.Value);
+            }
+
+            // Collect optional
+
+            for (var iter = minCount; iter < maxCount; ++iter)
+            {
+               var parserResult = parser(state);
+
+               if (parserResult.State.HasFatalError ())
+               {
+                  return parserResult.Failure<TValue[]>();
+               }
+               else if (parserResult.State.HasError ())
+               {
+                  break;
+               }
+
+               result.Add (parserResult.Value);
+            }
+
+            return ParserReply<TValue[]>.Success (state, result.ToArray ());
          };
       }
 
@@ -82,11 +153,11 @@ namespace MicroParser
                       {
                          var result = parserFunction (state);
 
-                         if (result.State == ParserReply_State.Successful)
+                         if (result.State.IsSuccessful ())
                          {
                             return result;
                          }
-                         else if (result.State >= ParserReply_State.FatalError)
+                         else if (result.State.HasFatalError ())
                          {
                             return result;
                          }
@@ -124,14 +195,14 @@ namespace MicroParser
                    {
                       var firstResult = firstParser (state);
 
-                      if (firstResult.State >= ParserReply_State.Error)
+                      if (firstResult.State.HasError ())
                       {
                          return firstResult;
                       }
 
                       var secondResult = secondParser (state);
 
-                      if (secondResult.State >= ParserReply_State.Error)
+                      if (secondResult.State.HasError ())
                       {
                          return secondResult.Failure<TValue1>();
                       }
@@ -146,7 +217,7 @@ namespace MicroParser
                    {
                       var firstResult = firstParser (state);
 
-                      if (firstResult.State >= ParserReply_State.Error)
+                      if (firstResult.State.HasError ())
                       {
                          return firstResult.Failure<TValue2>();
                       }
@@ -155,20 +226,20 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Tuple<TValue1, TValue2>> Tuple2<TValue1, TValue2>(ParserFunction<TValue1> firstParser, ParserFunction<TValue2> secondParser)
+      public static ParserFunction<Tuple<TValue1, TValue2>> Tuple<TValue1, TValue2>(ParserFunction<TValue1> firstParser, ParserFunction<TValue2> secondParser)
       {
          return state =>
          {
             var firstResult = firstParser (state);
 
-            if (firstResult.State >= ParserReply_State.Error)
+            if (firstResult.State.HasError ())
             {
                return firstResult.Failure<Tuple<TValue1, TValue2>>();
             }
 
             var secondResult = secondParser (state);
 
-            if (secondResult.State >= ParserReply_State.Error)
+            if (secondResult.State.HasError ())
             {
                return secondResult.Failure<Tuple<TValue1, TValue2>>();
             }
@@ -176,7 +247,7 @@ namespace MicroParser
 
             return ParserReply<Tuple<TValue1, TValue2>>.Success (
                secondResult.ParserState,
-               Tuple.Create (
+               System.Tuple.Create (
                   firstResult.Value,
                   secondResult.Value
                   ));
@@ -192,7 +263,7 @@ namespace MicroParser
 
                       var firstResult = firstParser (state);
 
-                      if (firstResult.State != ParserReply_State.FatalError_StateIsNotRestored)
+                      if (firstResult.State.HasConsistentState ())
                       {
                          return firstResult;
                       }
@@ -212,19 +283,19 @@ namespace MicroParser
          return state =>
                    {
                       var preludeResult = preludeParser (state);
-                      if (preludeResult.State >= ParserReply_State.Error)
+                      if (preludeResult.State.HasError ())
                       {
                          return preludeResult.Failure<TValue> ();
                       }
 
                       var middleResult = middleParser (state);
-                      if (middleResult.State >= ParserReply_State.Error)
+                      if (middleResult.State.HasError ())
                       {
                          return middleResult;
                       }
 
                       var epilogueResult = epilogueParser (state);
-                      if (preludeResult.State >= ParserReply_State.Error)
+                      if (preludeResult.State.HasError ())
                       {
                          return epilogueResult.Failure<TValue>();
                       }
@@ -243,8 +314,7 @@ namespace MicroParser
                    {
                       var exceptResult = exceptParser (state);
 
-                      if (exceptResult.State == ParserReply_State.Successful ||
-                          exceptResult.State >= ParserReply_State.FatalError)
+                      if (exceptResult.State.HasNonFatalError ())
                       {
                          return exceptResult.Failure<TValue> ();
                       }
