@@ -48,7 +48,7 @@ namespace MicroParser
             throw new ArgumentNullException ("parserErrorMessage");
          }
 
-         return new ParserReply<TValue>(state, parserState, default (TValue), parserErrorMessage);
+         return new ParserReply<TValue> (state, parserState, default (TValue), parserErrorMessage);
       }
 
       public ParserReply<TValueTo> Failure<TValueTo> ()

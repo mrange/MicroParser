@@ -40,7 +40,7 @@ namespace TestParser
          return sb.ToString ();
       }
 
-      public static TValue Lookup<TKey, TValue>(
+      public static TValue Lookup<TKey, TValue> (
          this IDictionary<TKey, TValue> dictionary,
          TKey key,
          TValue defaultValue
