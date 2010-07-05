@@ -32,6 +32,11 @@ namespace MicroParser
          return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
       }
 
+      public static ParserFunctionRedirect<TValue> Redirect<TValue> ()
+      {
+         return new ParserFunctionRedirect<TValue> ();
+      }
+
 
       public static ParserFunction<TValue> Return<TValue>(TValue value)
       {
@@ -84,6 +89,45 @@ namespace MicroParser
 
             return ParserReply<TValue2>.Success (firstResult.ParserState, mapper (firstResult.Value));
          };
+      }
+
+      public static ParserFunction<TValue1> Chain<TValue1, TValue2>(
+         this ParserFunction<TValue1> parser, 
+         ParserFunction<TValue2> separator, 
+         Func<TValue1, TValue2, TValue1, TValue1> combiner
+         )
+      {
+         return state =>
+            {
+               var result = parser(state);
+               if (result.State.HasError())
+               {
+                  return result;
+               }
+
+               var accu = result.Value;
+
+               ParserReply<TValue2> separatorResult;
+
+               while ((separatorResult = separator(state)).State.IsSuccessful ())
+               {
+                  var trailingResult = parser(state);
+
+                  if (result.State.HasError())
+                  {
+                     return result;
+                  }
+
+                  accu = combiner(accu, separatorResult.Value, trailingResult.Value);
+               }
+
+               if (separatorResult.State.HasFatalError ())
+               {
+                  return separatorResult.Failure<TValue1> ();
+               }
+
+               return ParserReply<TValue1>.Success (state, accu);
+            };
       }
 
       public static ParserFunction<TValue[]> Many<TValue>(this ParserFunction<TValue> parser, int minCount = 0, int maxCount = int.MaxValue)
