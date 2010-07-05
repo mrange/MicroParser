@@ -80,7 +80,7 @@ namespace TestParser
 
          var then = DateTime.Now;
 
-         for (var iter = 0; iter < 1; ++iter)
+         for (var iter = 0; iter < 1000000; ++iter)
          {
             var ps = ParserState.Create(0, text);
             var pr = p(ps);
