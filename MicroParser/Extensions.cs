@@ -5,12 +5,12 @@ namespace MicroParser
 {
    static class Extensions
    {
-      public static bool IsNullOrEmpty(this string str)
+      public static bool IsNullOrEmpty (this string str)
       {
-         return string.IsNullOrEmpty(str);
+         return string.IsNullOrEmpty (str);
       }
 
-      public static string Concatenate(
+      public static string Concatenate (
          this IEnumerable<string> strings,
          string delimiter = null,
          string prepend = null,
@@ -19,7 +19,7 @@ namespace MicroParser
       {
          var first = true;
 
-         var sb = new StringBuilder(prepend ?? "");
+         var sb = new StringBuilder (prepend ?? "");
 
          var del = delimiter ?? "";
 
@@ -31,13 +31,13 @@ namespace MicroParser
             }
             else
             {
-               sb.Append(del);
+               sb.Append (del);
             }
-            sb.Append(value);
+            sb.Append (value);
          }
 
-         sb.Append(append ?? "");
-         return sb.ToString();
+         sb.Append (append ?? "");
+         return sb.ToString ();
       }
 
       public static TValue Lookup<TKey, TValue>(
@@ -47,7 +47,7 @@ namespace MicroParser
          )
       {
          TValue value;
-         return dictionary.TryGetValue(key, out value)
+         return dictionary.TryGetValue (key, out value)
                    ? value
                    : defaultValue;
       }

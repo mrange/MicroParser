@@ -28,7 +28,7 @@ namespace MicroParser
 
       public readonly TValue Value;
 
-      ParserReply(ParserReply_State state, ParserState parserState, TValue value, IParserErrorMessage parserErrorMessage)
+      ParserReply (ParserReply_State state, ParserState parserState, TValue value, IParserErrorMessage parserErrorMessage)
       {
          State = state;
          ParserState = parserState;
@@ -41,32 +41,32 @@ namespace MicroParser
          return new ParserReply<TValue> (ParserReply_State.Successful, parserState, value, null);
       }
 
-      public static ParserReply<TValue> Failure(ParserReply_State state, ParserState parserState, IParserErrorMessage parserErrorMessage)
+      public static ParserReply<TValue> Failure (ParserReply_State state, ParserState parserState, IParserErrorMessage parserErrorMessage)
       {
          if (parserErrorMessage == null)
          {
-            throw new ArgumentNullException("parserErrorMessage");
+            throw new ArgumentNullException ("parserErrorMessage");
          }
 
-         return new ParserReply<TValue>(state, parserState, default(TValue), parserErrorMessage);
+         return new ParserReply<TValue>(state, parserState, default (TValue), parserErrorMessage);
       }
 
       public ParserReply<TValueTo> Failure<TValueTo> ()
       {
-         return ParserReply<TValueTo>.Failure(State, ParserState, ParserErrorMessage);
+         return ParserReply<TValueTo>.Failure (State, ParserState, ParserErrorMessage);
       }
 
       public ParserReply<TValue> Success (ParserState parserState)
       {
-         return Success(parserState, Value);
+         return Success (parserState, Value);
       }
 
       public ParserReply<TValue> Failure (ParserState parserState)
       {
-         return Failure(State, parserState, ParserErrorMessage);
+         return Failure (State, parserState, ParserErrorMessage);
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          if (State == ParserReply_State.Successful)
          {
@@ -75,7 +75,7 @@ namespace MicroParser
                State,
                ParserState,
                Value,
-            }.ToString();
+            }.ToString ();
             
          }
          else
@@ -85,7 +85,7 @@ namespace MicroParser
                State,
                ParserState,
                ParserErrorMessage,
-            }.ToString();
+            }.ToString ();
          }
       }      
 
