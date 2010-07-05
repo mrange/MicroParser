@@ -2,9 +2,16 @@
 {
    public static class CharParser
    {
+      public static class Strings
+      {
+         public const string Any = "any";
+         public const string Digit = "digit";
+         public const string Letter = "letter";
+         public const string WhiteSpace = "whitespace";
+      }
       public static ParserFunction<Empty> SkipString (string toSkip)
       {
-         var toSkipNotNull = toSkip ?? "";
+         var toSkipNotNull = toSkip ?? string.Empty;
          CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return state =>
@@ -31,7 +38,7 @@
          return state =>
          {
             var advanceResult = state.SkipAdvance (satisfy, minCount, maxCount);
-            return Parser.ToParserReply (advanceResult, state, ParserErrorMessageFactory.Expected, "whitespace", Empty.Value);
+            return Parser.ToParserReply (advanceResult, state, ParserErrorMessageFactory.Expected, Strings.WhiteSpace, Empty.Value);
          };
       }
 
@@ -105,7 +112,7 @@
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
-               "digit",
+               Strings.Digit,
                () =>
                   {
                      var accumulated = 0;
@@ -155,10 +162,10 @@
             );
       }
 
-      public static readonly CharSatify SatisyAnyChar = new CharSatify ("any", (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify ("whitespace", (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatify SatisyDigit = new CharSatify ("digit", (c, i) => char.IsDigit (c));
-      public static readonly CharSatify SatisyLetter = new CharSatify ("letter", (c, i) => char.IsLetter (c));
+      public static readonly CharSatify SatisyAnyChar = new CharSatify (Strings.Any, (c, i) => true);
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (Strings.WhiteSpace, (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatify SatisyDigit = new CharSatify (Strings.Digit, (c, i) => char.IsDigit (c));
+      public static readonly CharSatify SatisyLetter = new CharSatify (Strings.Letter, (c, i) => char.IsLetter (c));
       public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }
