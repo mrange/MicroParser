@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace MicroParser
 {
@@ -60,14 +59,14 @@ namespace MicroParser
 
          return state =>
          {
-            var buffer = new List<char>(16);
-            var advanceResult = state.Advance(buffer, satisfy.Satisfy, minCount, maxCount);
+            var subString = new SubString ();
+            var advanceResult = state.Advance(ref subString, satisfy.Satisfy, minCount, maxCount);
             return Parser.ToParserReply(
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
                satisfy.Expected,
-               () => new string (buffer.ToArray ()));
+               () => subString.ToString ());
          };
       }
 
@@ -87,8 +86,8 @@ namespace MicroParser
 
          return state =>
          {
-            var buffer = new List<char>(16);
-            var advanceResult = state.Advance(buffer, satisfy, minCount, maxCount);
+            var subString = new SubString();
+            var advanceResult = state.Advance(ref subString, satisfy, minCount, maxCount);
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
                ? satisfyFirst.Expected
@@ -99,7 +98,7 @@ namespace MicroParser
                state,
                ParserErrorMessageFactory.Expected, 
                expected,
-               () => new string(buffer.ToArray()));
+               () => subString.ToString());
          };
       }
 
@@ -114,21 +113,21 @@ namespace MicroParser
 
          return state =>
          {
-            var buffer = new List<char> (10);
-            var advanceResult = state.Advance(buffer, satisfy, minCount ,maxCount);
+            var subString = new SubString();
+            var advanceResult = state.Advance(ref subString, satisfy, minCount, maxCount);
             return Parser.ToParserReply(
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
-               "integer",
+               "digit",
                () =>
                   {
                      var accumulated = 0;
-                     var count = buffer.Count;
+                     var length = subString.Length;
                      const int c0 = (int) '0';
-                     for (var iter = 0; iter < count; ++iter)
+                     for (var iter = 0; iter < length; ++iter)
                      {
-                        var c = buffer[iter];
+                        var c = subString[iter];
                         accumulated = accumulated*10 + (c - c0);
                      }
 

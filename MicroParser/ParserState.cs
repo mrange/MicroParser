@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MicroParser
@@ -45,38 +44,8 @@ namespace MicroParser
          }
       }
 
-      public ParserState_AdvanceResult Advance (char[] buffer, Func<char,int,bool> satisfy)
-      {
-         if (m_position + buffer.Length >= m_text.Length + 1)
-         {
-            return ParserState_AdvanceResult.Error_EndOfStream;
-         }
-
-         var localSatisfy = satisfy ?? s_satisfyAll;
-
-         var originalPosition = m_position;
-
-         for (var iter = 0; iter < buffer.Length; ++iter)
-         {
-            var c = m_text[m_position];
-
-            if (!localSatisfy (c, iter))
-            {
-               return originalPosition == m_position
-                         ? ParserState_AdvanceResult.Error_SatisfyFailed
-                         : ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged
-                  ;
-            }
-
-            ++m_position;
-            buffer[iter] = c;
-         }
-
-         return ParserState_AdvanceResult.Successful;
-      }
-
       public ParserState_AdvanceResult Advance(
-         List<char> buffer,
+         ref SubString subString,
          Func<char, int, bool> satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
@@ -84,14 +53,10 @@ namespace MicroParser
       {
          Debug.Assert (minCount <= maxCount);
 
-         if (buffer.Capacity < minCount)
-         {
-            buffer.Capacity = minCount;
-         }
-
          var localSatisfy = satisfy ?? s_satisfyAll;
 
-         var originalPosition = m_position;
+         subString.Value = m_text;
+         subString.Position = m_position;
 
          if (m_position + minCount >= m_text.Length + 1)
          {
@@ -103,22 +68,25 @@ namespace MicroParser
          {
             var c = m_text[m_position];
 
-            if (!localSatisfy (c, m_position - originalPosition))
+            if (!localSatisfy (c, iter))
             {
                if (iter < minCount)
                {
-                  return originalPosition == m_position
+                  return subString.Position == m_position
                             ? ParserState_AdvanceResult.Error_SatisfyFailed
                             : ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged
                      ;
                }
 
+               subString.Length = m_position - subString.Position;
+
                return ParserState_AdvanceResult.Successful;
             }
 
             ++m_position;
-            buffer.Add(c);
          }
+
+         subString.Length = m_position - subString.Position;
 
          return ParserState_AdvanceResult.Successful;
       }
@@ -129,39 +97,8 @@ namespace MicroParser
          int maxCount = int.MaxValue
          )
       {
-         Debug.Assert(minCount <= maxCount);
-
-         var localSatisfy = satisfy ?? s_satisfyAll;
-
-         var originalPosition = m_position;
-
-         if (m_position + minCount >= m_text.Length + 1)
-         {
-            return ParserState_AdvanceResult.Error_EndOfStream;
-         }
-
-         var length = Math.Min(maxCount, m_text.Length - m_position);
-         for (var iter = 0; iter < length; ++iter)
-         {
-            var c = m_text[m_position];
-
-            if (!localSatisfy(c, m_position - originalPosition))
-            {
-               if (iter < minCount)
-               {
-                  return originalPosition == m_position
-                            ? ParserState_AdvanceResult.Error_SatisfyFailed
-                            : ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged
-                     ;
-               }
-
-               return ParserState_AdvanceResult.Successful;
-            }
-
-            ++m_position;
-         }
-
-         return ParserState_AdvanceResult.Successful;
+         var subString = new SubString ();
+         return Advance (ref subString, satisfy, minCount, maxCount);
       }
 
       public override string ToString()
