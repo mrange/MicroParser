@@ -14,7 +14,7 @@ namespace TestParser
       public char Op;
       public IAstNode Right;
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
          {
@@ -22,7 +22,7 @@ namespace TestParser
             Left,
             Op,
             Right,
-         }.ToString();
+         }.ToString ();
       }
    }
 
@@ -73,12 +73,12 @@ namespace TestParser
             .ManyCharSatisfy (CharParser.SatisyAnyChar.Except ('"'))
             .Between (p_token ("\""), p_token ("\""))
             .KeepLeft (p_spaces)
-            .Map(i => new AstNode_Value { Value = i } as IAstNode);
+            .Map (i => new AstNode_Value { Value = i } as IAstNode);
 
          var p_int_value = CharParser
             .ParseInt ()
             .KeepLeft (p_spaces)
-            .Map(i => new AstNode_Value { Value = i } as IAstNode);
+            .Map (i => new AstNode_Value { Value = i } as IAstNode);
 
          var p_identifier = CharParser
             .ManyCharSatisfy2 (
@@ -93,7 +93,7 @@ namespace TestParser
             .KeepLeft (p_spaces)
             .Map (tuple => new AstNode_Variable { Root = tuple.Item1, Names = tuple.Item2} as IAstNode);
 
-         var allOps = new CharSatify(
+         var allOps = new CharSatify (
             "op",
             (c, i) =>
                {
@@ -103,6 +103,8 @@ namespace TestParser
                      case '-':
                      case '*':
                      case '/':
+                     case '!':   // MAX
+                     case '?':   // MIN
                         return true;
                      default:
                         return false;
@@ -116,7 +118,7 @@ namespace TestParser
          var p_ast = p_ast_redirect.Function;
 
          var p_term = Parser.Choice (
-            p_ast.Between(p_token("(").KeepLeft(p_spaces), p_token(")").KeepLeft(p_spaces)),
+            p_ast.Between (p_token ("(").KeepLeft (p_spaces), p_token (")").KeepLeft (p_spaces)),
             p_string_value, 
             p_variable, 
             p_int_value
