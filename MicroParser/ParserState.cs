@@ -26,8 +26,6 @@ namespace MicroParser
          m_text = text;
       }
 
-      static readonly Func<char, int, bool> s_satisfyAll = (c, i) => true;
-
       public int Position
       {
          get
@@ -44,16 +42,16 @@ namespace MicroParser
          }
       }
 
-      public ParserState_AdvanceResult Advance(
+      public ParserState_AdvanceResult Advance (
          ref SubString subString,
-         Func<char, int, bool> satisfy,
+         CharSatisfyFunction satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )
       {
          Debug.Assert (minCount <= maxCount);
 
-         var localSatisfy = satisfy ?? s_satisfyAll;
+         var localSatisfy = satisfy ?? CharParser.SatisyAnyChar.Satisfy;
 
          subString.Value = m_text;
          subString.Position = m_position;
@@ -91,8 +89,8 @@ namespace MicroParser
          return ParserState_AdvanceResult.Successful;
       }
 
-      public ParserState_AdvanceResult SkipAdvance(
-         Func<char, int, bool> satisfy,
+      public ParserState_AdvanceResult SkipAdvance (
+         CharSatisfyFunction satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )
@@ -101,24 +99,24 @@ namespace MicroParser
          return Advance (ref subString, satisfy, minCount, maxCount);
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
                    {
                       Position,
                       EndOfStream,
-                      Current = !EndOfStream ? new string(m_text[m_position], 1) : "End of stream",
+                      Current = !EndOfStream ? new string (m_text[m_position], 1) : "End of stream",
                    }.ToString ();
       }
 
-      public static ParserState Create(int position, string text)
+      public static ParserState Create (int position, string text)
       {
-         return new ParserState(Math.Max(position, 0), text ?? "");
+         return new ParserState (Math.Max (position, 0), text ?? "");
       }
 
-      public static ParserState Clone(ParserState parserState)
+      public static ParserState Clone (ParserState parserState)
       {
-         return new ParserState(parserState.m_position, parserState.m_text);
+         return new ParserState (parserState.m_position, parserState.m_text);
       }
 
    }

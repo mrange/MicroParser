@@ -8,15 +8,15 @@ namespace MicroParser
 
       public static ParserFunction<TValue> Return<TValue>(TValue value)
       {
-         return state => ParserReply<TValue>.Success(state, value);
+         return state => ParserReply<TValue>.Success (state, value);
       }
 
       public static ParserFunction<TValue> Fail<TValue>(string message)
       {
-         return state => ParserReply<TValue>.Failure(ParserReply_State.Error, state, new ParserErrorMessage_Message (message));
+         return state => ParserReply<TValue>.Failure (ParserReply_State.Error, state, new ParserErrorMessage_Message (message));
       }
 
-      public static ParserFunction<Empty> EndOfStream()
+      public static ParserFunction<Empty> EndOfStream ()
       {
          return state =>
                 state.EndOfStream
@@ -32,14 +32,14 @@ namespace MicroParser
       {
          return state =>
                    {
-                      var firstResult = firstParser(state);
+                      var firstResult = firstParser (state);
                       if (firstResult.State >= ParserReply_State.Error)
                       {
                          return firstResult.Failure<TValue2>();
                       }
 
-                      var secondParser = second(firstResult.Value);
-                      var secondResult = secondParser(state);
+                      var secondParser = second (firstResult.Value);
+                      var secondResult = secondParser (state);
                       return secondResult;
                    };
       }
@@ -48,14 +48,14 @@ namespace MicroParser
       {
          return state =>
          {
-            var firstResult = firstParser(state);
+            var firstResult = firstParser (state);
 
             if (firstResult.State != ParserReply_State.Successful)
             {
                return firstResult.Failure<TValue2>();
             }
 
-            return ParserReply<TValue2>.Success(firstResult.ParserState, mapper(firstResult.Value));
+            return ParserReply<TValue2>.Success (firstResult.ParserState, mapper (firstResult.Value));
          };
       }
 
@@ -80,7 +80,7 @@ namespace MicroParser
 
                       foreach (var parserFunction in parserFunctions)
                       {
-                         var result = parserFunction(state);
+                         var result = parserFunction (state);
 
                          if (result.State == ParserReply_State.Successful)
                          {
@@ -122,21 +122,21 @@ namespace MicroParser
       {
          return state =>
                    {
-                      var firstResult = firstParser(state);
+                      var firstResult = firstParser (state);
 
                       if (firstResult.State >= ParserReply_State.Error)
                       {
                          return firstResult;
                       }
 
-                      var secondResult = secondParser(state);
+                      var secondResult = secondParser (state);
 
                       if (secondResult.State >= ParserReply_State.Error)
                       {
                          return secondResult.Failure<TValue1>();
                       }
 
-                      return firstResult.Success(secondResult.ParserState);
+                      return firstResult.Success (secondResult.ParserState);
                    };
       }
 
@@ -144,14 +144,14 @@ namespace MicroParser
       {
          return state =>
                    {
-                      var firstResult = firstParser(state);
+                      var firstResult = firstParser (state);
 
                       if (firstResult.State >= ParserReply_State.Error)
                       {
                          return firstResult.Failure<TValue2>();
                       }
 
-                      return secondParser(state);
+                      return secondParser (state);
                    };
       }
 
@@ -159,14 +159,14 @@ namespace MicroParser
       {
          return state =>
          {
-            var firstResult = firstParser(state);
+            var firstResult = firstParser (state);
 
             if (firstResult.State >= ParserReply_State.Error)
             {
                return firstResult.Failure<Tuple<TValue1, TValue2>>();
             }
 
-            var secondResult = secondParser(state);
+            var secondResult = secondParser (state);
 
             if (secondResult.State >= ParserReply_State.Error)
             {
@@ -174,9 +174,9 @@ namespace MicroParser
             }
 
 
-            return ParserReply<Tuple<TValue1, TValue2>>.Success(
+            return ParserReply<Tuple<TValue1, TValue2>>.Success (
                secondResult.ParserState,
-               Tuple.Create(
+               Tuple.Create (
                   firstResult.Value,
                   secondResult.Value
                   ));
@@ -188,9 +188,9 @@ namespace MicroParser
       {
          return state =>
                    {
-                      var clone = ParserState.Clone(state);
+                      var clone = ParserState.Clone (state);
 
-                      var firstResult = firstParser(state);
+                      var firstResult = firstParser (state);
 
                       if (firstResult.State != ParserReply_State.FatalError_StateIsNotRestored)
                       {
@@ -198,8 +198,58 @@ namespace MicroParser
                       }
                       else
                       {
-                         return ParserReply<TValue>.Failure(ParserReply_State.Error_StateIsRestored, clone, firstResult.ParserErrorMessage);
+                         return ParserReply<TValue>.Failure (ParserReply_State.Error_StateIsRestored, clone, firstResult.ParserErrorMessage);
                       }
+                   };
+      }
+
+      public static ParserFunction<TValue> Between<TValue>(
+         this ParserFunction<TValue> middleParser,
+         ParserFunction<Empty> preludeParser,
+         ParserFunction<Empty> epilogueParser
+         )
+      {
+         return state =>
+                   {
+                      var preludeResult = preludeParser (state);
+                      if (preludeResult.State >= ParserReply_State.Error)
+                      {
+                         return preludeResult.Failure<TValue> ();
+                      }
+
+                      var middleResult = middleParser (state);
+                      if (middleResult.State >= ParserReply_State.Error)
+                      {
+                         return middleResult;
+                      }
+
+                      var epilogueResult = epilogueParser (state);
+                      if (preludeResult.State >= ParserReply_State.Error)
+                      {
+                         return epilogueResult.Failure<TValue>();
+                      }
+
+                      return middleResult;
+
+                   };
+      }
+
+      public static ParserFunction<TValue> Except<TValue>(
+         this ParserFunction<TValue> parser,
+         ParserFunction<Empty> exceptParser
+         )
+      {
+         return state =>
+                   {
+                      var exceptResult = exceptParser (state);
+
+                      if (exceptResult.State == ParserReply_State.Successful ||
+                          exceptResult.State >= ParserReply_State.FatalError)
+                      {
+                         return exceptResult.Failure<TValue> ();
+                      }
+
+                      return parser (state);
                    };
       }
 
@@ -214,19 +264,19 @@ namespace MicroParser
          switch (advanceResult)
          {
             case ParserState_AdvanceResult.Successful:
-               return ParserReply<TValue>.Success(state, defaultValue);
+               return ParserReply<TValue>.Success (state, defaultValue);
             case ParserState_AdvanceResult.Error:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected("Unknown error"));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected ("Unknown error"));
             case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message("End of stream"));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message ("End of stream"));
             case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
             case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure(ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message("End of stream"));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message ("End of stream"));
             case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure(ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator(errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
             default:
-               throw new ArgumentOutOfRangeException();
+               throw new ArgumentOutOfRangeException ();
          }
       }
 
@@ -241,27 +291,27 @@ namespace MicroParser
          switch (advanceResult)
          {
             case ParserState_AdvanceResult.Successful:
-               return ParserReply<TValue>.Success(state, valueCreator ());
+               return ParserReply<TValue>.Success (state, valueCreator ());
             case ParserState_AdvanceResult.Error:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected("Unknown error"));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected ("Unknown error"));
             case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected("End of stream"));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Unexpected ("End of stream"));
             case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure(ParserReply_State.Error, state, parserErrorMessageCreator(errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
             case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure(ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message("End of stream"));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, new ParserErrorMessage_Message ("End of stream"));
             case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure(ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator(errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
             default:
-               throw new ArgumentOutOfRangeException();
+               throw new ArgumentOutOfRangeException ();
          }
       }
 
-      internal static void VerifyMinAndMaxCount(int minCount, int maxCount)
+      internal static void VerifyMinAndMaxCount (int minCount, int maxCount)
       {
          if (minCount > maxCount)
          {
-            throw new ArgumentOutOfRangeException("minCount", "minCount need to be less or equal to maxCount");
+            throw new ArgumentOutOfRangeException ("minCount", "minCount need to be less or equal to maxCount");
          }
       }
    }

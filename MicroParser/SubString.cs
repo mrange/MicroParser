@@ -8,9 +8,9 @@ namespace MicroParser
       public int Position;
       public int Length;
 
-      public override string ToString()
+      public override string ToString ()
       {
-         return (Value ?? "").Substring(Position, Length);
+         return (Value ?? "").Substring (Position, Length);
       }
 
       public char this[int index]

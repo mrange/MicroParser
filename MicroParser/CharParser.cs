@@ -1,25 +1,11 @@
-﻿using System;
-
-namespace MicroParser
+﻿namespace MicroParser
 {
-   public sealed class CharSatify
-   {
-      public readonly string Expected;
-      public readonly Func<char, int, bool> Satisfy;
-
-      public CharSatify (string expected, Func<char, int, bool> satisfy)
-      {
-         Expected = expected;
-         Satisfy = satisfy;
-      }
-   }
-
    public static class CharParser
    {
-      public static ParserFunction<Empty> SkipString(string toSkip)
+      public static ParserFunction<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? "";
-         Func<char,int, bool> satisfy = (c, i) => toSkipNotNull[i] == c;
+         CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return state =>
                    {
@@ -28,7 +14,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Empty> SkipChar(char c)
+      public static ParserFunction<Empty> SkipChar (char c)
       {
          return SkipString (new string (c, 1));
       }
@@ -40,28 +26,28 @@ namespace MicroParser
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         Func<char, int, bool> satisfy = (c, i) => char.IsWhiteSpace(c);
+         CharSatisfyFunction satisfy = (c, i) => char.IsWhiteSpace (c);
 
          return state =>
          {
-            var advanceResult = state.SkipAdvance(satisfy, minCount, maxCount);
-            return Parser.ToParserReply(advanceResult, state, ParserErrorMessageFactory.Expected, "whitespace", Empty.Value);
+            var advanceResult = state.SkipAdvance (satisfy, minCount, maxCount);
+            return Parser.ToParserReply (advanceResult, state, ParserErrorMessageFactory.Expected, "whitespace", Empty.Value);
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy(
+      public static ParserFunction<string> ManyCharSatisfy (
          CharSatify satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
       {
-         Parser.VerifyMinAndMaxCount(minCount, maxCount);
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
          return state =>
          {
             var subString = new SubString ();
-            var advanceResult = state.Advance(ref subString, satisfy.Satisfy, minCount, maxCount);
-            return Parser.ToParserReply(
+            var advanceResult = state.Advance (ref subString, satisfy.Satisfy, minCount, maxCount);
+            return Parser.ToParserReply (
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
@@ -70,52 +56,52 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy2(
+      public static ParserFunction<string> ManyCharSatisfy2 (
          CharSatify satisfyFirst,
          CharSatify satisfyRest,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
       {
-         Parser.VerifyMinAndMaxCount(minCount, maxCount);
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
          var first = satisfyFirst.Satisfy;
          var rest = satisfyRest.Satisfy;
 
-         Func<char, int, bool> satisfy = (c, i) => i == 0 ? first(c, i) : rest(c, i);
+         CharSatisfyFunction satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
 
          return state =>
          {
-            var subString = new SubString();
-            var advanceResult = state.Advance(ref subString, satisfy, minCount, maxCount);
+            var subString = new SubString ();
+            var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
                ? satisfyFirst.Expected
                : satisfyRest.Expected;
 
-            return Parser.ToParserReply(
+            return Parser.ToParserReply (
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
                expected,
-               () => subString.ToString());
+               () => subString.ToString ());
          };
       }
 
-      public static ParserFunction<int> ParseInt(
+      public static ParserFunction<int> ParseInt (
          int minCount = 1,
          int maxCount = 10
          )
       {
-         Parser.VerifyMinAndMaxCount(minCount, maxCount);
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         Func<char, int, bool> satisfy = (c, i) => char.IsDigit(c);
+         CharSatisfyFunction satisfy = (c, i) => char.IsDigit (c);
 
          return state =>
          {
-            var subString = new SubString();
-            var advanceResult = state.Advance(ref subString, satisfy, minCount, maxCount);
-            return Parser.ToParserReply(
+            var subString = new SubString ();
+            var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
+            return Parser.ToParserReply (
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
@@ -136,9 +122,43 @@ namespace MicroParser
          };
       }
 
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify("WhiteSpace", (c, i) => char.IsWhiteSpace(c));
-      public static readonly CharSatify SatisyDigit = new CharSatify("digit", (c, i) => char.IsDigit(c));
-      public static readonly CharSatify SatisyLetter = new CharSatify("letter", (c, i) => char.IsLetter(c));
-      public static readonly CharSatify SatisyLetterOrDigit = new CharSatify("letter or digit", (c, i) => char.IsLetterOrDigit(c));
+      public static CharSatify Or (this CharSatify first, CharSatify second)
+      {
+         return new CharSatify (
+            string.Format (
+               "{0} or {1}",
+               first.Expected,
+               second.Expected),
+            (c,i) => first.Satisfy (c,i) || second.Satisfy (c,i)
+            );
+      }
+
+      public static CharSatify And (this CharSatify first, CharSatify second)
+      {
+         return new CharSatify (
+            string.Format (
+               "{0} and {1}",
+               first.Expected,
+               second.Expected),
+            (c, i) => first.Satisfy (c, i) && second.Satisfy (c, i)
+            );
+      }
+
+      public static CharSatify Except (this CharSatify first, CharSatify second)
+      {
+         return new CharSatify (
+            string.Format (
+               "{0} except {1}",
+               first.Expected,
+               second.Expected),
+            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
+            );
+      }
+
+      public static readonly CharSatify SatisyAnyChar = new CharSatify ("any", (c, i) => true);
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify ("whitespace", (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatify SatisyDigit = new CharSatify ("digit", (c, i) => char.IsDigit (c));
+      public static readonly CharSatify SatisyLetter = new CharSatify ("letter", (c, i) => char.IsLetter (c));
+      public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }
