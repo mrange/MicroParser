@@ -34,7 +34,7 @@ namespace MicroParser
          return SkipString (new string (c, 1));
       }
 
-      public static ParserFunction<Empty> SkipWhitespace (
+      public static ParserFunction<Empty> SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -136,5 +136,10 @@ namespace MicroParser
                   });
          };
       }
+
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify("WhiteSpace", (c, i) => char.IsWhiteSpace(c));
+      public static readonly CharSatify SatisyDigit = new CharSatify("digit", (c, i) => char.IsDigit(c));
+      public static readonly CharSatify SatisyLetter = new CharSatify("letter", (c, i) => char.IsLetter(c));
+      public static readonly CharSatify SatisyLetterOrDigit = new CharSatify("letter or digit", (c, i) => char.IsLetterOrDigit(c));
    }
 }

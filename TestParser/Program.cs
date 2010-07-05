@@ -42,7 +42,7 @@ namespace TestParser
 
          var p_eos = Parser.EndOfStream ();
 
-         var p_spaces = CharParser.SkipWhitespace(1);
+         var p_spaces = CharParser.SkipWhiteSpace();
 
          Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString(token).KeepLeft(p_spaces);
 
@@ -53,8 +53,8 @@ namespace TestParser
 
          var p_variable = CharParser
             .ManyCharSatisfy2(
-               new CharSatify("letter", (c, i) => char.IsLetter(c)),
-               new CharSatify("letter or digit", (c, i) => char.IsLetterOrDigit(c)),
+               CharParser.SatisyLetter,
+               CharParser.SatisyLetterOrDigit,
                1)
             .KeepLeft(p_spaces)
             .Map(s => new AstNode_Variable { Name = s } as IAstNode);
@@ -80,7 +80,7 @@ namespace TestParser
 
          var then = DateTime.Now;
 
-         for (var iter = 0; iter < 1000000; ++iter)
+         for (var iter = 0; iter < 1; ++iter)
          {
             var ps = ParserState.Create(0, text);
             var pr = p(ps);
