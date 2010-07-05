@@ -96,6 +96,17 @@ namespace MicroParser
          Group = group;
       }
 
+      public void Append (IParserErrorMessage parserErrorMessage)
+      {
+         if (parserErrorMessage != null)
+         {
+            var group = Group;
+            parserErrorMessage.Next = group;
+            Group = parserErrorMessage;
+         }
+         
+      }
+
       public override string ToString()
       {
          return new
