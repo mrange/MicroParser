@@ -15,8 +15,8 @@
 
    public struct Optional<TValue>
    {
-      public bool HasValue;
-      public TValue Value;
+      public readonly bool HasValue;
+      public readonly TValue Value;
 
       public Optional (TValue value)
       {

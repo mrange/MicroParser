@@ -149,7 +149,7 @@ namespace MicroParser
          int maxCount = int.MaxValue
          )
       {
-         VerifyMinAndMaxCount (minCount, maxCount); ;
+         VerifyMinAndMaxCount (minCount, maxCount);
 
          return state =>
          {

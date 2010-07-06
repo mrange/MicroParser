@@ -7,7 +7,6 @@ namespace MicroParser
    public static class Strings
    {
       public const string CommaSeparator = ", ";
-      public const string Null = "<NULL>";
       public const string Empty = "";
 
       public static class Parser
@@ -19,9 +18,6 @@ namespace MicroParser
 
       public static class CharSatisfy
       {
-         public const string Expect_2 = "{0} except {1}";
-         public const string Or_2 = "{0} or {1}";
-         public const string Or = " or ";
          public const string ExpectedChar_1 = "'{0}'";
       }
 
@@ -30,7 +26,6 @@ namespace MicroParser
 
          [Obsolete]
          public const string Todo = "TODO:";
-         public const string General = "general";
          public const string Unexpected = "unexpected ";
          public const string Unknown = "unknown error";
          public const string Eos = "end of stream";
