@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace MicroParser
 {
@@ -38,17 +39,25 @@ namespace MicroParser
 
       public static ParserReply<TValue> Success (ParserState parserState, TValue value)
       {
-         return new ParserReply<TValue> (ParserReply_State.Successful, parserState, value, null);
+         return new ParserReply<TValue> (
+            ParserReply_State.Successful, 
+            parserState, 
+            value, 
+            null
+            );
       }
 
       public static ParserReply<TValue> Failure (ParserReply_State state, ParserState parserState, IParserErrorMessage parserErrorMessage)
       {
-         if (parserErrorMessage == null)
-         {
-            throw new ArgumentNullException ("parserErrorMessage");
-         }
+         Debug.Assert (!state.IsSuccessful ());
+         Debug.Assert (parserErrorMessage != null);
 
-         return new ParserReply<TValue> (state, parserState, default (TValue), parserErrorMessage);
+         return new ParserReply<TValue> (
+            state.IsSuccessful () ? ParserReply_State.Error : state, 
+            parserState, 
+            default (TValue), 
+            parserErrorMessage
+            );
       }
 
       public ParserReply<TValueTo> Failure<TValueTo> ()
@@ -68,7 +77,11 @@ namespace MicroParser
 
       public ParserReply<TValue> Failure (ParserState parserState)
       {
-         return Failure (State, parserState, ParserErrorMessage);
+         return Failure (
+            State,
+            parserState, 
+            ParserErrorMessage
+            );
       }
 
       public override string ToString ()
