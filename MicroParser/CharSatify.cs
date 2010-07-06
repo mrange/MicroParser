@@ -4,21 +4,24 @@
 
    public sealed class CharSatify
    {
-      public readonly string Expected;
+      public readonly IParserErrorMessage Expected;
       public readonly CharSatisfyFunction Satisfy;
 
       public static implicit operator CharSatify (char ch)
       {
-         return new CharSatify ("'" + ch + "'", (c, i) => ch == c);
+         return new CharSatify (
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (ch)), 
+            (c, i) => ch == c
+            );
       }
 
-      public CharSatify (string expected, CharSatisfyFunction satisfy)
+      public CharSatify(IParserErrorMessage expected, CharSatisfyFunction satisfy)
       {
          Expected = expected;
          Satisfy = satisfy;
       }
 
-      public override string ToString ()
+      public override string ToString()
       {
          return new
                    {

@@ -5,28 +5,23 @@ namespace MicroParser
 {
    public static class CharParser
    {
-      public static class Strings
+      public static ParserFunction<Empty> SkipChar (char toSkip)
       {
-         public const string Any = "any";
-         public const string Digit = "digit";
-         public const string Letter = "letter";
-         public const string WhiteSpace = "whitespace";
+         return SkipString (new string (toSkip, 1));
       }
+
       public static ParserFunction<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
          CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (toSkip));
+
          return state =>
                    {
                       var advanceResult = state.SkipAdvance (satisfy, maxCount:toSkipNotNull.Length);
-                      return Parser.ToParserReply (advanceResult, state, ParserErrorMessageFactory.Expected, toSkipNotNull, Empty.Value);
+                      return Parser.ToParserReply(advanceResult, state, parserErrorMessage, Empty.Value);
                    };
-      }
-
-      public static ParserFunction<Empty> SkipChar (char c)
-      {
-         return SkipString (new string (c, 1));
       }
 
       public static ParserFunction<Empty> SkipWhiteSpace (
@@ -45,8 +40,7 @@ namespace MicroParser
             return Parser.ToParserReply (
                advanceResult, 
                state, 
-               ParserErrorMessageFactory.Expected, 
-               Strings.WhiteSpace, 
+               ParserErrorMessages.Expected_WhiteSpace,
                Empty.Value
                );
          };
@@ -56,12 +50,12 @@ namespace MicroParser
          string match
          )
       {
-         var matchArray = (match ?? "").ToArray ();
+         var matchArray = (match ?? Strings.Empty).ToArray ();
 
          var satisfy = new CharSatify (
             matchArray
-               .Select (x => "'" + x + "'")
-               .Concatenate (" or "),
+               .Select (x => Strings.CharSatisfy.ExpectedChar_1)
+               .Concatenate(Strings.CharSatisfy.Or),
             (c, i) =>
                {
                   foreach (var ch in matchArray)
@@ -91,7 +85,6 @@ namespace MicroParser
             return Parser.ToParserReply (
                advanceResult,
                state,
-               ParserErrorMessageFactory.Expected,
                satisfy.Expected,
                () => subString[0]
                );
@@ -114,7 +107,6 @@ namespace MicroParser
             return Parser.ToParserReply (
                advanceResult,
                state,
-               ParserErrorMessageFactory.Expected, 
                satisfy.Expected,
                () => subString.ToString ()
                );
@@ -148,7 +140,6 @@ namespace MicroParser
             return Parser.ToParserReply (
                advanceResult,
                state,
-               ParserErrorMessageFactory.Expected, 
                expected,
                () => subString.ToString ()
                );
@@ -177,8 +168,7 @@ namespace MicroParser
             return Parser.ToParserReply (
                advanceResult,
                state,
-               ParserErrorMessageFactory.Expected,
-               Strings.Digit,
+               ParserErrorMessages.Expected_Digit,
                () =>
                   {
                      var accumulated = 0u;
@@ -278,44 +268,10 @@ namespace MicroParser
             return doubleResult.Success ((double) intValue);
          };
       }
-
-      public static CharSatify Or (this CharSatify first, CharSatify second)
-      {
-         return new CharSatify (
-            string.Format (
-               "{0} or {1}",
-               first.Expected,
-               second.Expected),
-            (c,i) => first.Satisfy (c,i) || second.Satisfy (c,i)
-            );
-      }
-
-      public static CharSatify And (this CharSatify first, CharSatify second)
-      {
-         return new CharSatify (
-            string.Format (
-               "{0} and {1}",
-               first.Expected,
-               second.Expected),
-            (c, i) => first.Satisfy (c, i) && second.Satisfy (c, i)
-            );
-      }
-
-      public static CharSatify Except (this CharSatify first, CharSatify second)
-      {
-         return new CharSatify (
-            string.Format (
-               "{0} except {1}",
-               first.Expected,
-               second.Expected),
-            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
-            );
-      }
-
-      public static readonly CharSatify SatisyAnyChar = new CharSatify (Strings.Any, (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (Strings.WhiteSpace, (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatify SatisyDigit = new CharSatify (Strings.Digit, (c, i) => char.IsDigit (c));
-      public static readonly CharSatify SatisyLetter = new CharSatify (Strings.Letter, (c, i) => char.IsLetter (c));
+      public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify(ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace(c));
+      public static readonly CharSatify SatisyDigit = new CharSatify(ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit(c));
+      public static readonly CharSatify SatisyLetter = new CharSatify(ParserErrorMessages.Expected_Digit, (c, i) => char.IsLetter(c));
       public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }

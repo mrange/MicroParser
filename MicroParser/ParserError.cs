@@ -1,39 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+
+// ReSharper disable InconsistentNaming
 
 namespace MicroParser
 {
    public interface IParserErrorMessage
    {
-      IParserErrorMessage Next { get; set; }
-   }
-
-   public static class ParserErrorMessageFactory
-   {
-      public static readonly Func<string, IParserErrorMessage> Message = message => new ParserErrorMessage_Message (message);
-      public static readonly Func<string, IParserErrorMessage> Expected = expected => new ParserErrorMessage_Expected (expected);
-      public static readonly Func<string, IParserErrorMessage> Unexpected = unexpected => new ParserErrorMessage_Unexpected (unexpected);
-      public static readonly Func<int, IParserErrorMessage, IParserErrorMessage> Group = (position, group) => new ParserErrorMessage_Group (position, group);
    }
 
    public abstract class ParserErrorMessage : IParserErrorMessage
    {
-      public IParserErrorMessage Next { get; set; }
-
-      public static IEnumerable<IParserErrorMessage> Traverse (IParserErrorMessage parserErrorMessage)
-      {
-         while (parserErrorMessage != null)
-         {
-            yield return parserErrorMessage;
-            parserErrorMessage = parserErrorMessage.Next;
-         }
-      }
    }
+
+   public static class ParserErrorMessages
+   {
+      [Obsolete]
+      public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message(Strings.ParserErrorMessages.Todo);
+      public readonly static IParserErrorMessage Message_Unknown = new ParserErrorMessage_Message(Strings.ParserErrorMessages.Unknown);
+
+      public readonly static IParserErrorMessage Expected_EndOfStream = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Expected_Digit = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Digit);
+      public readonly static IParserErrorMessage Expected_WhiteSpace = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
+      public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Choice);
+      public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Any);
+
+      public readonly static IParserErrorMessage Unexpected_General = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.General);
+      public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.Eos);
+   }
+
 
    public sealed class ParserErrorMessage_Message : ParserErrorMessage
    {
-      public string Message;
+      public readonly string Message;
 
       public ParserErrorMessage_Message (string message)
       {
@@ -51,7 +50,7 @@ namespace MicroParser
 
    public sealed class ParserErrorMessage_Expected : ParserErrorMessage
    {
-      public string Expected;
+      public readonly string Expected;
 
       public ParserErrorMessage_Expected (string expected)
       {
@@ -69,7 +68,7 @@ namespace MicroParser
 
    public sealed class ParserErrorMessage_Unexpected : ParserErrorMessage
    {
-      public string Unexpected;
+      public readonly string Unexpected;
 
       public ParserErrorMessage_Unexpected (string unexpected)
       {
@@ -87,33 +86,22 @@ namespace MicroParser
 
    public sealed class ParserErrorMessage_Group : ParserErrorMessage
    {
-      public int Position;
-      public IParserErrorMessage Group;
+      public readonly int Position;
+      public readonly ImmutableList<IParserErrorMessage> Group;
 
-      public ParserErrorMessage_Group (int position, IParserErrorMessage @group)
+      public ParserErrorMessage_Group (int position, ImmutableList<IParserErrorMessage> group)
       {
          Position = position;
          Group = group;
       }
 
-      public void Append (IParserErrorMessage parserErrorMessage)
-      {
-         if (parserErrorMessage != null)
-         {
-            var group = Group;
-            parserErrorMessage.Next = group;
-            Group = parserErrorMessage;
-         }
-         
-      }
-
       public override string ToString ()
       {
          return new
-                   {
-                      Position,
-                      Group = Traverse (Group).Select (message => message.ToString ()).Concatenate (","),
-                   }.ToString ();
+            {
+               Position,
+               Group = Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator),
+            }.ToString ();
       }
    }
 }

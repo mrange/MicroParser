@@ -17,13 +17,17 @@ namespace MicroParser
 
    public class ParserState
    {
-      int m_position;
       readonly string m_text;
 
-      ParserState (int position, string text)
+      int m_position;
+
+      public readonly bool SuppressParserErrorMessageOperations;
+
+      ParserState (int position, string text, bool suppressParserErrorMessageOperations = false)
       {
          m_position = position;
          m_text = text;
+         SuppressParserErrorMessageOperations= suppressParserErrorMessageOperations;
       }
 
       public int Position
@@ -105,13 +109,13 @@ namespace MicroParser
                    {
                       Position,
                       EndOfStream,
-                      Current = !EndOfStream ? new string (m_text[m_position], 1) : "End of stream",
+                      Current = !EndOfStream ? new string (m_text[m_position], 1) : Strings.ParserErrorMessages.Eos,
                    }.ToString ();
       }
 
       public static ParserState Create (int position, string text)
       {
-         return new ParserState (Math.Max (position, 0), text ?? "");
+         return new ParserState (Math.Max (position, 0), text ?? Strings.Empty);
       }
 
       public static ParserState Clone (ParserState parserState)
