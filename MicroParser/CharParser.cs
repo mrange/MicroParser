@@ -1,4 +1,7 @@
-﻿namespace MicroParser
+﻿using System;
+using System.Linq;
+
+namespace MicroParser
 {
    public static class CharParser
    {
@@ -38,7 +41,60 @@
          return state =>
          {
             var advanceResult = state.SkipAdvance (satisfy, minCount, maxCount);
-            return Parser.ToParserReply (advanceResult, state, ParserErrorMessageFactory.Expected, Strings.WhiteSpace, Empty.Value);
+
+            return Parser.ToParserReply (
+               advanceResult, 
+               state, 
+               ParserErrorMessageFactory.Expected, 
+               Strings.WhiteSpace, 
+               Empty.Value
+               );
+         };
+      }
+
+      public static ParserFunction<char> AnyOf (
+         string match
+         )
+      {
+         var matchArray = (match ?? "").ToArray ();
+
+         var satisfy = new CharSatify (
+            matchArray
+               .Select (x => "'" + x + "'")
+               .Concatenate (" or "),
+            (c, i) =>
+               {
+                  foreach (var ch in matchArray)
+                  {
+                     if (ch == c)
+                     {
+                        return true;
+                     }
+                  }
+
+                  return false;
+               }
+            );
+
+         return CharSatisfy (satisfy);
+      }
+
+      public static ParserFunction<char> CharSatisfy (
+         CharSatify satisfy
+         )
+      {
+         return state =>
+         {
+            var subString = new SubString ();
+            var advanceResult = state.Advance (ref subString, satisfy.Satisfy, 1, 1);
+
+            return Parser.ToParserReply (
+               advanceResult,
+               state,
+               ParserErrorMessageFactory.Expected,
+               satisfy.Expected,
+               subString[0]
+               );
          };
       }
 
@@ -54,12 +110,14 @@
          {
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy.Satisfy, minCount, maxCount);
+
             return Parser.ToParserReply (
                advanceResult,
                state,
                ParserErrorMessageFactory.Expected, 
                satisfy.Expected,
-               () => subString.ToString ());
+               () => subString.ToString ()
+               );
          };
       }
 
@@ -81,6 +139,7 @@
          {
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
+
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
                ? satisfyFirst.Expected
@@ -91,11 +150,12 @@
                state,
                ParserErrorMessageFactory.Expected, 
                expected,
-               () => subString.ToString ());
+               () => subString.ToString ()
+               );
          };
       }
 
-      public static ParserFunction<int> ParseInt (
+      static ParserFunction<Tuple<uint,int>> ParseUIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -107,25 +167,113 @@
          return state =>
          {
             var subString = new SubString ();
+
+            var oldPos = state.Position;
+
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
+
+            var newPos = state.Position;
+
             return Parser.ToParserReply (
                advanceResult,
                state,
-               ParserErrorMessageFactory.Expected, 
+               ParserErrorMessageFactory.Expected,
                Strings.Digit,
                () =>
                   {
-                     var accumulated = 0;
+                     var accumulated = 0u;
                      var length = subString.Length;
-                     const int c0 = (int) '0';
+                     const uint c0 = (uint) '0';
                      for (var iter = 0; iter < length; ++iter)
                      {
                         var c = subString[iter];
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return accumulated;
-                  });
+                     return Tuple.Create (accumulated, newPos - oldPos);
+                  }
+               );
+         };
+      }
+
+      public static ParserFunction<uint> ParseUInt (
+         int minCount = 1,
+         int maxCount = 10
+         )
+      {
+         var uintParser = ParseUIntImpl (minCount, maxCount);
+
+         return state =>
+         {
+            var uintResult = uintParser (state);
+
+            if (uintResult.State.HasError ())
+            {
+               return uintResult.Failure<uint>();
+            }
+
+            return uintResult.Success (uintResult.Value.Item1);
+         };
+      }
+
+      public static ParserFunction<int> ParseInt (
+         int minCount = 1,
+         int maxCount = 11
+         )
+      {
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
+
+         var intParser = Parser.Tuple (
+            SkipChar ('-').Opt (),
+            ParseUInt ()
+            );
+
+         return state =>
+         {
+            var intResult = intParser (state);
+
+            if (intResult.State.HasError ())
+            {
+               return intResult.Failure<int>();
+            }
+
+            var intValue = (int)intResult.Value.Item2;
+
+            return intResult.Success (intResult.Value.Item1.HasValue ? -intValue : intValue);
+         };
+      }
+
+      public static ParserFunction<double> ParseDouble (
+         int minCount = 1,
+         int maxCount = 20
+         )
+      {
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
+
+         var doubleParser = Parser.Tuple (
+            ParseInt (),
+            SkipChar ('.').KeepRight (ParseUIntImpl ()).Opt ()
+            );
+
+         return state =>
+         {
+            var doubleResult = doubleParser (state);
+
+            if (doubleResult.State.HasError ())
+            {
+               return doubleResult.Failure<double>();
+            }
+
+            var intValue = doubleResult.Value.Item1;
+
+            if (doubleResult.Value.Item2.HasValue)
+            {
+               var tupleValue = doubleResult.Value.Item2.Value;
+
+               return doubleResult.Success (intValue + tupleValue.Item1*(Math.Pow (0.1, tupleValue.Item2)));
+            }
+
+            return doubleResult.Success ((double) intValue);
          };
       }
 
