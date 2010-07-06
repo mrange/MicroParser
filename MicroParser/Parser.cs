@@ -349,7 +349,7 @@ namespace MicroParser
                return firstResult.Success (Optional.Create (firstResult.Value));
             }
 
-            if (firstResult.State.HasError ())
+            if (firstResult.State.HasNonFatalError ())
             {
                return firstResult.Success (Optional.Create<TValue>());
             }
@@ -384,8 +384,7 @@ namespace MicroParser
                          return epilogueResult.Failure<TValue> ();
                       }
 
-                      return middleResult;
-
+                      return middleResult.Success (epilogueResult.ParserState);
                    };
       }
 
@@ -398,7 +397,15 @@ namespace MicroParser
                    {
                       var exceptResult = exceptParser (state);
 
-                      if (exceptResult.State.HasNonFatalError ())
+                      if (exceptResult.State.IsSuccessful ())
+                      {
+                         return ParserReply<TValue>.Failure (
+                            ParserReply_State.Error_Unexpected, 
+                            exceptResult.ParserState, 
+                            ParserErrorMessageFactory.Unexpected ("TODO:")
+                            );
+                      }
+                      else if (exceptResult.State.HasFatalError ())
                       {
                          return exceptResult.Failure<TValue> ();
                       }

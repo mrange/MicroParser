@@ -67,7 +67,7 @@ namespace TestParser
 
          Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString (token).KeepLeft (p_spaces);
 
-         var p_int_value = CharParser
+         var p_value = CharParser
             .ParseDouble ()
             .KeepLeft (p_spaces)
             .Map (i => new AstNode_Value { Value = i } as IAstNode);
@@ -96,7 +96,7 @@ namespace TestParser
          var p_term = Parser.Choice (
             p_ast.Between (p_token ("(").KeepLeft (p_spaces), p_token (")").KeepLeft (p_spaces)),
             p_variable, 
-            p_int_value
+            p_value
             );
 
          Func<IAstNode, char, IAstNode, IAstNode> makeBinOp = (l, op, r) => new AstNode_Binary {Left = l, Op = op, Right = r};
