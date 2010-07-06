@@ -110,7 +110,7 @@ namespace TestParser
          var p = p_ast.KeepLeft (p_eos);
          // ReSharper restore InconsistentNaming
 
-         const string text = "@@x.y*3 + y.z.e @@ -200.032";
+         const string text = "x.y*3 + y.z.e ! -200.032";
 
          {
             var pr = Parser.Parse (p, text);
