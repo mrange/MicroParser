@@ -121,7 +121,7 @@ namespace TestParser
 
          for (var iter = 0; iter < 1000000; ++iter)
          {
-            var pr = Parser.Parse(p, text);
+            var pr = Parser.Parse (p, text);
          }
 
          Console.WriteLine ((DateTime.Now - then).TotalMilliseconds);

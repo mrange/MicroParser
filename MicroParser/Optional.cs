@@ -2,14 +2,14 @@
 {
    public static class Optional
    {
-      public static Optional<TValue> Create<TValue>(TValue value)
+      public static Optional<TValue> Create<TValue> (TValue value)
       {
-         return new Optional<TValue>(value);
+         return new Optional<TValue> (value);
       }
 
-      public static Optional<TValue> Create<TValue>()
+      public static Optional<TValue> Create<TValue> ()
       {
-         return new Optional<TValue>();
+         return new Optional<TValue> ();
       }
    }
 

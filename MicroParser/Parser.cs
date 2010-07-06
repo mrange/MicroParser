@@ -7,13 +7,13 @@ namespace MicroParser
 
    public static class Parser
    {
-      public static ParserResult<TValue> Parse<TValue>(ParserFunction<TValue> parserFunction, string text)
+      public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
       {
          var parseResult = parserFunction (ParserState.Create (text ?? Strings.Empty));
 
          if (parseResult.State.IsSuccessful ())
          {
-            return new ParserResult<TValue>(
+            return new ParserResult<TValue> (
                true,
                text,
                parseResult.ParserState.Position,
@@ -40,7 +40,7 @@ namespace MicroParser
                text,
                parseResult.ParserState.Position,
                errorResult,
-               default(TValue)
+               default (TValue)
                );
          }
       }
@@ -58,7 +58,7 @@ namespace MicroParser
       public static ParserFunction<TValue> Fail<TValue> (string message)
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
-         return state => ParserReply<TValue>.Failure(ParserReply_State.Error, state, parserErrorMessageMessage);
+         return state => ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageMessage);
       }
 
       public static ParserFunction<Empty> EndOfStream ()
@@ -239,7 +239,7 @@ namespace MicroParser
                          return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
                       }
 
-                      return ParserReply<TValue>.Failure(ParserReply_State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
+                      return ParserReply<TValue>.Failure (ParserReply_State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
                    };
       }
 
@@ -335,7 +335,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Optional<TValue>> Opt<TValue>(
+      public static ParserFunction<Optional<TValue>> Opt<TValue> (
          this ParserFunction<TValue> firstParser
          )
       {
@@ -350,14 +350,14 @@ namespace MicroParser
 
             if (firstResult.State.HasNonFatalError ())
             {
-               return firstResult.Success (Optional.Create<TValue>());
+               return firstResult.Success (Optional.Create<TValue> ());
             }
 
-            return firstResult.Failure<Optional<TValue>>();
+            return firstResult.Failure<Optional<TValue>> ();
          };
       }
 
-      public static ParserFunction<TValue> Between<TValue>(
+      public static ParserFunction<TValue> Between<TValue> (
          this ParserFunction<TValue> middleParser,
          ParserFunction<Empty> preludeParser,
          ParserFunction<Empty> epilogueParser

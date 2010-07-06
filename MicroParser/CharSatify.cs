@@ -15,13 +15,13 @@
             );
       }
 
-      public CharSatify(IParserErrorMessage expected, CharSatisfyFunction satisfy)
+      public CharSatify (IParserErrorMessage expected, CharSatisfyFunction satisfy)
       {
          Expected = expected;
          Satisfy = satisfy;
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
                    {
