@@ -6,7 +6,7 @@
 
       public override string  ToString ()
       {
-         return "Empty";
+         return Strings.Empty;
       }
    }
 

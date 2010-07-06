@@ -5,45 +5,10 @@ namespace MicroParser
 {
    public static class Parser
    {
-      public static class Strings
-      {
-         public const string VerifyMinCountAndMaxCount = "minCount need to be less or equal to maxCount";
-         public const string Unknown = "Unknown error";
-         public const string Eos = "End of stream";
-      }
-
-      public static bool IsSuccessful (this ParserReply_State state)
-      {
-         return state == ParserReply_State.Successful;
-      }
-
-      public static bool HasConsistentState (this ParserReply_State state)
-      {
-         return
-            (state & ParserReply_State.FatalError_StateIsNotRestored)
-               == 0;
-      }
-
-      public static bool HasFatalError (this ParserReply_State state)
-      {
-         return state >= ParserReply_State.FatalError;
-      }
-
-      public static bool HasError (this ParserReply_State state)
-      {
-         return state >= ParserReply_State.Error;
-      }
-
-      public static bool HasNonFatalError (this ParserReply_State state)
-      {
-         return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
-      }
-
       public static ParserFunctionRedirect<TValue> Redirect<TValue> ()
       {
          return new ParserFunctionRedirect<TValue> ();
       }
-
 
       public static ParserFunction<TValue> Return<TValue> (TValue value)
       {
@@ -52,7 +17,8 @@ namespace MicroParser
 
       public static ParserFunction<TValue> Fail<TValue> (string message)
       {
-         return state => ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessageFactory.Message (message));
+         var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
+         return state => ParserReply<TValue>.Failure(ParserReply_State.Error, state, parserErrorMessageMessage);
       }
 
       public static ParserFunction<Empty> EndOfStream ()
@@ -63,7 +29,7 @@ namespace MicroParser
                    : ParserReply<Empty>.Failure (
                       ParserReply_State.Error_Expected,
                       state,
-                      new ParserErrorMessage_Expected (Strings.Eos)
+                      ParserErrorMessages.Expected_EndOfStream
                       );
       }
 
@@ -193,16 +159,22 @@ namespace MicroParser
          {
             throw new ArgumentNullException ("parserFunctions");
          }
+
          if (parserFunctions.Length == 0)
          {
-            throw new ArgumentOutOfRangeException ("parserFunctions", "parserFunctions should contain at least 1 item");
+            throw new ArgumentOutOfRangeException ("parserFunctions", Strings.Parser.Verify_AtLeastOneParserFunctions);
          }
 
          return state =>
                    {
+                      var suppressParserErrorMessageOperations = state.SuppressParserErrorMessageOperations;
                       var pos = state.Position;
 
-                      var potentialErrors = new List<IParserErrorMessage> (parserFunctions.Length);
+                      var potentialErrors =
+                         !suppressParserErrorMessageOperations
+                           ?  new List<IParserErrorMessage> (parserFunctions.Length)
+                           :  null
+                           ;
 
                       foreach (var parserFunction in parserFunctions)
                       {
@@ -216,31 +188,37 @@ namespace MicroParser
                          {
                             return result;
                          }
-                         else
+                         else if (!suppressParserErrorMessageOperations)
                          {
                             potentialErrors.Add (result.ParserErrorMessage);
                          }
                       }
 
-                      var topGroup = new ParserErrorMessage_Group (pos, null);
-
-                      foreach (var potentialError in potentialErrors)
+                      if (!suppressParserErrorMessageOperations)
                       {
-                         var group = potentialError as ParserErrorMessage_Group;
-                         if (group != null)
+
+                         var topGroup = new ParserErrorMessage_Group (pos, null);
+
+                         foreach (var potentialError in potentialErrors)
                          {
-                            foreach (var groupMember in ParserErrorMessage.Traverse (group.Group))
+                            var group = potentialError as ParserErrorMessage_Group;
+                            if (group != null)
                             {
-                               topGroup.Append (groupMember);
+                               foreach (var groupMember in ParserErrorMessage.Traverse (group.Group))
+                               {
+                                  topGroup.Append (groupMember);
+                               }
+                            }
+                            else
+                            {
+                               topGroup.Append (potentialError);
                             }
                          }
-                         else
-                         {
-                            topGroup.Append (potentialError);
-                         }
+
+                         return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
                       }
 
-                      return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
+                      return ParserReply<TValue>.Failure(ParserReply_State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
                    };
       }
 
@@ -402,7 +380,7 @@ namespace MicroParser
                          return ParserReply<TValue>.Failure (
                             ParserReply_State.Error_Unexpected, 
                             exceptResult.ParserState, 
-                            ParserErrorMessageFactory.Unexpected ("TODO:")
+                            ParserErrorMessages.Message_TODO
                             );
                       }
                       else if (exceptResult.State.HasFatalError ())
@@ -417,8 +395,7 @@ namespace MicroParser
       internal static ParserReply<TValue> ToParserReply<TValue> (
          ParserState_AdvanceResult advanceResult,
          ParserState state,
-         Func<string, IParserErrorMessage> parserErrorMessageCreator,
-         string errorMessage,
+         IParserErrorMessage parserErrorMessage,
          TValue defaultValue
          )
       {
@@ -427,24 +404,23 @@ namespace MicroParser
             case ParserState_AdvanceResult.Successful:
                return ParserReply<TValue>.Success (state, defaultValue);
             case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessageFactory.Unexpected (Strings.Eos));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
             case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessageFactory.Unexpected (Strings.Eos));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
             case ParserState_AdvanceResult.Error:
             default:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessageFactory.Message (Strings.Unknown));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
          }
       }
 
       internal static ParserReply<TValue> ToParserReply<TValue> (
          ParserState_AdvanceResult advanceResult,
          ParserState state,
-         Func<string, IParserErrorMessage> parserErrorMessageCreator,
-         string errorMessage,
+         IParserErrorMessage parserErrorMessage,
          Func<TValue> valueCreator
          )
       {
@@ -453,16 +429,16 @@ namespace MicroParser
             case ParserState_AdvanceResult.Successful:
                return ParserReply<TValue>.Success (state, valueCreator ());
             case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessageFactory.Unexpected (Strings.Eos));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
             case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessageFactory.Unexpected (Strings.Eos));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessageCreator (errorMessage));
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
             case ParserState_AdvanceResult.Error:
             default:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessageFactory.Message (Strings.Unknown));
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
          }
       }
 
@@ -470,7 +446,7 @@ namespace MicroParser
       {
          if (minCount > maxCount)
          {
-            throw new ArgumentOutOfRangeException ("minCount", Strings.VerifyMinCountAndMaxCount);
+            throw new ArgumentOutOfRangeException ("minCount", Strings.Parser.Verify_MinCountAndMaxCount);
          }
       }
    }
