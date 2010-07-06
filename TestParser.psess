@@ -81,6 +81,9 @@
     <Report>
       <Path>F:\Projects\Visma\MicroParser.Clone\TestParser100705.vsp</Path>
     </Report>
+    <Report>
+      <Path>F:\Projects\Visma\MicroParser.Clone\TestParser100706.vsp</Path>
+    </Report>
   </Reports>
   <Launches>
     <ProjBinary>

@@ -93,7 +93,7 @@ namespace MicroParser
                state,
                ParserErrorMessageFactory.Expected,
                satisfy.Expected,
-               subString[0]
+               () => subString[0]
                );
          };
       }
@@ -270,7 +270,9 @@ namespace MicroParser
             {
                var tupleValue = doubleResult.Value.Item2.Value;
 
-               return doubleResult.Success (intValue + tupleValue.Item1*(Math.Pow (0.1, tupleValue.Item2)));
+               var multiplier = intValue >= 0 ? 1 : -1;
+
+               return doubleResult.Success(intValue + multiplier * tupleValue.Item1 * (Math.Pow(0.1, tupleValue.Item2)));
             }
 
             return doubleResult.Success ((double) intValue);
