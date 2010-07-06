@@ -113,9 +113,7 @@ namespace TestParser
          const string text = "x.y*3 + y.z.e ! -200.032";
 
          {
-            var ps = ParserState.Create (0, text);
-            var pr = p (ps);
-
+            var pr = Parser.Parse (p, text);
             Console.WriteLine (pr);
          }
 
@@ -123,8 +121,7 @@ namespace TestParser
 
          for (var iter = 0; iter < 1000000; ++iter)
          {
-            var ps = ParserState.Create (0, text);
-            var pr = p (ps);
+            var pr = Parser.Parse(p, text);
          }
 
          Console.WriteLine ((DateTime.Now - then).TotalMilliseconds);

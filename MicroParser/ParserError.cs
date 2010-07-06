@@ -7,10 +7,12 @@ namespace MicroParser
 {
    public interface IParserErrorMessage
    {
+      object Value { get; }
    }
 
    public abstract class ParserErrorMessage : IParserErrorMessage
    {
+      public abstract object Value { get; }
    }
 
    public static class ParserErrorMessages
@@ -46,6 +48,11 @@ namespace MicroParser
                       Message,
                    }.ToString ();
       }
+
+      public override object Value
+      {
+         get { return Message; }
+      }
    }
 
    public sealed class ParserErrorMessage_Expected : ParserErrorMessage
@@ -63,6 +70,11 @@ namespace MicroParser
          {
             Expected,
          }.ToString ();
+      }
+
+      public override object Value
+      {
+         get { return Expected; }
       }
    }
 
@@ -82,6 +94,11 @@ namespace MicroParser
             Unexpected,
          }.ToString ();
       }
+
+      public override object Value
+      {
+         get { return Unexpected; }
+      }
    }
 
    public sealed class ParserErrorMessage_Group : ParserErrorMessage
@@ -99,6 +116,11 @@ namespace MicroParser
             {
                Group = Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator),
             }.ToString ();
+      }
+
+      public override object Value
+      {
+         get { return "Group"; }
       }
    }
 }
