@@ -52,10 +52,15 @@ namespace MicroParser
       {
          var matchArray = (match ?? Strings.Empty).ToArray ();
 
+         var expected = matchArray
+            .Select (x => new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (x)))
+            .ToArray ()
+            ;
+
+         var group = new ParserErrorMessage_Group (expected);
+
          var satisfy = new CharSatify (
-            matchArray
-               .Select (x => Strings.CharSatisfy.ExpectedChar_1)
-               .Concatenate(Strings.CharSatisfy.Or),
+            group,
             (c, i) =>
                {
                   foreach (var ch in matchArray)

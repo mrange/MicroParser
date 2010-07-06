@@ -86,12 +86,10 @@ namespace MicroParser
 
    public sealed class ParserErrorMessage_Group : ParserErrorMessage
    {
-      public readonly int Position;
-      public readonly ImmutableList<IParserErrorMessage> Group;
+      public readonly IParserErrorMessage[] Group;
 
-      public ParserErrorMessage_Group (int position, ImmutableList<IParserErrorMessage> group)
+      public ParserErrorMessage_Group(IParserErrorMessage[] group)
       {
-         Position = position;
          Group = group;
       }
 
@@ -99,7 +97,6 @@ namespace MicroParser
       {
          return new
             {
-               Position,
                Group = Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator),
             }.ToString ();
       }

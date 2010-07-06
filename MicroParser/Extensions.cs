@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace MicroParser
@@ -52,33 +52,12 @@ namespace MicroParser
          return sb.ToString ();
       }
 
-      // ImmutableList<TValue>
-
-      public static ImmutableList<TValue> Cons<TValue>(this ImmutableList<TValue> immutableList, TValue value)
-      {
-         return ImmutableList<TValue>.Cons(value, immutableList);
-      }
-
-      public static ImmutableList<TValue> Cons<TValue>(this ImmutableList<TValue> immutableList, IEnumerable<TValue> values)
-      {
-         var accu = immutableList;
-
-         foreach (var value in values)
-         {
-            accu = immutableList.Cons (value);
-         }
-
-         return accu;
-      }
-
       // CharSatisfy
 
       public static CharSatify Or(this CharSatify first, CharSatify second)
       {
          return new CharSatify(
-            Strings.CharSatisfy.Or_2.Form(
-               first.Expected,
-               second.Expected),
+            first.Expected.Append (second.Expected),
             (c, i) => first.Satisfy(c, i) || second.Satisfy(c, i)
             );
       }
@@ -86,9 +65,7 @@ namespace MicroParser
       public static CharSatify Except(this CharSatify first, CharSatify second)
       {
          return new CharSatify(
-            Strings.CharSatisfy.Expect_2.Form(
-               first.Expected,
-               second.Expected),
+            first.Expected.Append(second.Expected), // TODO: Change expected into unexpected
             (c, i) => first.Satisfy(c, i) && !second.Satisfy(c, i)
             );
       }
@@ -124,54 +101,43 @@ namespace MicroParser
 
       // IParserErrorMessage
 
+      public static IEnumerable<IParserErrorMessage> DeepTraverse (this IParserErrorMessage value)
+      {
+         if (value == null)
+         {
+            yield break;
+         }
+
+         var stack = new Stack<IParserErrorMessage> ();
+         stack.Push (value);
+
+
+         while (stack.Count > 0)
+         {
+            var pop = stack.Pop ();
+
+            var parserErrorMessageGroup = pop as ParserErrorMessage_Group;
+
+            if (parserErrorMessageGroup != null && parserErrorMessageGroup.Group != null)
+            {
+               foreach (var parserErrorMessage in parserErrorMessageGroup.Group)
+               {
+                  stack.Push (parserErrorMessage);
+               }
+            }
+            else if (pop != null)
+            {
+               yield return pop;
+            }
+         }
+
+      }
+
       public static IParserErrorMessage Append (this IParserErrorMessage left, IParserErrorMessage right)
       {
-         var lg = left as ParserErrorMessage_Group;
-         var rg = left as ParserErrorMessage_Group;
-
-         if (lg != null && rg != null)
-         {
-            return new ParserErrorMessage_Group (
-               Math.Min (lg.Position, rg.Position), 
-               lg.Group.Cons (rg.Group)
-               );
-         }
-
-         if (lg != null && right != null)
-         {
-            return new ParserErrorMessage_Group(
-               lg.Position,
-               lg.Group.Cons(right)
-               );
-         }
-
-         if (left != null && rg != null)
-         {
-            return new ParserErrorMessage_Group(
-               rg.Position,
-               rg.Group.Cons(left)
-               );
-         }
-
-         if (left != null && right != null)
-         {
-            return new ParserErrorMessage_Group(
-               -1,
-               ImmutableList<IParserErrorMessage>.Singleton (left).Cons (right)
-               );
-         }
-
-         if (left != null)
-         {
-            return left;
-         }
-
-         if (right != null)
-         {
-            return right;
-         }
-
-         return ParserErrorMessages.Unexpected_General;
+         return new ParserErrorMessage_Group (
+            left.DeepTraverse ().Concat (right.DeepTraverse ()).ToArray ()
+            );
       }
 
    }
