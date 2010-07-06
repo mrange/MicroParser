@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MicroParser
+﻿namespace MicroParser
 {
    public abstract class BaseParserResult
    {

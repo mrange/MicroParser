@@ -7,11 +7,13 @@ namespace MicroParser
 {
    public interface IParserErrorMessage
    {
+      string Description { get; }
       object Value { get; }
    }
 
    public abstract class ParserErrorMessage : IParserErrorMessage
    {
+      public abstract string Description { get; }
       public abstract object Value { get; }
    }
 
@@ -26,6 +28,7 @@ namespace MicroParser
       public readonly static IParserErrorMessage Expected_WhiteSpace = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
       public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Choice);
       public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Any);
+      public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Letter);
 
       public readonly static IParserErrorMessage Unexpected_General = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.General);
       public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.Eos);
@@ -47,6 +50,11 @@ namespace MicroParser
                    {
                       Message,
                    }.ToString ();
+      }
+
+      public override string Description
+      {
+         get { return Strings.ParserErrorMessages.Message; }
       }
 
       public override object Value
@@ -72,6 +80,11 @@ namespace MicroParser
          }.ToString ();
       }
 
+      public override string Description
+      {
+         get { return Strings.ParserErrorMessages.Expected; }
+      }
+
       public override object Value
       {
          get { return Expected; }
@@ -93,6 +106,11 @@ namespace MicroParser
          {
             Unexpected,
          }.ToString ();
+      }
+
+      public override string Description
+      {
+         get { return Strings.ParserErrorMessages.Unexpected; }
       }
 
       public override object Value
@@ -118,9 +136,14 @@ namespace MicroParser
             }.ToString ();
       }
 
+      public override string Description
+      {
+         get { return Strings.ParserErrorMessages.Group; }
+      }
+
       public override object Value
       {
-         get { return "Group"; }
+         get { return Strings.ParserErrorMessages.Group; }
       }
    }
 }

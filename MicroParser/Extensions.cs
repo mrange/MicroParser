@@ -31,9 +31,9 @@ namespace MicroParser
       {
          var first = true;
 
-         var sb = new StringBuilder (prepend ?? Strings.Null);
+         var sb = new StringBuilder(prepend ?? Strings.Empty);
 
-         var del = delimiter ?? Strings.Null;
+         var del = delimiter ?? Strings.Empty;
 
          foreach (var value in strings)
          {
@@ -48,7 +48,7 @@ namespace MicroParser
             sb.Append (value);
          }
 
-         sb.Append (append ?? Strings.Null);
+         sb.Append(append ?? Strings.Empty);
          return sb.ToString ();
       }
 

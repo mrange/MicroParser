@@ -18,7 +18,7 @@ namespace MicroParser
                text,
                parseResult.ParserState.Position,
                Strings.Empty,
-               default(TValue)
+               parseResult.Value
                );
          }
          else
@@ -26,12 +26,12 @@ namespace MicroParser
             var errorResult = parseResult
                .ParserErrorMessage
                .DeepTraverse ()
-               .Select (msg => new {Type = msg.GetType (), msg.Value})
+               .Select (msg => new {Type = msg.Description, msg.Value})
                .GroupBy (tuple => tuple.Type)
                .Select (x =>
-                        "{0} : {1}".Form (
+                       Strings.Parser.ErrorMessage_2.Form (
                            x.Key,
-                           x.Distinct ().Select (y => y.ToString ()).Concatenate (", ")
+                           x.Distinct ().Select (y => y.Value.ToString ()).Concatenate (", ")
                            ))
                .Concatenate (", ");
                
