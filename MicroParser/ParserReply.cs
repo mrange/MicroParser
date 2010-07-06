@@ -61,6 +61,11 @@ namespace MicroParser
          return Success (parserState, Value);
       }
 
+      public ParserReply<TValueTo> Success<TValueTo>(TValueTo valueTo)
+      {
+         return ParserReply<TValueTo>.Success (ParserState, valueTo);
+      }
+
       public ParserReply<TValue> Failure (ParserState parserState)
       {
          return Failure (State, parserState, ParserErrorMessage);

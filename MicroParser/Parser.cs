@@ -94,7 +94,7 @@ namespace MicroParser
                return firstResult.Failure<TValue2> ();
             }
 
-            return ParserReply<TValue2>.Success (firstResult.ParserState, mapper (firstResult.Value));
+            return firstResult.Success (mapper (firstResult.Value));
          };
       }
 
@@ -137,7 +137,11 @@ namespace MicroParser
             };
       }
 
-      public static ParserFunction<TValue[]> Many<TValue> (this ParserFunction<TValue> parser, int minCount = 0, int maxCount = int.MaxValue)
+      public static ParserFunction<TValue[]> Many<TValue> (
+         this ParserFunction<TValue> parser, 
+         int minCount = 0, 
+         int maxCount = int.MaxValue
+         )
       {
          VerifyMinAndMaxCount (minCount, maxCount); ;
 
@@ -240,7 +244,10 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue1> KeepLeft<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, ParserFunction<TValue2> secondParser)
+      public static ParserFunction<TValue1> KeepLeft<TValue1, TValue2> (
+         this ParserFunction<TValue1> firstParser, 
+         ParserFunction<TValue2> secondParser
+         )
       {
          return state =>
                    {
@@ -262,7 +269,10 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue2> KeepRight<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, ParserFunction<TValue2> secondParser)
+      public static ParserFunction<TValue2> KeepRight<TValue1, TValue2> (
+         this ParserFunction<TValue1> firstParser, 
+         ParserFunction<TValue2> secondParser
+         )
       {
          return state =>
                    {
@@ -277,7 +287,10 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Tuple<TValue1, TValue2>> Tuple<TValue1, TValue2> (ParserFunction<TValue1> firstParser, ParserFunction<TValue2> secondParser)
+      public static ParserFunction<Tuple<TValue1, TValue2>> Tuple<TValue1, TValue2> (
+         ParserFunction<TValue1> firstParser, 
+         ParserFunction<TValue2> secondParser
+         )
       {
          return state =>
          {
@@ -296,17 +309,17 @@ namespace MicroParser
             }
 
 
-            return ParserReply<Tuple<TValue1, TValue2>>.Success (
-               secondResult.ParserState,
+            return secondResult.Success (
                System.Tuple.Create (
                   firstResult.Value,
                   secondResult.Value
                   ));
-
          };
       }
 
-      public static ParserFunction<TValue> Attempt<TValue> (this ParserFunction<TValue> firstParser)
+      public static ParserFunction<TValue> Attempt<TValue> (
+         this ParserFunction<TValue> firstParser
+         )
       {
          return state =>
                    {
@@ -314,18 +327,38 @@ namespace MicroParser
 
                       var firstResult = firstParser (state);
 
-                      if (firstResult.State.HasConsistentState ())
-                      {
-                         return firstResult;
-                      }
-                      else
+                      if (!firstResult.State.HasConsistentState ())
                       {
                          return ParserReply<TValue>.Failure (ParserReply_State.Error_StateIsRestored, clone, firstResult.ParserErrorMessage);
                       }
+
+                      return firstResult;
                    };
       }
 
-      public static ParserFunction<TValue> Between<TValue> (
+      public static ParserFunction<Optional<TValue>> Opt<TValue>(
+         this ParserFunction<TValue> firstParser
+         )
+      {
+         return state =>
+         {
+            var firstResult = firstParser (state);
+
+            if (firstResult.State.IsSuccessful ())
+            {
+               return firstResult.Success (Optional.Create (firstResult.Value));
+            }
+
+            if (firstResult.State.HasError ())
+            {
+               return firstResult.Success (Optional.Create<TValue>());
+            }
+
+            return firstResult.Failure<Optional<TValue>>();
+         };
+      }
+
+      public static ParserFunction<TValue> Between<TValue>(
          this ParserFunction<TValue> middleParser,
          ParserFunction<Empty> preludeParser,
          ParserFunction<Empty> epilogueParser
