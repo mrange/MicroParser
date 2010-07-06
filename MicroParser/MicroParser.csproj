@@ -44,7 +44,6 @@
     <Compile Include="CharSatify.cs" />
     <Compile Include="Empty.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="ImmutableList.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />

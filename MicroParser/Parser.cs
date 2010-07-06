@@ -168,7 +168,6 @@ namespace MicroParser
          return state =>
                    {
                       var suppressParserErrorMessageOperations = state.SuppressParserErrorMessageOperations;
-                      var pos = state.Position;
 
                       var potentialErrors =
                          !suppressParserErrorMessageOperations
@@ -196,25 +195,7 @@ namespace MicroParser
 
                       if (!suppressParserErrorMessageOperations)
                       {
-
-                         var topGroup = new ParserErrorMessage_Group (pos, null);
-
-                         foreach (var potentialError in potentialErrors)
-                         {
-                            var group = potentialError as ParserErrorMessage_Group;
-                            if (group != null)
-                            {
-                               foreach (var groupMember in ParserErrorMessage.Traverse (group.Group))
-                               {
-                                  topGroup.Append (groupMember);
-                               }
-                            }
-                            else
-                            {
-                               topGroup.Append (potentialError);
-                            }
-                         }
-
+                         var topGroup = new ParserErrorMessage_Group (potentialErrors.ToArray ());
                          return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
                       }
 
