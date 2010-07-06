@@ -20,18 +20,18 @@ namespace MicroParser
    public static class ParserErrorMessages
    {
       [Obsolete]
-      public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message(Strings.ParserErrorMessages.Todo);
-      public readonly static IParserErrorMessage Message_Unknown = new ParserErrorMessage_Message(Strings.ParserErrorMessages.Unknown);
+      public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
+      public readonly static IParserErrorMessage Message_Unknown = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Unknown);
 
-      public readonly static IParserErrorMessage Expected_EndOfStream = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Eos);
-      public readonly static IParserErrorMessage Expected_Digit = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Digit);
+      public readonly static IParserErrorMessage Expected_EndOfStream = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Expected_Digit = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Digit);
       public readonly static IParserErrorMessage Expected_WhiteSpace = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
-      public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Choice);
-      public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Any);
-      public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.Letter);
+      public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
+      public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
+      public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
 
-      public readonly static IParserErrorMessage Unexpected_General = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.General);
-      public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected(Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Unexpected_General = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.General);
+      public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
    }
 
 
@@ -123,7 +123,7 @@ namespace MicroParser
    {
       public readonly IParserErrorMessage[] Group;
 
-      public ParserErrorMessage_Group(IParserErrorMessage[] group)
+      public ParserErrorMessage_Group (IParserErrorMessage[] group)
       {
          Group = group;
       }

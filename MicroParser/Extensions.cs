@@ -10,7 +10,7 @@ namespace MicroParser
 
       // System.String
 
-      public static string Form(this string format, params object[] args)
+      public static string Form (this string format, params object[] args)
       {
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
@@ -22,7 +22,7 @@ namespace MicroParser
 
       // IEnumerable<string>
 
-      public static string Concatenate(
+      public static string Concatenate (
          this IEnumerable<string> strings,
          string delimiter = null,
          string prepend = null,
@@ -31,7 +31,7 @@ namespace MicroParser
       {
          var first = true;
 
-         var sb = new StringBuilder(prepend ?? Strings.Empty);
+         var sb = new StringBuilder (prepend ?? Strings.Empty);
 
          var del = delimiter ?? Strings.Empty;
 
@@ -48,53 +48,53 @@ namespace MicroParser
             sb.Append (value);
          }
 
-         sb.Append(append ?? Strings.Empty);
+         sb.Append (append ?? Strings.Empty);
          return sb.ToString ();
       }
 
       // CharSatisfy
 
-      public static CharSatify Or(this CharSatify first, CharSatify second)
+      public static CharSatify Or (this CharSatify first, CharSatify second)
       {
-         return new CharSatify(
+         return new CharSatify (
             first.Expected.Append (second.Expected),
-            (c, i) => first.Satisfy(c, i) || second.Satisfy(c, i)
+            (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
             );
       }
 
-      public static CharSatify Except(this CharSatify first, CharSatify second)
+      public static CharSatify Except (this CharSatify first, CharSatify second)
       {
-         return new CharSatify(
-            first.Expected.Append(second.Expected), // TODO: Change expected into unexpected
-            (c, i) => first.Satisfy(c, i) && !second.Satisfy(c, i)
+         return new CharSatify (
+            first.Expected.Append (second.Expected), // TODO: Change expected into unexpected
+            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
 
       // ParserReply_State
 
-      public static bool IsSuccessful(this ParserReply_State state)
+      public static bool IsSuccessful (this ParserReply_State state)
       {
          return state == ParserReply_State.Successful;
       }
 
-      public static bool HasConsistentState(this ParserReply_State state)
+      public static bool HasConsistentState (this ParserReply_State state)
       {
          return
             (state & ParserReply_State.FatalError_StateIsNotRestored)
                == 0;
       }
 
-      public static bool HasFatalError(this ParserReply_State state)
+      public static bool HasFatalError (this ParserReply_State state)
       {
          return state >= ParserReply_State.FatalError;
       }
 
-      public static bool HasError(this ParserReply_State state)
+      public static bool HasError (this ParserReply_State state)
       {
          return state >= ParserReply_State.Error;
       }
 
-      public static bool HasNonFatalError(this ParserReply_State state)
+      public static bool HasNonFatalError (this ParserReply_State state)
       {
          return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
       }

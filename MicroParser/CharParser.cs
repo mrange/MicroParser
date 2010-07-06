@@ -20,7 +20,7 @@ namespace MicroParser
          return state =>
                    {
                       var advanceResult = state.SkipAdvance (satisfy, maxCount:toSkipNotNull.Length);
-                      return Parser.ToParserReply(advanceResult, state, parserErrorMessage, Empty.Value);
+                      return Parser.ToParserReply (advanceResult, state, parserErrorMessage, Empty.Value);
                    };
       }
 
@@ -204,7 +204,7 @@ namespace MicroParser
 
             if (uintResult.State.HasError ())
             {
-               return uintResult.Failure<uint>();
+               return uintResult.Failure<uint> ();
             }
 
             return uintResult.Success (uintResult.Value.Item1);
@@ -229,7 +229,7 @@ namespace MicroParser
 
             if (intResult.State.HasError ())
             {
-               return intResult.Failure<int>();
+               return intResult.Failure<int> ();
             }
 
             var intValue = (int)intResult.Value.Item2;
@@ -256,7 +256,7 @@ namespace MicroParser
 
             if (doubleResult.State.HasError ())
             {
-               return doubleResult.Failure<double>();
+               return doubleResult.Failure<double> ();
             }
 
             var intValue = doubleResult.Value.Item1;
@@ -267,16 +267,16 @@ namespace MicroParser
 
                var multiplier = intValue >= 0 ? 1 : -1;
 
-               return doubleResult.Success(intValue + multiplier * tupleValue.Item1 * (Math.Pow(0.1, tupleValue.Item2)));
+               return doubleResult.Success (intValue + multiplier * tupleValue.Item1 * (Math.Pow (0.1, tupleValue.Item2)));
             }
 
             return doubleResult.Success ((double) intValue);
          };
       }
       public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify(ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace(c));
-      public static readonly CharSatify SatisyDigit = new CharSatify(ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit(c));
-      public static readonly CharSatify SatisyLetter = new CharSatify(ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter(c));
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
+      public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));
       public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }

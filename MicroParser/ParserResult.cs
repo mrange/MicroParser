@@ -15,7 +15,7 @@
          }
       }
 
-      protected BaseParserResult(bool isSuccessful, string text, int position, string errorMessage)
+      protected BaseParserResult (bool isSuccessful, string text, int position, string errorMessage)
       {
          IsSuccessful = isSuccessful;
          Position = position;
@@ -23,7 +23,7 @@
          ErrorMessage = errorMessage ?? Strings.Empty;
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          if (IsSuccessful)
          {
@@ -32,7 +32,7 @@
                          IsSuccessful,
                          Position,
                          EndOfStream,
-                         Current = !EndOfStream ? new string(Text[Position], 1) : Strings.ParserErrorMessages.Eos,
+                         Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
                       }.ToString ();
          }
@@ -44,9 +44,9 @@
                IsSuccessful,
                Position,
                EndOfStream,
-               Current = !EndOfStream ? new string(Text[Position], 1) : Strings.ParserErrorMessages.Eos,
+               Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
-            }.ToString();
+            }.ToString ();
          }
       }
 
