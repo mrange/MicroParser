@@ -113,7 +113,7 @@ namespace MicroParser
                    }.ToString ();
       }
 
-      public static ParserState Create (int position, string text)
+      public static ParserState Create (string text, int position = 0)
       {
          return new ParserState (Math.Max (position, 0), text ?? Strings.Empty);
       }

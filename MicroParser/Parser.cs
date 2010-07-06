@@ -1,10 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MicroParser
 {
+
    public static class Parser
    {
+      public static ParserResult<TValue> Parse<TValue>(ParserFunction<TValue> parserFunction, string text)
+      {
+         var parseResult = parserFunction (ParserState.Create (text ?? Strings.Empty));
+
+         if (parseResult.State.IsSuccessful ())
+         {
+            return new ParserResult<TValue>(
+               true,
+               text,
+               parseResult.ParserState.Position,
+               Strings.Empty,
+               default(TValue)
+               );
+         }
+         else
+         {
+            var errorResult = parseResult
+               .ParserErrorMessage
+               .DeepTraverse ()
+               .Select (msg => new {Type = msg.GetType (), msg.Value})
+               .GroupBy (tuple => tuple.Type)
+               .Select (x =>
+                        "{0} : {1}".Form (
+                           x.Key,
+                           x.Distinct ().Select (y => y.ToString ()).Concatenate (", ")
+                           ))
+               .Concatenate (", ");
+               
+            return new ParserResult<TValue> (
+               false,
+               text,
+               parseResult.ParserState.Position,
+               errorResult,
+               default(TValue)
+               );
+         }
+      }
+
       public static ParserFunctionRedirect<TValue> Redirect<TValue> ()
       {
          return new ParserFunctionRedirect<TValue> ();
