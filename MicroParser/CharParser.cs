@@ -276,7 +276,7 @@ namespace MicroParser
       public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
       public static readonly CharSatify SatisyWhiteSpace = new CharSatify(ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace(c));
       public static readonly CharSatify SatisyDigit = new CharSatify(ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit(c));
-      public static readonly CharSatify SatisyLetter = new CharSatify(ParserErrorMessages.Expected_Digit, (c, i) => char.IsLetter(c));
+      public static readonly CharSatify SatisyLetter = new CharSatify(ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter(c));
       public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }

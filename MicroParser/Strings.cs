@@ -12,6 +12,7 @@ namespace MicroParser
 
       public static class Parser
       {
+         public const string ErrorMessage_2 = "{0} : {1}";
          public const string Verify_AtLeastOneParserFunctions = "parserFunctions should contain at least 1 item";
          public const string Verify_MinCountAndMaxCount = "minCount need to be less or equal to maxCount";
       }
@@ -26,6 +27,7 @@ namespace MicroParser
 
       public static class ParserErrorMessages
       {
+
          [Obsolete]
          public const string Todo = "TODO:";
          public const string General = "general";
@@ -34,8 +36,13 @@ namespace MicroParser
          public const string Eos = "end of stream";
          public const string WhiteSpace = "whitespace";
          public const string Digit = "digit";
+         public const string Letter = "letter";
          public const string Any = "any";
          public const string Choice = "multiple choices";
+         public const string Message = "message";
+         public const string Group = "group";
+         public const string Expected = "expected";
+
       }
 
    }
