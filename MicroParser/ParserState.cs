@@ -1,8 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace MicroParser
+﻿namespace MicroParser
 {
+   using System;
+   using System.Diagnostics;
+
    // ReSharper disable InconsistentNaming
    public enum ParserState_AdvanceResult
    {

@@ -1,9 +1,9 @@
 ﻿// ReSharper disable InconsistentNaming
 
-using System;
-
 namespace MicroParser
 {
+   using System;
+
    public static class Strings
    {
       public const string CommaSeparator = ", ";

@@ -1,8 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using MicroParser.Internal;
 
 namespace MicroParser
 {
+   using System;
+   using System.Diagnostics;
+
    // ReSharper disable InconsistentNaming
    [Flags]
    public enum ParserReply_State

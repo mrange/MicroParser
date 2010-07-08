@@ -1,9 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using MicroParser.Internal;
 
 namespace MicroParser
 {
-   public static class CharParser
+   using System;
+   using System.Linq;
+
+   public static partial class CharParser
    {
       public static ParserFunction<Empty> SkipChar (char toSkip)
       {
@@ -151,7 +153,7 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<Tuple<uint,int>> ParseUIntImpl (
+      static ParserFunction<MicroTuple<uint,int>> ParseUIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -185,7 +187,7 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return Tuple.Create (accumulated, newPos - oldPos);
+                     return MicroTuple.Create(accumulated, newPos - oldPos);
                   }
                );
          };

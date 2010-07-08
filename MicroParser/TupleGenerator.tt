@@ -1,0 +1,76 @@
+﻿namespace MicroParser
+{
+<#
+   const int MinCount = 2;
+   const int MaxCount = 3;
+#>
+   public static class MicroTuple
+   {
+<#
+   for (var iter = MinCount; iter <= MaxCount; ++iter)
+   {
+      var typeSpec = BuildTypeSpec (iter);
+#>
+      public static MicroTuple<<#=typeSpec#>> Create<<#=typeSpec#>> (
+            TValue1 value1
+<#
+      for (var ita = 1; ita < iter; ++ita)
+      {
+#>
+         ,  TValue<#=ita + 1#> value<#=ita + 1#>
+<#
+      }
+#>
+         )
+      {
+         return new MicroTuple<<#=typeSpec#>>
+            {
+<#
+      for (var ita = 0; ita < iter; ++ita)
+      {
+#>
+               Item<#=ita + 1#> = value<#=ita + 1#> ,
+<#
+      }
+#>
+            };
+      }
+<#
+   }
+#>
+   }
+<#
+   for (var iter = MinCount; iter <= MaxCount; ++iter)
+   {
+      var typeSpec = BuildTypeSpec (iter);
+#>
+   public struct MicroTuple<<#=typeSpec#>>
+   {
+<#
+      for (var ita = 0; ita < iter; ++ita)
+      {
+#>
+      public TValue<#=ita + 1#> Item<#=ita + 1#>;
+<#
+   }
+#>
+   }
+
+<#
+   }
+#>
+}
+<#+
+   static string BuildTypeSpec (int iter)
+   {
+      var sb = new System.Text.StringBuilder ("TValue1");
+
+      for (var ita = 1; ita < iter; ++ita)
+      {
+         sb.Append (", TValue");
+         sb.Append (ita + 1);
+      }
+
+      return sb.ToString ();
+   }
+#>
