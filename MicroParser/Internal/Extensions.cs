@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace MicroParser
+namespace MicroParser.Internal
 {
    static class Extensions
    {

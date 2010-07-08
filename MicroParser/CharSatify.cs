@@ -1,4 +1,6 @@
-﻿namespace MicroParser
+﻿using MicroParser.Internal;
+
+namespace MicroParser
 {
    public delegate bool CharSatisfyFunction (char ch, int index);
 

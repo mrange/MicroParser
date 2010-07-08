@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-
-namespace MicroParser
+﻿namespace MicroParser
 {
+   using System.Diagnostics;
+
    public struct SubString
    {
       public string Value;

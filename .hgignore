@@ -5,3 +5,7 @@ relre:^MicroParser/obj/
 relre:^MicroParser/bin/
 relre:^TestParser/bin/
 relre:^TestParser/obj/
+relre:TestBindings/obj/
+relre:TestBindings/bin/
+relre:Bindings/bin/
+relre:Bindings/obj/

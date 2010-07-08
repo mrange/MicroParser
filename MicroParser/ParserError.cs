@@ -1,10 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿// ReSharper disable InconsistentNaming
 
-// ReSharper disable InconsistentNaming
+using MicroParser.Internal;
 
 namespace MicroParser
 {
+   using System;
+   using System.Linq;
+
    public interface IParserErrorMessage
    {
       string Description { get; }

@@ -1,0 +1,11 @@
+﻿<Window x:Class="TestBindings.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:b="clr-namespace:Bindings;assembly=Bindings" 
+        Title="MainWindow" 
+        Height="350" 
+        Width="525">
+    <Grid x:Name="Root">
+      <Button Content="Test" Width="{b:ExpressionBinding Expression='#Root.ActualWidth/2.0 ! 200'}"/>
+   </Grid>
+</Window>
