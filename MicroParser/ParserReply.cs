@@ -50,7 +50,10 @@ namespace MicroParser
          Value = value;
       }
 
-      public static ParserReply<TValue> Success (ParserState parserState, TValue value)
+      public static ParserReply<TValue> Success (
+         ParserState parserState, 
+         TValue value
+         )
       {
          return new ParserReply<TValue> (
             ParserReply_State.Successful, 
@@ -60,7 +63,11 @@ namespace MicroParser
             );
       }
 
-      public static ParserReply<TValue> Failure (ParserReply_State state, ParserState parserState, IParserErrorMessage parserErrorMessage)
+      public static ParserReply<TValue> Failure (
+         ParserReply_State state, 
+         ParserState parserState, 
+         IParserErrorMessage parserErrorMessage
+         )
       {
          Debug.Assert (!state.IsSuccessful ());
          Debug.Assert (parserErrorMessage != null);
@@ -95,6 +102,24 @@ namespace MicroParser
             parserState, 
             ParserErrorMessage
             );
+      }
+
+      public ParserReply<TValue> VerifyConsistency (ParseStatePosition initialPosition)
+      {
+         if (
+               State.HasError () 
+            && ParserState.InternalPosition - initialPosition.Position > 1
+            )
+         {
+            return new ParserReply<TValue> (
+               ParserReply_State.FatalError_StateIsNotRestored | State,
+               ParserState,
+               default (TValue),
+               ParserErrorMessage
+               );
+         }
+
+         return this;
       }
 
       public override string ToString ()

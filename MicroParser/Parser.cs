@@ -23,17 +23,7 @@ namespace MicroParser
       {
          var parseResult = parserFunction (ParserState.Create (text ?? Strings.Empty));
 
-         if (parseResult.State.IsSuccessful ())
-         {
-            return new ParserResult<TValue> (
-               true,
-               text,
-               parseResult.ParserState.Position,
-               Strings.Empty,
-               parseResult.Value
-               );
-         }
-         else
+         if (!parseResult.State.IsSuccessful ())
          {
             var errorResult = parseResult
                .ParserErrorMessage
@@ -41,20 +31,28 @@ namespace MicroParser
                .Select (msg => new {Type = msg.Description, msg.Value})
                .GroupBy (tuple => tuple.Type)
                .Select (x =>
-                       Strings.Parser.ErrorMessage_2.Form (
+                        Strings.Parser.ErrorMessage_2.Form (
                            x.Key,
                            x.Distinct ().Select (y => y.Value.ToString ()).Concatenate (", ")
                            ))
                .Concatenate (", ");
-               
+
             return new ParserResult<TValue> (
                false,
                text,
-               parseResult.ParserState.Position,
+               parseResult.ParserState.InternalPosition,
                errorResult,
                default (TValue)
                );
          }
+
+         return new ParserResult<TValue> (
+            true,
+            text,
+            parseResult.ParserState.InternalPosition,
+            Strings.Empty,
+            parseResult.Value
+            );
       }
 
       public static ParserFunctionRedirect<TValue> Redirect<TValue> ()
@@ -166,6 +164,8 @@ namespace MicroParser
 
          return state =>
          {
+            var initialPosition = state.Position;
+
             var result = new List<TValue> (Math.Max (minCount, 16));
 
             // Collect required
@@ -178,7 +178,7 @@ namespace MicroParser
 
                   if (separatorResult.State.HasError ())
                   {
-                     return separatorResult.Failure<TValue[]> ();
+                     return separatorResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                   }
                }
 
@@ -186,7 +186,7 @@ namespace MicroParser
 
                if (parserResult.State.HasError ())
                {
-                  return parserResult.Failure<TValue[]> ();
+                  return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                }
 
                result.Add (parserResult.Value);
@@ -202,7 +202,7 @@ namespace MicroParser
 
                   if (separatorResult.State.HasFatalError ())
                   {
-                     return separatorResult.Failure<TValue[]> ();
+                     return separatorResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                   }
                   else if (separatorResult.State.HasError ())
                   {
@@ -215,7 +215,7 @@ namespace MicroParser
 
                if (parserResult.State.HasFatalError ())
                {
-                  return parserResult.Failure<TValue[]> ();
+                  return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                }
                else if (parserResult.State.HasError ())
                {
@@ -239,6 +239,8 @@ namespace MicroParser
 
          return state =>
          {
+            var initialPosition = state.Position;
+
             var result = new List<TValue> (Math.Max (minCount, 16));
 
             // Collect required
@@ -249,7 +251,7 @@ namespace MicroParser
 
                if (parserResult.State.HasError ())
                {
-                  return parserResult.Failure<TValue[]> ();
+                  return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                }
 
                result.Add (parserResult.Value);
@@ -263,7 +265,7 @@ namespace MicroParser
 
                if (parserResult.State.HasFatalError ())
                {
-                  return parserResult.Failure<TValue[]> ();
+                  return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
                }
                else if (parserResult.State.HasError ())
                {
@@ -336,6 +338,8 @@ namespace MicroParser
       {
          return state =>
                    {
+                      var initialPosition = state.Position;
+
                       var firstResult = firstParser (state);
 
                       if (firstResult.State.HasError ())
@@ -347,7 +351,7 @@ namespace MicroParser
 
                       if (secondResult.State.HasError ())
                       {
-                         return secondResult.Failure<TValue1> ();
+                         return secondResult.Failure<TValue1> ().VerifyConsistency (initialPosition);
                       }
 
                       return firstResult.Success (secondResult.ParserState);
@@ -379,6 +383,8 @@ namespace MicroParser
       {
          return state =>
          {
+            var initialPosition = state.Position;
+
             var firstResult = firstParser (state);
 
             if (firstResult.State.HasError ())
@@ -390,7 +396,7 @@ namespace MicroParser
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2>> ();
+               return secondResult.Failure<MicroTuple<TValue1, TValue2>> ().VerifyConsistency (initialPosition);
             }
 
             return secondResult.Success (
@@ -409,6 +415,8 @@ namespace MicroParser
       {
          return state =>
          {
+            var initialPosition = state.Position;
+
             var firstResult = firstParser (state);
 
             if (firstResult.State.HasError ())
@@ -420,14 +428,14 @@ namespace MicroParser
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
+               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
             var thirdResult = thirdParser (state);
 
             if (thirdResult.State.HasError ())
             {
-               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
+               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
 
@@ -489,6 +497,8 @@ namespace MicroParser
       {
          return state =>
                    {
+                      var initialPosition = state.Position;
+
                       var preludeResult = preludeParser (state);
                       if (preludeResult.State.HasError ())
                       {
@@ -498,13 +508,13 @@ namespace MicroParser
                       var middleResult = middleParser (state);
                       if (middleResult.State.HasError ())
                       {
-                         return middleResult;
+                         return middleResult.VerifyConsistency (initialPosition);
                       }
 
                       var epilogueResult = epilogueParser (state);
                       if (epilogueResult.State.HasError ())
                       {
-                         return epilogueResult.Failure<TValue> ();
+                         return epilogueResult.Failure<TValue> ().VerifyConsistency (initialPosition);
                       }
 
                       return middleResult.Success (epilogueResult.ParserState);

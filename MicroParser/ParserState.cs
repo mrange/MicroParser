@@ -26,7 +26,26 @@ namespace MicroParser
    }
    // ReSharper restore InconsistentNaming
 
-   public class ParserState
+   public struct ParseStatePosition
+   {
+      public readonly int Position;
+
+      public ParseStatePosition (int position)
+      {
+         Position = position;
+      }
+
+      public override string ToString ()
+      {
+         return new
+                   {
+                      Position,
+                   }.ToString ();
+      }
+
+   }
+
+   public sealed class ParserState
    {
       readonly string m_text;
 
@@ -41,11 +60,19 @@ namespace MicroParser
          SuppressParserErrorMessageOperations= suppressParserErrorMessageOperations;
       }
 
-      public int Position
+      internal int InternalPosition
       {
          get
          {
             return m_position;
+         }
+      }
+
+      public ParseStatePosition Position
+      {
+         get
+         {
+            return new ParseStatePosition (m_position);
          }
       }
 
@@ -118,7 +145,7 @@ namespace MicroParser
       {
          return new
                    {
-                      Position,
+                      Position = m_position,
                       EndOfStream,
                       Current = !EndOfStream ? new string (m_text[m_position], 1) : Strings.ParserErrorMessages.Eos,
                    }.ToString ();
