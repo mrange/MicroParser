@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FunWithExpandos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,6 +13,7 @@ namespace TestFunWithExpandos
       static readonly Tuple<string, object>[] s_primitiveTest =
          new[]
             {
+               Tuple.Create ("\"\""             , ""           as object),
                Tuple.Create ("\"Test\""         , "Test"       as object),
 
                Tuple.Create ("3"                , 3.0          as object),
@@ -58,12 +60,63 @@ namespace TestFunWithExpandos
       [TestMethod]
       public void Test_ArrayExpressions()
       {
-         var array = (dynamic[])JsonSerializer.Unserialize ("[1, 3.14, \"Test\"]");
+         var array0 = (dynamic[])JsonSerializer.Unserialize("[]");
 
-         Assert.IsTrue (Equals (1.0, array[0]));
-         Assert.IsTrue(Equals(3.14, array[1]));
-         Assert.IsTrue(Equals("Test", array[2]));
+         Assert.AreEqual (0, array0.Length);
+
+         var array1 = (dynamic[])JsonSerializer.Unserialize("[1]");
+
+         Assert.AreEqual(1, array1.Length);
+         Assert.IsTrue(Equals(1.0, array1[0]));
+
+         var array3 = (dynamic[])JsonSerializer.Unserialize("[1, 3.14, \"Test\"]");
+
+         Assert.AreEqual(3, array3.Length);
+         Assert.IsTrue(Equals(1.0, array3[0]));
+         Assert.IsTrue(Equals(3.14, array3[1]));
+         Assert.IsTrue(Equals("Test", array3[2]));
 
       }
+
+      static int NumberOfProperties (dynamic dyn)
+      {
+         var dic = dyn as IDictionary<string, object>;
+         return dic != null ? dic.Count : 0;
+      }
+
+      [TestMethod]
+      public void Test_ObjectExpressions()
+      {
+         var object0 = JsonSerializer.Unserialize("{}");
+
+         Assert.AreEqual(0, NumberOfProperties(object0));
+
+         var object1 = JsonSerializer.Unserialize("{\"Test\":1}");
+
+         Assert.AreEqual(1, NumberOfProperties(object1));
+         Assert.IsTrue(Equals(1.0, object1.Test));
+
+
+         var object2 = JsonSerializer.Unserialize("{\"Test\":1, \"Test2\": \"Tjo\"}");
+
+         Assert.AreEqual(2, NumberOfProperties(object2));
+         Assert.IsTrue(Equals(1.0, object2.Test));
+         Assert.IsTrue(Equals("Tjo", object2.Test2));
+      }
+
+      [TestMethod]
+      public void Test_ComplexExpressions()
+      {
+         const string s =
+            "[\r\n" +
+            "   1,\r\n" +
+            "   {},\r\n" +
+            "   [1,3,4],\r\n" +
+            "   {\"X\":[1,3,4]},\r\n" +
+            "]\r\n";
+
+         var object0 = JsonSerializer.Unserialize(s);
+      }
+
    }
 }
