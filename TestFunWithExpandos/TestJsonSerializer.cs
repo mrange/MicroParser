@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using FunWithExpandos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+// ReSharper disable InconsistentNaming
 
 namespace TestFunWithExpandos
 {
@@ -107,16 +111,67 @@ namespace TestFunWithExpandos
       [TestMethod]
       public void Test_ComplexExpressions()
       {
-         const string s =
-            "[\r\n" +
-            "   1,\r\n" +
-            "   {},\r\n" +
-            "   [1,3,4],\r\n" +
-            "   {\"X\":[1,3,4]},\r\n" +
-            "]\r\n";
+         var json = GetStringResource ();
 
-         var object0 = JsonSerializer.Unserialize(s);
+         var object0 = JsonSerializer.Unserialize(json);
+
+         var glossary = object0.glossary;
+
+         var glossary_Title = glossary.title;
+         var glossary_GlossDiv = glossary.GlossDiv;
+
+         var glossary_GlossDiv_Title = glossary_GlossDiv.title;
+         var glossary_GlossDiv_GlossList = glossary_GlossDiv.GlossList;
+
+         var glossary_GlossDiv_GlossList_GlossEntry   = glossary_GlossDiv_GlossList.GlossEntry;
+
+         var glossary_GlossDiv_GlossList_GlossEntry_ID         = glossary_GlossDiv_GlossList_GlossEntry.ID;
+         var glossary_GlossDiv_GlossList_GlossEntry_SortAs     = glossary_GlossDiv_GlossList_GlossEntry.SortAs;
+         var glossary_GlossDiv_GlossList_GlossEntry_GlossTerm  = glossary_GlossDiv_GlossList_GlossEntry.GlossTerm;
+         var glossary_GlossDiv_GlossList_GlossEntry_Acronym    = glossary_GlossDiv_GlossList_GlossEntry.Acronym;
+         var glossary_GlossDiv_GlossList_GlossEntry_Abbrev     = glossary_GlossDiv_GlossList_GlossEntry.Abbrev;
+         var glossary_GlossDiv_GlossList_GlossEntry_GlossDef   = glossary_GlossDiv_GlossList_GlossEntry.GlossDef;
+         var glossary_GlossDiv_GlossList_GlossEntry_GlossSee   = glossary_GlossDiv_GlossList_GlossEntry.GlossSee;
+
+         var glossary_GlossDiv_GlossList_GlossEntry_GlossDef_para          = glossary_GlossDiv_GlossList_GlossEntry_GlossDef.para;
+         var glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso  = glossary_GlossDiv_GlossList_GlossEntry_GlossDef.GlossSeeAlso;
+
+
+         Assert.AreEqual("example glossary", glossary_Title);
+
+         Assert.AreEqual("S", glossary_GlossDiv_Title);
+
+
+         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_ID);
+         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_SortAs);
+         Assert.AreEqual("Standard Generalized Markup Language", glossary_GlossDiv_GlossList_GlossEntry_GlossTerm);
+         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_Acronym);
+         Assert.AreEqual("ISO 8879:1986", glossary_GlossDiv_GlossList_GlossEntry_Abbrev);
+         Assert.AreEqual("markup", glossary_GlossDiv_GlossList_GlossEntry_GlossSee);
+
+         Assert.AreEqual("A meta-markup language, used to create markup languages such as DocBook.", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_para);
+
+         Assert.AreEqual(2, glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso.Length);
+         Assert.AreEqual("GML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[0]);
+         Assert.AreEqual("XML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[1]);
+
+
       }
 
+      static string GetStringResource ()
+      {
+         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestFunWithExpandos.JSON.txt"))
+         {
+            if (resourceStream == null)
+            {
+               return "";
+            }
+
+            using (var streamReader = new StreamReader (resourceStream))
+            {
+               return streamReader.ReadToEnd ();
+            }
+         }
+      }
    }
 }
