@@ -5,16 +5,32 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroParser", "MicroParser\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestParser", "TestParser\TestParser.csproj", "{83C93729-6B98-4D76-AF29-D19AD0E91EA6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E70B1E0E-E7F0-4C48-BF35-6FAF707CA410}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. Solution Items", "9. Solution Items", "{E70B1E0E-E7F0-4C48-BF35-6FAF707CA410}"
 	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		MicroParser.vsmdi = MicroParser.vsmdi
 		TestParser.psess = TestParser.psess
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bindings", "Bindings\Bindings.csproj", "{06DA2CF9-A357-48E9-B290-0723340E7CC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBindings", "TestBindings\TestBindings.csproj", "{5F523787-43AE-4783-912C-C5BD986533FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunWithExpandos", "FunWithExpandos\FunWithExpandos.csproj", "{23ADA443-D3D3-4E02-B949-B939324E6E29}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. WPF", "2. WPF", "{1BB81A47-924F-459E-8C9A-196B82DDF812}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Expandos", "1. Expandos", "{D0ECEF34-E447-4820-9D64-7C02DEACABAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Parser lib", "0. Parser lib", "{BE182199-90F3-48DB-91AF-91D83D937714}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFunWithExpandos", "TestFunWithExpandos\TestFunWithExpandos.csproj", "{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = MicroParser.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -68,8 +84,36 @@ Global
 		{5F523787-43AE-4783-912C-C5BD986533FB}.Release|Mixed Platforms.Build.0 = Release|x86
 		{5F523787-43AE-4783-912C-C5BD986533FB}.Release|x86.ActiveCfg = Release|x86
 		{5F523787-43AE-4783-912C-C5BD986533FB}.Release|x86.Build.0 = Release|x86
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{23ADA443-D3D3-4E02-B949-B939324E6E29}.Release|x86.ActiveCfg = Release|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{83C93729-6B98-4D76-AF29-D19AD0E91EA6} = {BE182199-90F3-48DB-91AF-91D83D937714}
+		{5C289FB2-2A23-4929-AB17-1429750BDAC0} = {BE182199-90F3-48DB-91AF-91D83D937714}
+		{5F523787-43AE-4783-912C-C5BD986533FB} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
+		{06DA2CF9-A357-48E9-B290-0723340E7CC2} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
+		{23ADA443-D3D3-4E02-B949-B939324E6E29} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}
+		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}
 	EndGlobalSection
 EndGlobal

@@ -9,3 +9,8 @@ relre:TestBindings/obj/
 relre:TestBindings/bin/
 relre:Bindings/bin/
 relre:Bindings/obj/
+relre:^TestResults/
+relre:^TestFunWithExpandos/bin/
+relre:^TestFunWithExpandos/obj/
+relre:^FunWithExpandos/bin/
+relre:^FunWithExpandos/obj/

@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("TestBindings")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Mårten Rånge")]
 [assembly: AssemblyProduct("TestBindings")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCopyright("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

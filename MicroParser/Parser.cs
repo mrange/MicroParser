@@ -144,7 +144,81 @@ namespace MicroParser
             };
       }
 
-      public static ParserFunction<TValue[]> Many<TValue> (
+      public static ParserFunction<TValue[]> Array<TValue>(
+         this ParserFunction<TValue> parser,
+         ParserFunction<Empty> separator,
+         int minCount = 0,
+         int maxCount = int.MaxValue
+         )
+      {
+         VerifyMinAndMaxCount(minCount, maxCount);
+
+         return state =>
+         {
+            var result = new List<TValue>(Math.Max(minCount, 16));
+
+            // Collect required
+
+            for (var iter = 0; iter < minCount; ++iter)
+            {
+               if (result.Count > 0)
+               {
+                  var separatorResult = separator (state);
+
+                  if (separatorResult.State.HasError())
+                  {
+                     return separatorResult.Failure<TValue[]>();
+                  }
+               }
+
+               var parserResult = parser(state);
+
+               if (parserResult.State.HasError())
+               {
+                  return parserResult.Failure<TValue[]>();
+               }
+
+               result.Add(parserResult.Value);
+            }
+
+            // Collect optional
+
+            for (var iter = minCount; iter < maxCount; ++iter)
+            {
+               if (result.Count > 0)
+               {
+                  var separatorResult = separator(state);
+
+                  if (separatorResult.State.HasFatalError())
+                  {
+                     return separatorResult.Failure<TValue[]>();
+                  }
+                  else if (separatorResult.State.HasError())
+                  {
+                     break;
+                  }
+
+               }
+
+               var parserResult = parser(state);
+
+               if (parserResult.State.HasFatalError())
+               {
+                  return parserResult.Failure<TValue[]>();
+               }
+               else if (parserResult.State.HasError())
+               {
+                  break;
+               }
+
+               result.Add(parserResult.Value);
+            }
+
+            return ParserReply<TValue[]>.Success(state, result.ToArray());
+         };
+      }
+
+      public static ParserFunction<TValue[]> Many<TValue>(
          this ParserFunction<TValue> parser, 
          int minCount = 0, 
          int maxCount = int.MaxValue
