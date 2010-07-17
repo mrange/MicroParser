@@ -43,6 +43,8 @@ namespace FunWithExpandos
 
       static JsonSerializer ()
       {
+         // Language spec at www.json.org
+
          Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
          Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
 
