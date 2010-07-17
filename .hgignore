@@ -14,3 +14,4 @@ relre:^TestFunWithExpandos/bin/
 relre:^TestFunWithExpandos/obj/
 relre:^FunWithExpandos/bin/
 relre:^FunWithExpandos/obj/
+relre:^NDependOut/

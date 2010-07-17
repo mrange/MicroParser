@@ -171,17 +171,17 @@ namespace TestFunWithExpandos
       }
 
       [TestMethod]
-      public void Test_Performance()
+      public void Test_Performance ()
       {
-         var json = GetStringResource();
-         var object0 = JsonSerializer.Unserialize(json);
+         var json = GetStringResource ();
+         var object0 = JsonSerializer.Unserialize (json);
          var glossary = object0.glossary;
 
          var then = DateTime.Now;
 
          for (var iter = 0; iter < 30000; ++iter)
          {
-            var innerObject0 = JsonSerializer.Unserialize(json);
+            var innerObject0 = JsonSerializer.Unserialize (json);
          }
 
          var diff = DateTime.Now - then;

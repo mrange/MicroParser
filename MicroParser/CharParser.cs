@@ -50,6 +50,8 @@ namespace MicroParser
          int maxCount = int.MaxValue
          )
       {
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
+
          return state =>
          {
             var advanceResult = state.SkipAdvance (charSatify.Satisfy, minCount, maxCount);
@@ -62,21 +64,7 @@ namespace MicroParser
          int maxCount = int.MaxValue
          )
       {
-         Parser.VerifyMinAndMaxCount (minCount, maxCount);
-
-         CharSatisfyFunction satisfy = (c, i) => char.IsWhiteSpace (c);
-
-         return state =>
-         {
-            var advanceResult = state.SkipAdvance (satisfy, minCount, maxCount);
-
-            return Parser.ToParserReply (
-               advanceResult, 
-               state, 
-               ParserErrorMessages.Expected_WhiteSpace,
-               Empty.Value
-               );
-         };
+         return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
       }
 
       public static ParserFunction<char> AnyOf (
@@ -173,6 +161,7 @@ namespace MicroParser
          return state =>
          {
             var subString = new SubString ();
+
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
 
             var expected =
@@ -223,18 +212,15 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return MicroTuple.Create (accumulated, newPos - oldPos);
+                     return MicroTuple.Create (accumulated, newPos.Position - oldPos.Position);
                   }
                );
          };
       }
 
-      public static ParserFunction<uint> ParseUInt (
-         int minCount = 1,
-         int maxCount = 10
-         )
+      public static ParserFunction<uint> ParseUInt ()
       {
-         var uintParser = ParseUIntImpl (minCount, maxCount);
+         var uintParser = ParseUIntImpl ();
 
          return state =>
          {
@@ -250,12 +236,8 @@ namespace MicroParser
       }
 
       public static ParserFunction<int> ParseInt (
-         int minCount = 1,
-         int maxCount = 11
          )
       {
-         Parser.VerifyMinAndMaxCount (minCount, maxCount);
-
          var intParser = Parser.Tuple (
             SkipChar ('-').Opt (),
             ParseUInt ()
@@ -276,13 +258,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<double> ParseDouble (
-         int minCount = 1,
-         int maxCount = 20
-         )
+      public static ParserFunction<double> ParseDouble ()
       {
-         Parser.VerifyMinAndMaxCount (minCount, maxCount);
-
          var intParser = ParseInt ();
          var fracParser = SkipChar ('.').KeepRight (ParseUIntImpl ());
          var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), ParseUInt ()));
