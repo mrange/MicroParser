@@ -52,24 +52,6 @@ namespace MicroParser.Internal
          return sb.ToString ();
       }
 
-      // CharSatisfy
-
-      public static CharSatify Or (this CharSatify first, CharSatify second)
-      {
-         return new CharSatify (
-            first.Expected.Append (second.Expected),
-            (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
-            );
-      }
-
-      public static CharSatify Except (this CharSatify first, CharSatify second)
-      {
-         return new CharSatify (
-            first.Expected.Append (second.Expected), // TODO: Change expected into unexpected
-            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
-            );
-      }
-
       // ParserReply_State
 
       public static bool IsSuccessful (this ParserReply_State state)

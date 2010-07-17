@@ -5,14 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5C289FB2-2A23-4929-AB17-1429750BDAC0}</ProjectGuid>
+    <ProjectGuid>{23ADA443-D3D3-4E02-B949-B939324E6E29}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MicroParser</RootNamespace>
-    <AssemblyName>MicroParser</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>FunWithExpandos</RootNamespace>
+    <AssemblyName>FunWithExpandos</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,46 +30,30 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharParser.cs" />
-    <Compile Include="CharSatify.cs" />
-    <Compile Include="Empty.cs" />
-    <Compile Include="Internal\Extensions.cs" />
-    <Compile Include="Optional.cs" />
-    <Compile Include="Parser.cs" />
-    <Compile Include="ParserError.cs" />
-    <Compile Include="ParserFunction.cs" />
-    <Compile Include="ParserReply.cs" />
-    <Compile Include="ParserResult.cs" />
-    <Compile Include="ParserState.cs" />
+    <Compile Include="JsonSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Strings.cs" />
-    <Compile Include="SubString.cs" />
-    <Compile Include="TupleGenerator.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TupleGenerator.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TupleGenerator.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TupleGenerator.cs</LastGenOutput>
-    </None>
+    <ProjectReference Include="..\MicroParser\MicroParser.csproj">
+      <Project>{5C289FB2-2A23-4929-AB17-1429750BDAC0}</Project>
+      <Name>MicroParser</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Backlog.txt" />
+    <Folder Include="Internal\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

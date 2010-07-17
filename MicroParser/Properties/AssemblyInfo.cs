@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("MicroParser")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Microsoft")]
+[assembly: AssemblyCompany ("Mårten Rånge")]
 [assembly: AssemblyProduct ("MicroParser")]
-[assembly: AssemblyCopyright ("Copyright © Microsoft 2010")]
+[assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

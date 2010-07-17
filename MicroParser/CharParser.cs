@@ -15,18 +15,38 @@ namespace MicroParser
       public static ParserFunction<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
+         var parserErrorMessage = new ParserErrorMessage_Expected(Strings.CharSatisfy.ExpectedChar_1.Form(toSkip));
          CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (toSkip));
-
-         return state =>
-                   {
-                      var advanceResult = state.SkipAdvance (satisfy, maxCount:toSkipNotNull.Length);
-                      return Parser.ToParserReply (advanceResult, state, parserErrorMessage, Empty.Value);
-                   };
+         return SkipSatisfy (
+            new CharSatify(parserErrorMessage, satisfy),
+            toSkipNotNull.Length,
+            toSkipNotNull.Length);
       }
 
-      public static ParserFunction<Empty> SkipWhiteSpace (
+      public static ParserFunction<Empty> SkipAnyOf(string skipAnyOfThese)
+      {
+         var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
+         return SkipSatisfy(
+            sat,
+            maxCount:1
+            );
+      }
+
+      public static ParserFunction<Empty> SkipSatisfy(
+         CharSatify charSatify,
+         int minCount = 0,
+         int maxCount = int.MaxValue
+         )
+      {
+         return state =>
+         {
+            var advanceResult = state.SkipAdvance(charSatify.Satisfy, minCount, maxCount);
+            return Parser.ToParserReply(advanceResult, state, charSatify.Expected, Empty.Value);
+         };
+      }
+
+      public static ParserFunction<Empty> SkipWhiteSpace(
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -52,6 +72,13 @@ namespace MicroParser
          string match
          )
       {
+         var satisfy = CreateSatisfyForAnyOf (match);
+
+         return CharSatisfy (satisfy);
+      }
+
+      static CharSatify CreateSatisfyForAnyOf (string match)
+      {
          var matchArray = (match ?? Strings.Empty).ToArray ();
 
          var expected = matchArray
@@ -61,7 +88,7 @@ namespace MicroParser
 
          var group = new ParserErrorMessage_Group (expected);
 
-         var satisfy = new CharSatify (
+         return new CharSatify (
             group,
             (c, i) =>
                {
@@ -76,8 +103,6 @@ namespace MicroParser
                   return false;
                }
             );
-
-         return CharSatisfy (satisfy);
       }
 
       public static ParserFunction<char> CharSatisfy (
@@ -247,9 +272,14 @@ namespace MicroParser
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
+         var intParser = ParseInt ();
+         var fracParser = SkipChar ('.').KeepRight (ParseUIntImpl ());
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), ParseUInt ()));
+
          var doubleParser = Parser.Tuple (
-            ParseInt (),
-            SkipChar ('.').KeepRight (ParseUIntImpl ()).Opt ()
+            intParser,
+            fracParser.Opt (),
+            expParser.Opt ()
             );
 
          return state =>
@@ -261,21 +291,61 @@ namespace MicroParser
                return doubleResult.Failure<double> ();
             }
 
-            var intValue = doubleResult.Value.Item1;
+            var value = doubleResult.Value;
 
-            if (doubleResult.Value.Item2.HasValue)
+            var intValue = value.Item1;
+
+            double doubleValue;
+
+            if (value.Item2.HasValue)
             {
-               var tupleValue = doubleResult.Value.Item2.Value;
+               var tupleValue = value.Item2.Value;
 
                var multiplier = intValue >= 0 ? 1 : -1;
 
-               return doubleResult.Success (intValue + multiplier * tupleValue.Item1 * (Math.Pow (0.1, tupleValue.Item2)));
+               doubleValue = intValue + multiplier * tupleValue.Item1 * (Math.Pow (0.1, tupleValue.Item2));
+            }
+            else
+            {
+               doubleValue = intValue;
             }
 
-            return doubleResult.Success ((double) intValue);
+            if (value.Item3.HasValue)
+            {
+               var modifier = value.Item3.Value.Item1;
+
+               var multiplier = 
+                  modifier.HasValue && modifier.Value == '-'
+                  ?  -1.0
+                  :  1.0
+                  ;
+
+               doubleValue *= Math.Pow (10.0, multiplier*value.Item3.Value.Item2);
+            }
+
+            return doubleResult.Success (doubleValue);
          };
       }
-      public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
+
+      // CharSatisfy
+
+      public static CharSatify Or(this CharSatify first, CharSatify second)
+      {
+         return new CharSatify(
+            first.Expected.Append(second.Expected),
+            (c, i) => first.Satisfy(c, i) || second.Satisfy(c, i)
+            );
+      }
+
+      public static CharSatify Except(this CharSatify first, CharSatify second)
+      {
+         return new CharSatify(
+            first.Expected.Append(second.Expected), // TODO: Change expected into unexpected
+            (c, i) => first.Satisfy(c, i) && !second.Satisfy(c, i)
+            );
+      }
+
+      public static readonly CharSatify SatisyAnyChar = new CharSatify(ParserErrorMessages.Expected_Any, (c, i) => true);
       public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
       public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
       public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));
