@@ -54,6 +54,21 @@
 <#
    }
 #>
+
+      public override string ToString ()
+      {
+         return new 
+         {
+<#
+      for (var ita = 0; ita < iter; ++ita)
+      {
+#>
+            Item<#=ita + 1#>,
+<#
+   }
+#>
+         }.ToString ();
+      }
    }
 
 <#
