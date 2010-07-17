@@ -1,4 +1,15 @@
-﻿using MicroParser.Internal;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using MicroParser.Internal;
 
 namespace MicroParser
 {
@@ -144,18 +155,18 @@ namespace MicroParser
             };
       }
 
-      public static ParserFunction<TValue[]> Array<TValue>(
+      public static ParserFunction<TValue[]> Array<TValue> (
          this ParserFunction<TValue> parser,
          ParserFunction<Empty> separator,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
       {
-         VerifyMinAndMaxCount(minCount, maxCount);
+         VerifyMinAndMaxCount (minCount, maxCount);
 
          return state =>
          {
-            var result = new List<TValue>(Math.Max(minCount, 16));
+            var result = new List<TValue> (Math.Max (minCount, 16));
 
             // Collect required
 
@@ -165,20 +176,20 @@ namespace MicroParser
                {
                   var separatorResult = separator (state);
 
-                  if (separatorResult.State.HasError())
+                  if (separatorResult.State.HasError ())
                   {
-                     return separatorResult.Failure<TValue[]>();
+                     return separatorResult.Failure<TValue[]> ();
                   }
                }
 
-               var parserResult = parser(state);
+               var parserResult = parser (state);
 
-               if (parserResult.State.HasError())
+               if (parserResult.State.HasError ())
                {
-                  return parserResult.Failure<TValue[]>();
+                  return parserResult.Failure<TValue[]> ();
                }
 
-               result.Add(parserResult.Value);
+               result.Add (parserResult.Value);
             }
 
             // Collect optional
@@ -187,38 +198,38 @@ namespace MicroParser
             {
                if (result.Count > 0)
                {
-                  var separatorResult = separator(state);
+                  var separatorResult = separator (state);
 
-                  if (separatorResult.State.HasFatalError())
+                  if (separatorResult.State.HasFatalError ())
                   {
-                     return separatorResult.Failure<TValue[]>();
+                     return separatorResult.Failure<TValue[]> ();
                   }
-                  else if (separatorResult.State.HasError())
+                  else if (separatorResult.State.HasError ())
                   {
                      break;
                   }
 
                }
 
-               var parserResult = parser(state);
+               var parserResult = parser (state);
 
-               if (parserResult.State.HasFatalError())
+               if (parserResult.State.HasFatalError ())
                {
-                  return parserResult.Failure<TValue[]>();
+                  return parserResult.Failure<TValue[]> ();
                }
-               else if (parserResult.State.HasError())
+               else if (parserResult.State.HasError ())
                {
                   break;
                }
 
-               result.Add(parserResult.Value);
+               result.Add (parserResult.Value);
             }
 
-            return ParserReply<TValue[]>.Success(state, result.ToArray());
+            return ParserReply<TValue[]>.Success (state, result.ToArray ());
          };
       }
 
-      public static ParserFunction<TValue[]> Many<TValue>(
+      public static ParserFunction<TValue[]> Many<TValue> (
          this ParserFunction<TValue> parser, 
          int minCount = 0, 
          int maxCount = int.MaxValue
@@ -361,36 +372,36 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2>> Tuple<TValue1, TValue2>(
+      public static ParserFunction<MicroTuple<TValue1, TValue2>> Tuple<TValue1, TValue2> (
          ParserFunction<TValue1> firstParser,
          ParserFunction<TValue2> secondParser
          )
       {
          return state =>
          {
-            var firstResult = firstParser(state);
+            var firstResult = firstParser (state);
 
-            if (firstResult.State.HasError())
+            if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2>>();
+               return firstResult.Failure<MicroTuple<TValue1, TValue2>> ();
             }
 
-            var secondResult = secondParser(state);
+            var secondResult = secondParser (state);
 
-            if (secondResult.State.HasError())
+            if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2>>();
+               return secondResult.Failure<MicroTuple<TValue1, TValue2>> ();
             }
 
-            return secondResult.Success(
-               MicroTuple.Create(
+            return secondResult.Success (
+               MicroTuple.Create (
                   firstResult.Value,
                   secondResult.Value
                   ));
          };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2, TValue3>> Tuple<TValue1, TValue2, TValue3>(
+      public static ParserFunction<MicroTuple<TValue1, TValue2, TValue3>> Tuple<TValue1, TValue2, TValue3> (
          ParserFunction<TValue1> firstParser, 
          ParserFunction<TValue2> secondParser,
          ParserFunction<TValue3> thirdParser
@@ -402,26 +413,26 @@ namespace MicroParser
 
             if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2, TValue3>>();
+               return firstResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
             }
 
             var secondResult = secondParser (state);
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>>();
+               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
             }
 
-            var thirdResult = thirdParser(state);
+            var thirdResult = thirdParser (state);
 
-            if (thirdResult.State.HasError())
+            if (thirdResult.State.HasError ())
             {
-               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>>();
+               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
             }
 
 
             return thirdResult.Success (
-               MicroTuple.Create(
+               MicroTuple.Create (
                   firstResult.Value,
                   secondResult.Value,
                   thirdResult.Value
@@ -491,7 +502,7 @@ namespace MicroParser
                       }
 
                       var epilogueResult = epilogueParser (state);
-                      if (epilogueResult.State.HasError())
+                      if (epilogueResult.State.HasError ())
                       {
                          return epilogueResult.Failure<TValue> ();
                       }

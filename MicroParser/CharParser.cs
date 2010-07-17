@@ -1,4 +1,15 @@
-﻿using MicroParser.Internal;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using MicroParser.Internal;
 
 namespace MicroParser
 {
@@ -15,25 +26,25 @@ namespace MicroParser
       public static ParserFunction<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
-         var parserErrorMessage = new ParserErrorMessage_Expected(Strings.CharSatisfy.ExpectedChar_1.Form(toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (toSkip));
          CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
-            new CharSatify(parserErrorMessage, satisfy),
+            new CharSatify (parserErrorMessage, satisfy),
             toSkipNotNull.Length,
             toSkipNotNull.Length);
       }
 
-      public static ParserFunction<Empty> SkipAnyOf(string skipAnyOfThese)
+      public static ParserFunction<Empty> SkipAnyOf (string skipAnyOfThese)
       {
          var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
-         return SkipSatisfy(
+         return SkipSatisfy (
             sat,
             maxCount:1
             );
       }
 
-      public static ParserFunction<Empty> SkipSatisfy(
+      public static ParserFunction<Empty> SkipSatisfy (
          CharSatify charSatify,
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -41,12 +52,12 @@ namespace MicroParser
       {
          return state =>
          {
-            var advanceResult = state.SkipAdvance(charSatify.Satisfy, minCount, maxCount);
-            return Parser.ToParserReply(advanceResult, state, charSatify.Expected, Empty.Value);
+            var advanceResult = state.SkipAdvance (charSatify.Satisfy, minCount, maxCount);
+            return Parser.ToParserReply (advanceResult, state, charSatify.Expected, Empty.Value);
          };
       }
 
-      public static ParserFunction<Empty> SkipWhiteSpace(
+      public static ParserFunction<Empty> SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -212,7 +223,7 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return MicroTuple.Create(accumulated, newPos - oldPos);
+                     return MicroTuple.Create (accumulated, newPos - oldPos);
                   }
                );
          };
@@ -329,23 +340,23 @@ namespace MicroParser
 
       // CharSatisfy
 
-      public static CharSatify Or(this CharSatify first, CharSatify second)
+      public static CharSatify Or (this CharSatify first, CharSatify second)
       {
-         return new CharSatify(
-            first.Expected.Append(second.Expected),
-            (c, i) => first.Satisfy(c, i) || second.Satisfy(c, i)
+         return new CharSatify (
+            first.Expected.Append (second.Expected),
+            (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
             );
       }
 
-      public static CharSatify Except(this CharSatify first, CharSatify second)
+      public static CharSatify Except (this CharSatify first, CharSatify second)
       {
-         return new CharSatify(
-            first.Expected.Append(second.Expected), // TODO: Change expected into unexpected
-            (c, i) => first.Satisfy(c, i) && !second.Satisfy(c, i)
+         return new CharSatify (
+            first.Expected.Append (second.Expected), // TODO: Change expected into unexpected
+            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
 
-      public static readonly CharSatify SatisyAnyChar = new CharSatify(ParserErrorMessages.Expected_Any, (c, i) => true);
+      public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
       public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
       public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
       public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));

@@ -1,4 +1,15 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using System;
 using System.Linq;
 using MicroParser;
 
@@ -15,17 +26,17 @@ namespace Bindings.Internal
    {
       int? m_hashCode;
 
-      public override int GetHashCode()
+      public override int GetHashCode ()
       {
          if (m_hashCode == null)
          {
-            m_hashCode = CalculateHashCode();
+            m_hashCode = CalculateHashCode ();
          }
 
          return m_hashCode.Value;
       }
 
-      protected abstract int CalculateHashCode();
+      protected abstract int CalculateHashCode ();
    }
 
    enum VariableModifier
@@ -50,14 +61,14 @@ namespace Bindings.Internal
       public readonly BinaryOp Op;
       public readonly IAst Right;
 
-      public Ast_Binary(IAst left, BinaryOp op, IAst right)
+      public Ast_Binary (IAst left, BinaryOp op, IAst right)
       {
          Left = left;
          Right = right;
          Op = op;
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
          {
@@ -65,20 +76,20 @@ namespace Bindings.Internal
             Left,
             Op,
             Right,
-         }.ToString();
+         }.ToString ();
       }
 
-      protected override int CalculateHashCode()
+      protected override int CalculateHashCode ()
       {
-         return Left.SafeGetHashCode() ^ Op.GetHashCode() ^ Right.SafeGetHashCode();
+         return Left.SafeGetHashCode () ^ Op.GetHashCode () ^ Right.SafeGetHashCode ();
       }
 
-      public override bool Equals(object obj)
+      public override bool Equals (object obj)
       {
-         return Equals(obj as Ast_Binary);
+         return Equals (obj as Ast_Binary);
       }
 
-      public bool Equals(Ast_Binary other)
+      public bool Equals (Ast_Binary other)
       {
          if (other == null)
          {
@@ -86,9 +97,9 @@ namespace Bindings.Internal
          }
 
          return
-            Left.SafeEquals(other.Left)
+            Left.SafeEquals (other.Left)
             && Op == other.Op
-            && Right.SafeEquals(other.Right);
+            && Right.SafeEquals (other.Right);
       }
 
    }
@@ -97,31 +108,31 @@ namespace Bindings.Internal
    {
       public readonly double Value;
 
-      public Ast_Value(double value)
+      public Ast_Value (double value)
       {
          Value = value;
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
          {
             NodeType = "Value",
             Value,
-         }.ToString();
+         }.ToString ();
       }
 
-      protected override int CalculateHashCode()
+      protected override int CalculateHashCode ()
       {
-         return Value.GetHashCode();
+         return Value.GetHashCode ();
       }
 
-      public override bool Equals(object obj)
+      public override bool Equals (object obj)
       {
-         return Equals(obj as Ast_Value);
+         return Equals (obj as Ast_Value);
       }
 
-      public bool Equals(Ast_Value other)
+      public bool Equals (Ast_Value other)
       {
          if (other == null)
          {
@@ -138,7 +149,7 @@ namespace Bindings.Internal
       public readonly string Root;
       public readonly string[] Names;
 
-      public Ast_Variable(
+      public Ast_Variable (
          Optional<VariableModifier> variableModifier,
          string root, 
          string[] names
@@ -149,34 +160,34 @@ namespace Bindings.Internal
          Names = names ?? new string[0];
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
          {
             NodeType = "Variable",
             VariableModifier,
             Root,
-            Names = Names.Concatenate(","),
-         }.ToString();
+            Names = Names.Concatenate (","),
+         }.ToString ();
       }
 
-      protected override int CalculateHashCode()
+      protected override int CalculateHashCode ()
       {
          return
-               Root.SafeGetHashCode()
+               Root.SafeGetHashCode ()
             ^ Names
-               .Aggregate(
+               .Aggregate (
                   0x55555555,
-                  (s, v) => s ^ v.SafeGetHashCode()
+                  (s, v) => s ^ v.SafeGetHashCode ()
                   );
       }
 
-      public override bool Equals(object obj)
+      public override bool Equals (object obj)
       {
-         return Equals(obj as Ast_Variable);
+         return Equals (obj as Ast_Variable);
       }
 
-      public bool Equals(Ast_Variable other)
+      public bool Equals (Ast_Variable other)
       {
          if (other == null)
          {
@@ -184,8 +195,8 @@ namespace Bindings.Internal
          }
 
          return
-               Root.SafeEquals(other.Root)
-            && Names.SequenceEqual(other.Names)
+               Root.SafeEquals (other.Root)
+            && Names.SequenceEqual (other.Names)
             ;
       }
    }
