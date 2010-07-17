@@ -2,5 +2,5 @@
 1. Certain Parser Generators need to generate a fatal error even if the sub 
    parser fails with non-fatal error(s). The reason being that the position
    may now have been moved forward thus the state isn't properly restored
-
 // ----------------------------------------------------------------------------
+2. Parser error message should include reference to string position
