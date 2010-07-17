@@ -1,16 +1,10 @@
-﻿<Window x:Class="TestBindings.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-        xmlns:b="clr-namespace:Bindings;assembly=Bindings" 
-        Title="MainWindow" 
-        Height="350" 
-        Width="525">
-    <Grid x:Name="Root">
-      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-         <Button HorizontalAlignment="Left" x:Name="Btn" Height="24" Content="Test" Width="{b:ExpressionBinding Expression='#Root.ActualWidth/2.0 ! 200'}"/>
-         <TextBox BorderBrush="Blue" BorderThickness="3" Height="24" Text="Testing" Width="{b:ExpressionBinding Expression='#Btn.ActualWidth + 100'}"/>
-         
-      </StackPanel>         
-      
-   </Grid>
+﻿<Window x:Class="TestBindings.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:b="clr-namespace:Bindings;assembly=Bindings" Title="MainWindow" Height="350" Width="525">
+	<Grid x:Name="Root">
+		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+			<Button HorizontalAlignment="Left" x:Name="Btn" Height="24" Content="Test" Width="{b:ExpressionBinding Expression='#Root.ActualWidth/2.0 ! 200'}" />
+			<TextBox BorderBrush="Blue" BorderThickness="3" Height="24" Text="Testing" Width="{b:ExpressionBinding Expression='#Btn.ActualWidth + 100'}" />
+
+		</StackPanel>
+
+	</Grid>
 </Window>

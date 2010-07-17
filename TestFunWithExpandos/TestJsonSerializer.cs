@@ -1,4 +1,15 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -33,15 +44,15 @@ namespace TestFunWithExpandos
 
             };
 
-      new static bool Equals(dynamic expected, dynamic value)
+      new static bool Equals (dynamic expected, dynamic value)
       {
          if (expected is double && value != null)
          {
-            return Math.Round(expected - value, 10) < double.Epsilon;
+            return Math.Round (expected - value, 10) < double.Epsilon;
          }
          else if (expected != null && value != null)
          {
-            return expected.Equals(value);
+            return expected.Equals (value);
          }
          else
          {
@@ -50,35 +61,35 @@ namespace TestFunWithExpandos
       }
 
       [TestMethod]
-      public void Test_SimpleExpressions()
+      public void Test_SimpleExpressions ()
       {
 
          foreach (var primitiveTest in s_primitiveTest)
          {
-            var value = JsonSerializer.Unserialize(primitiveTest.Item1);
-            bool result = Equals(primitiveTest.Item2, value);
+            var value = JsonSerializer.Unserialize (primitiveTest.Item1);
+            bool result = Equals (primitiveTest.Item2, value);
             Assert.IsTrue (result);
          }
       }
 
       [TestMethod]
-      public void Test_ArrayExpressions()
+      public void Test_ArrayExpressions ()
       {
-         var array0 = (dynamic[])JsonSerializer.Unserialize("[]");
+         var array0 = (dynamic[])JsonSerializer.Unserialize ("[]");
 
          Assert.AreEqual (0, array0.Length);
 
-         var array1 = (dynamic[])JsonSerializer.Unserialize("[1]");
+         var array1 = (dynamic[])JsonSerializer.Unserialize ("[1]");
 
-         Assert.AreEqual(1, array1.Length);
-         Assert.IsTrue(Equals(1.0, array1[0]));
+         Assert.AreEqual (1, array1.Length);
+         Assert.IsTrue (Equals (1.0, array1[0]));
 
-         var array3 = (dynamic[])JsonSerializer.Unserialize("[1, 3.14, \"Test\"]");
+         var array3 = (dynamic[])JsonSerializer.Unserialize ("[1, 3.14, \"Test\"]");
 
-         Assert.AreEqual(3, array3.Length);
-         Assert.IsTrue(Equals(1.0, array3[0]));
-         Assert.IsTrue(Equals(3.14, array3[1]));
-         Assert.IsTrue(Equals("Test", array3[2]));
+         Assert.AreEqual (3, array3.Length);
+         Assert.IsTrue (Equals (1.0, array3[0]));
+         Assert.IsTrue (Equals (3.14, array3[1]));
+         Assert.IsTrue (Equals ("Test", array3[2]));
 
       }
 
@@ -89,31 +100,31 @@ namespace TestFunWithExpandos
       }
 
       [TestMethod]
-      public void Test_ObjectExpressions()
+      public void Test_ObjectExpressions ()
       {
-         var object0 = JsonSerializer.Unserialize("{}");
+         var object0 = JsonSerializer.Unserialize ("{}");
 
-         Assert.AreEqual(0, NumberOfProperties(object0));
+         Assert.AreEqual (0, NumberOfProperties (object0));
 
-         var object1 = JsonSerializer.Unserialize("{\"Test\":1}");
+         var object1 = JsonSerializer.Unserialize ("{\"Test\":1}");
 
-         Assert.AreEqual(1, NumberOfProperties(object1));
-         Assert.IsTrue(Equals(1.0, object1.Test));
+         Assert.AreEqual (1, NumberOfProperties (object1));
+         Assert.IsTrue (Equals (1.0, object1.Test));
 
 
-         var object2 = JsonSerializer.Unserialize("{\"Test\":1, \"Test2\": \"Tjo\"}");
+         var object2 = JsonSerializer.Unserialize ("{\"Test\":1, \"Test2\": \"Tjo\"}");
 
-         Assert.AreEqual(2, NumberOfProperties(object2));
-         Assert.IsTrue(Equals(1.0, object2.Test));
-         Assert.IsTrue(Equals("Tjo", object2.Test2));
+         Assert.AreEqual (2, NumberOfProperties (object2));
+         Assert.IsTrue (Equals (1.0, object2.Test));
+         Assert.IsTrue (Equals ("Tjo", object2.Test2));
       }
 
       [TestMethod]
-      public void Test_ComplexExpressions()
+      public void Test_ComplexExpressions ()
       {
          var json = GetStringResource ();
 
-         var object0 = JsonSerializer.Unserialize(json);
+         var object0 = JsonSerializer.Unserialize (json);
 
          var glossary = object0.glossary;
 
@@ -137,30 +148,30 @@ namespace TestFunWithExpandos
          var glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso  = glossary_GlossDiv_GlossList_GlossEntry_GlossDef.GlossSeeAlso;
 
 
-         Assert.AreEqual("example glossary", glossary_Title);
+         Assert.AreEqual ("example glossary", glossary_Title);
 
-         Assert.AreEqual("S", glossary_GlossDiv_Title);
+         Assert.AreEqual ("S", glossary_GlossDiv_Title);
 
 
-         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_ID);
-         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_SortAs);
-         Assert.AreEqual("Standard Generalized Markup Language", glossary_GlossDiv_GlossList_GlossEntry_GlossTerm);
-         Assert.AreEqual("SGML", glossary_GlossDiv_GlossList_GlossEntry_Acronym);
-         Assert.AreEqual("ISO 8879:1986", glossary_GlossDiv_GlossList_GlossEntry_Abbrev);
-         Assert.AreEqual("markup", glossary_GlossDiv_GlossList_GlossEntry_GlossSee);
+         Assert.AreEqual ("SGML", glossary_GlossDiv_GlossList_GlossEntry_ID);
+         Assert.AreEqual ("SGML", glossary_GlossDiv_GlossList_GlossEntry_SortAs);
+         Assert.AreEqual ("Standard Generalized Markup Language", glossary_GlossDiv_GlossList_GlossEntry_GlossTerm);
+         Assert.AreEqual ("SGML", glossary_GlossDiv_GlossList_GlossEntry_Acronym);
+         Assert.AreEqual ("ISO 8879:1986", glossary_GlossDiv_GlossList_GlossEntry_Abbrev);
+         Assert.AreEqual ("markup", glossary_GlossDiv_GlossList_GlossEntry_GlossSee);
 
-         Assert.AreEqual("A meta-markup language, used to create markup languages such as DocBook.", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_para);
+         Assert.AreEqual ("A meta-markup language, used to create markup languages such as DocBook.", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_para);
 
-         Assert.AreEqual(2, glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso.Length);
-         Assert.AreEqual("GML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[0]);
-         Assert.AreEqual("XML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[1]);
+         Assert.AreEqual (2, glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso.Length);
+         Assert.AreEqual ("GML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[0]);
+         Assert.AreEqual ("XML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[1]);
 
 
       }
 
       static string GetStringResource ()
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestFunWithExpandos.JSON.txt"))
+         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ("TestFunWithExpandos.JSON.txt"))
          {
             if (resourceStream == null)
             {

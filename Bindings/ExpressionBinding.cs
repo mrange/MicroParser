@@ -1,4 +1,15 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Data;
@@ -24,19 +35,19 @@ namespace Bindings
          s_expressionCache.Add ("", svcPrv => 0.0);
 
          // ReSharper disable InconsistentNaming
-         var p_eos = Parser.EndOfStream();
+         var p_eos = Parser.EndOfStream ();
 
-         var p_spaces = CharParser.SkipWhiteSpace();
+         var p_spaces = CharParser.SkipWhiteSpace ();
 
-         Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString(token).KeepLeft(p_spaces);
+         Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString (token).KeepLeft (p_spaces);
 
          var p_value = CharParser
-            .ParseDouble()
-            .KeepLeft(p_spaces)
-            .Map(i => new Ast_Value (i) as IAst);
+            .ParseDouble ()
+            .KeepLeft (p_spaces)
+            .Map (i => new Ast_Value (i) as IAst);
 
          var p_identifier = CharParser
-            .ManyCharSatisfy2(
+            .ManyCharSatisfy2 (
                CharParser.SatisyLetter,
                CharParser.SatisyLetterOrDigit,
                1);
@@ -51,19 +62,19 @@ namespace Bindings
                      case '^':
                         return VariableModifier.TemplatedParent;
                      default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException ();
                   }
                };
 
-         var p_modifier = CharParser.AnyOf("#^").Map(charToModifier);
+         var p_modifier = CharParser.AnyOf ("#^").Map (charToModifier);
 
          var p_variable =
             Parser.Tuple (
                p_modifier.Opt (),
                p_identifier,
-               p_token(".").KeepRight(p_identifier).Many())
-               .KeepLeft(p_spaces)
-               .Map(tuple => new Ast_Variable (tuple.Item1, tuple.Item2, tuple.Item3) as IAst);
+               p_token (".").KeepRight (p_identifier).Many ())
+               .KeepLeft (p_spaces)
+               .Map (tuple => new Ast_Variable (tuple.Item1, tuple.Item2, tuple.Item3) as IAst);
 
          Func<char, BinaryOp> charToBinOp =
             ch =>
@@ -83,7 +94,7 @@ namespace Bindings
                      case '?':
                         return BinaryOp.Min;
                      default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException ();
                   }
                };
 
@@ -91,25 +102,25 @@ namespace Bindings
          var p_mulOp = CharParser.AnyOf ("*/").KeepLeft (p_spaces).Map (charToBinOp);
          var p_maxOp = CharParser.AnyOf ("!?").KeepLeft (p_spaces).Map (charToBinOp);
 
-         var p_ast_redirect = Parser.Redirect<IAst>();
+         var p_ast_redirect = Parser.Redirect<IAst> ();
 
          var p_ast = p_ast_redirect.Function;
 
-         var p_term = Parser.Choice(
-            p_ast.Between(p_token("(").KeepLeft(p_spaces), p_token(")").KeepLeft(p_spaces)),
+         var p_term = Parser.Choice (
+            p_ast.Between (p_token ("(").KeepLeft (p_spaces), p_token (")").KeepLeft (p_spaces)),
             p_variable,
             p_value
             );
 
          Func<IAst, BinaryOp, IAst, IAst> makeBinOp = (l, op, r) => new Ast_Binary (l, op, r);
 
-         var p_level0 = p_term.Chain(p_mulOp, makeBinOp);
-         var p_level1 = p_level0.Chain(p_addOp, makeBinOp);
-         var p_level2 = p_level1.Chain(p_maxOp, makeBinOp);
+         var p_level0 = p_term.Chain (p_mulOp, makeBinOp);
+         var p_level1 = p_level0.Chain (p_addOp, makeBinOp);
+         var p_level2 = p_level1.Chain (p_maxOp, makeBinOp);
 
          p_ast_redirect.Redirect = p_level2;
 
-         s_parser = p_ast.KeepLeft(p_eos);
+         s_parser = p_ast.KeepLeft (p_eos);
          // ReSharper restore InconsistentNaming
       }
 
@@ -120,28 +131,28 @@ namespace Bindings
 
       static Func<IServiceProvider, object> MakeBindingCreator (string expression)
       {
-         var parseResult = Parser.Parse(s_parser, expression);
+         var parseResult = Parser.Parse (s_parser, expression);
 
          if (!parseResult.IsSuccessful)
          {
-            throw new ArgumentException(parseResult.ErrorMessage ?? "Unknown error");
+            throw new ArgumentException (parseResult.ErrorMessage ?? "Unknown error");
          }
 
-         var collectVariablesAstVisitor = new CollectVariablesAstVisitor();
-         collectVariablesAstVisitor.Visit(parseResult.Value);
+         var collectVariablesAstVisitor = new CollectVariablesAstVisitor ();
+         collectVariablesAstVisitor.Visit (parseResult.Value);
          var variables = collectVariablesAstVisitor.Variables;
-         var inputParameter = SLE.Expression.Parameter(typeof(object[]), "input");
-         var expressionBuilderAstVisitor = new ExpressionBuilderAstVisitor(
+         var inputParameter = SLE.Expression.Parameter (typeof (object[]), "input");
+         var expressionBuilderAstVisitor = new ExpressionBuilderAstVisitor (
             variables,
             inputParameter
             );
          var lambda =
-            SLE.Expression.Lambda<Func<object[], double>>(
-               expressionBuilderAstVisitor.Visit(parseResult.Value),
+            SLE.Expression.Lambda<Func<object[], double>> (
+               expressionBuilderAstVisitor.Visit (parseResult.Value),
                inputParameter
                );
 
-         var func = lambda.Compile();
+         var func = lambda.Compile ();
 
          if (variables.Count == 0)
          {
@@ -150,7 +161,7 @@ namespace Bindings
          }
          else if (variables.Count == 1)
          {
-            var binding = MakeBinding (variables.First().Key);
+            var binding = MakeBinding (variables.First ().Key);
             binding.Converter = new ExpressionValueConverter (func);
             return binding.ProvideValue;
          }
@@ -208,7 +219,7 @@ namespace Bindings
                   binding.ElementName = key.Root;
                   break;
                case VariableModifier.TemplatedParent:
-                  binding.RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent);
+                  binding.RelativeSource = new RelativeSource (RelativeSourceMode.TemplatedParent);
                   break;
                default:
                   throw new ArgumentOutOfRangeException ();

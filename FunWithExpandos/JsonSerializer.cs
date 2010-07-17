@@ -1,4 +1,15 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using MicroParser;
@@ -16,7 +27,7 @@ namespace FunWithExpandos
          ErrorMessage = errorMessage ?? "<NULL>";
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
                    {
@@ -37,10 +48,10 @@ namespace FunWithExpandos
 
          var p_spaces = CharParser.SkipWhiteSpace ();
 
-         var p_null = p_str ("null").Map(empty => null as dynamic);
+         var p_null = p_str ("null").Map (empty => null as dynamic);
 
-         var p_true = p_str ("true").Map(empty => true as dynamic);
-         var p_false = p_str ("false").Map(empty => false as dynamic);
+         var p_true = p_str ("true").Map (empty => true as dynamic);
+         var p_false = p_str ("false").Map (empty => false as dynamic);
 
          var p_number = CharParser.ParseDouble ().Map (d => d as dynamic);
 
@@ -49,8 +60,8 @@ namespace FunWithExpandos
 
          var p_string = CharParser.ManyCharSatisfy (CharParser.SatisyAnyChar.Except ('"'))
             .Between (
-               p_char('"'),
-               p_char('"')
+               p_char ('"'),
+               p_char ('"')
                )
             .Map (s => s as dynamic);
 
@@ -71,14 +82,14 @@ namespace FunWithExpandos
          var p_elements = p_value.Array (p_char (',').KeepLeft (p_spaces));
 
          p_array_redirect.Redirect = p_elements.Between (
-            p_char ('[').KeepLeft(p_spaces),
+            p_char ('[').KeepLeft (p_spaces),
             p_char (']')
             )
             .Map (a => a as dynamic);
 
          var p_member = Parser.Tuple (
             p_string,
-            p_char (':').KeepLeft(p_spaces).KeepRight (p_value)
+            p_char (':').KeepLeft (p_spaces).KeepRight (p_value)
             );
 
          var p_members = p_member.Array (p_char (',').KeepLeft (p_spaces));

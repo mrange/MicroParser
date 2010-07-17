@@ -1,4 +1,15 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -10,36 +21,36 @@ namespace Bindings.Internal
    {
       // TValue (ref)
 
-      public static int SafeGetHashCode<TValue>(this TValue value)
+      public static int SafeGetHashCode<TValue> (this TValue value)
          where TValue : class
       {
-         return value != null ? value.GetHashCode() : 0x55555555;
+         return value != null ? value.GetHashCode () : 0x55555555;
       }
 
-      public static bool SafeEquals<TValue>(this TValue left, TValue right)
+      public static bool SafeEquals<TValue> (this TValue left, TValue right)
          where TValue : class
       {
          return left != null && right != null
-            ? left.Equals(right)
+            ? left.Equals (right)
             : left == null && right == null
             ;
       }
 
       // System.String
 
-      public static string Form(this string format, params object[] args)
+      public static string Form (this string format, params object[] args)
       {
-         return string.Format(CultureInfo.InvariantCulture, format, args);
+         return string.Format (CultureInfo.InvariantCulture, format, args);
       }
 
-      public static bool IsNullOrEmpty(this string str)
+      public static bool IsNullOrEmpty (this string str)
       {
-         return string.IsNullOrEmpty(str);
+         return string.IsNullOrEmpty (str);
       }
 
       // IEnumerable<string>
 
-      public static string Concatenate(
+      public static string Concatenate (
          this IEnumerable<string> strings,
          string delimiter = null,
          string prepend = null,
@@ -48,7 +59,7 @@ namespace Bindings.Internal
       {
          var first = true;
 
-         var sb = new StringBuilder(prepend ?? Strings.Empty);
+         var sb = new StringBuilder (prepend ?? Strings.Empty);
 
          var del = delimiter ?? Strings.Empty;
 
@@ -60,13 +71,13 @@ namespace Bindings.Internal
             }
             else
             {
-               sb.Append(del);
+               sb.Append (del);
             }
-            sb.Append(value);
+            sb.Append (value);
          }
 
-         sb.Append(append ?? Strings.Empty);
-         return sb.ToString();
+         sb.Append (append ?? Strings.Empty);
+         return sb.ToString ();
       }
 
       // System.Collection.Generic.IDictionary<TKey, TValue>
