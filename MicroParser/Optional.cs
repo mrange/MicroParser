@@ -35,6 +35,7 @@ namespace MicroParser
          Value = value;
       }
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
@@ -43,6 +44,6 @@ namespace MicroParser
                       Value = HasValue ? Value : default (TValue),
                    }.ToString ();
       }
-
+#endif
    }
 }

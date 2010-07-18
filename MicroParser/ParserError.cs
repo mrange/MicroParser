@@ -9,12 +9,14 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
+
+// ReSharper disable InconsistentNaming
 
 namespace MicroParser
 {
    using System;
    using System.Linq;
+   using Internal;
 
    public interface IParserErrorMessage
    {
@@ -56,10 +58,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return new
-                   {
-                      Message,
-                   }.ToString ();
+         return Strings.ParserErrorMessages.Message_1.Form(Message);
       }
 
       public override string Description
@@ -84,10 +83,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return new
-         {
-            Expected,
-         }.ToString ();
+         return Strings.ParserErrorMessages.Expected_1.Form(Expected);
       }
 
       public override string Description
@@ -112,10 +108,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return new
-         {
-            Unexpected,
-         }.ToString ();
+         return Strings.ParserErrorMessages.Unexpected_1.Form(Unexpected);
       }
 
       public override string Description
@@ -140,10 +133,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return new
-            {
-               Group = Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator),
-            }.ToString ();
+         return Strings.ParserErrorMessages.Group_1.Form(Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description
