@@ -26,11 +26,11 @@ namespace MicroParser
    }
    // ReSharper restore InconsistentNaming
 
-   public struct ParseStatePosition
+   partial struct ParserStatePosition
    {
       public readonly int Position;
 
-      public ParseStatePosition (int position)
+      public ParserStatePosition (int position)
       {
          Position = position;
       }
@@ -47,7 +47,7 @@ namespace MicroParser
 
    }
 
-   public sealed class ParserState
+   sealed partial class ParserState
    {
       readonly string m_text;
 
@@ -70,11 +70,11 @@ namespace MicroParser
          }
       }
 
-      public ParseStatePosition Position
+      public ParserStatePosition Position
       {
          get
          {
-            return new ParseStatePosition (m_position);
+            return new ParserStatePosition (m_position);
          }
       }
 

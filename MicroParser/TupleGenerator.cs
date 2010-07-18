@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   public static class MicroTuple
+   static partial class MicroTuple
    {
       public static MicroTuple<TValue1, TValue2> Create<TValue1, TValue2> (
             TValue1 value1
@@ -38,7 +38,7 @@ namespace MicroParser
             };
       }
    }
-   public struct MicroTuple<TValue1, TValue2>
+   partial struct MicroTuple<TValue1, TValue2>
    {
       public TValue1 Item1;
       public TValue2 Item2;
@@ -54,7 +54,7 @@ namespace MicroParser
       }
 #endif
    }
-   public struct MicroTuple<TValue1, TValue2, TValue3>
+   partial struct MicroTuple<TValue1, TValue2, TValue3>
    {
       public TValue1 Item1;
       public TValue2 Item2;

@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
-
 namespace MicroParser
 {
    using System;
    using System.Linq;
+   using Internal;
 
-   public static partial class CharParser
+
+   static partial class CharParser
    {
       public static ParserFunction<Empty> SkipChar (char toSkip)
       {

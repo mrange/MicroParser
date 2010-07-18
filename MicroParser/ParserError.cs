@@ -18,19 +18,19 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-   public interface IParserErrorMessage
+   partial interface IParserErrorMessage
    {
       string Description { get; }
       object Value { get; }
    }
 
-   public abstract class ParserErrorMessage : IParserErrorMessage
+   abstract partial class ParserErrorMessage : IParserErrorMessage
    {
       public abstract string Description { get; }
       public abstract object Value { get; }
    }
 
-   public static class ParserErrorMessages
+   static partial class ParserErrorMessages
    {
       [Obsolete]
       public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
@@ -47,7 +47,7 @@ namespace MicroParser
    }
 
 
-   public sealed class ParserErrorMessage_Message : ParserErrorMessage
+   sealed partial class ParserErrorMessage_Message : ParserErrorMessage
    {
       public readonly string Message;
 
@@ -72,7 +72,7 @@ namespace MicroParser
       }
    }
 
-   public sealed class ParserErrorMessage_Expected : ParserErrorMessage
+   sealed partial class ParserErrorMessage_Expected : ParserErrorMessage
    {
       public readonly string Expected;
 
@@ -97,7 +97,7 @@ namespace MicroParser
       }
    }
 
-   public sealed class ParserErrorMessage_Unexpected : ParserErrorMessage
+   sealed partial class ParserErrorMessage_Unexpected : ParserErrorMessage
    {
       public readonly string Unexpected;
 
@@ -122,7 +122,7 @@ namespace MicroParser
       }
    }
 
-   public sealed class ParserErrorMessage_Group : ParserErrorMessage
+   sealed partial class ParserErrorMessage_Group : ParserErrorMessage
    {
       public readonly IParserErrorMessage[] Group;
 

@@ -16,7 +16,7 @@ namespace MicroParser
 {
    using System;
 
-   public static class Strings
+   static partial class Strings
    {
       public const string CommaSeparator = ", ";
       public const string Empty = "";

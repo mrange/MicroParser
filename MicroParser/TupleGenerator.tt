@@ -15,7 +15,7 @@ namespace MicroParser
    const int MinCount = 2;
    const int MaxCount = 3;
 #>
-   public static class MicroTuple
+   static partial class MicroTuple
    {
 <#
    for (var iter = MinCount; iter <= MaxCount; ++iter)
@@ -55,7 +55,7 @@ namespace MicroParser
    {
       var typeSpec = BuildTypeSpec (iter);
 #>
-   public struct MicroTuple<<#=typeSpec#>>
+   partial struct MicroTuple<<#=typeSpec#>>
    {
 <#
       for (var ita = 0; ita < iter; ++ita)
