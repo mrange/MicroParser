@@ -46,6 +46,7 @@ namespace FunWithExpandos
       {
          // Language spec at www.json.org
 
+         // ReSharper disable InconsistentNaming
          Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
          Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
 
@@ -66,7 +67,7 @@ namespace FunWithExpandos
                p_char ('"'),
                p_char ('"')
                )
-            .Map (s => s as dynamic);
+            .Map (subString => subString.ToString () as dynamic);
 
          var p_array = p_array_redirect.Function;
          var p_object = p_object_redirect.Function;
@@ -88,7 +89,7 @@ namespace FunWithExpandos
             p_char ('[').KeepLeft (p_spaces),
             p_char (']')
             )
-            .Map (a => a as dynamic);
+            .Map (objects => objects as dynamic);
 
          var p_member = Parser.Tuple (
             p_string,
@@ -114,6 +115,7 @@ namespace FunWithExpandos
                            return exp as object;
                         });
 
+         // ReSharper restore InconsistentNaming
 
          s_parser = p_spaces.KeepRight (p_value);
       }

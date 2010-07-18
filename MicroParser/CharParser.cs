@@ -122,7 +122,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy (
+      public static ParserFunction<SubString> ManyCharSatisfy (
          CharSatify satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -139,12 +139,12 @@ namespace MicroParser
                advanceResult,
                state,
                satisfy.Expected,
-               () => subString.ToString ()
+               subString
                );
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy2 (
+      public static ParserFunction<SubString> ManyCharSatisfy2 (
          CharSatify satisfyFirst,
          CharSatify satisfyRest,
          int minCount = 0,
@@ -173,7 +173,7 @@ namespace MicroParser
                advanceResult,
                state,
                expected,
-               () => subString.ToString ()
+               subString
                );
          };
       }

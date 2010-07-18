@@ -58,7 +58,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Message_1.Form(Message);
+         return Strings.ParserErrorMessages.Message_1.Form (Message);
       }
 
       public override string Description
@@ -83,7 +83,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Expected_1.Form(Expected);
+         return Strings.ParserErrorMessages.Expected_1.Form (Expected);
       }
 
       public override string Description
@@ -108,7 +108,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Unexpected_1.Form(Unexpected);
+         return Strings.ParserErrorMessages.Unexpected_1.Form (Unexpected);
       }
 
       public override string Description
@@ -133,7 +133,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Group_1.Form(Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
+         return Strings.ParserErrorMessages.Group_1.Form (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description

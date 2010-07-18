@@ -125,7 +125,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy (
+      public static ParserFunction<SubString> ManyCharSatisfy (
          CharSatify satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -142,12 +142,12 @@ namespace MicroParser
                advanceResult,
                state,
                satisfy.Expected,
-               () => subString.ToString ()
+               subString
                );
          };
       }
 
-      public static ParserFunction<string> ManyCharSatisfy2 (
+      public static ParserFunction<SubString> ManyCharSatisfy2 (
          CharSatify satisfyFirst,
          CharSatify satisfyRest,
          int minCount = 0,
@@ -176,7 +176,7 @@ namespace MicroParser
                advanceResult,
                state,
                expected,
-               () => subString.ToString ()
+               subString
                );
          };
       }
@@ -567,7 +567,7 @@ namespace MicroParser
    using System;
 #if MICRO_PARSER_MAKE_PUBLIC
    public delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   public delegate bool CharSatisfyFunction(char ch, int index);
+   public delegate bool CharSatisfyFunction (char ch, int index);
 
    // ReSharper disable InconsistentNaming
    [Flags]
@@ -687,7 +687,7 @@ namespace MicroParser
 
 #else
    delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   delegate bool CharSatisfyFunction(char ch, int index);
+   delegate bool CharSatisfyFunction (char ch, int index);
 
    // ReSharper disable InconsistentNaming
    [Flags]
@@ -1438,7 +1438,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Message_1.Form(Message);
+         return Strings.ParserErrorMessages.Message_1.Form (Message);
       }
 
       public override string Description
@@ -1463,7 +1463,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Expected_1.Form(Expected);
+         return Strings.ParserErrorMessages.Expected_1.Form (Expected);
       }
 
       public override string Description
@@ -1488,7 +1488,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Unexpected_1.Form(Unexpected);
+         return Strings.ParserErrorMessages.Unexpected_1.Form (Unexpected);
       }
 
       public override string Description
@@ -1513,7 +1513,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Group_1.Form(Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
+         return Strings.ParserErrorMessages.Group_1.Form (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description
@@ -1998,19 +1998,59 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+
 namespace MicroParser
 {
+   using System;
    using System.Diagnostics;
 
-   partial struct SubString
+   partial struct SubString : IEquatable<SubString>
    {
       public string Value;
       public int Position;
       public int Length;
 
+      string SafeValue
+      {
+         get
+         {
+            return Value ?? "";
+         }
+      }
+
+      public bool Equals (SubString other)
+      {
+
+         var value = SafeValue;
+         var otherValue = other.SafeValue;
+
+         var end = Math.Min (Position + Length, value.Length);
+         var otherEnd = Math.Min (other.Position + other.Length, otherValue.Length);
+
+         var effectiveLength = end - Position;
+         var effectiveOtherLength = otherEnd - other.Position;
+
+         if (effectiveLength != effectiveOtherLength)
+         {
+            return false;
+         }
+
+         var diff = other.Position - Position;
+ 
+         for (var iter = Position; iter < end; ++iter)
+         {
+            if (value[iter] != otherValue[iter + diff])
+            {
+               return false;
+            }
+         }
+
+         return true;
+      }
+
       public override string ToString ()
       {
-         return (Value ?? "").Substring (Position, Length);
+         return SafeValue.Substring (Position, Length);
       }
 
       public char this[int index]
@@ -2022,6 +2062,26 @@ namespace MicroParser
          }
       }
 
+      public override bool Equals (object obj)
+      {
+         return obj is SubString && Equals ((SubString) obj);
+      }
+
+      public override int GetHashCode ()
+      {
+         var result = 0x55555555;
+
+         var value = SafeValue;
+
+         var end = Math.Min (Position + Length, value.Length);
+
+         for (var iter = Position; iter < end; ++iter)
+         {
+            result = (result * 397) ^ value[iter];
+         }
+
+         return result;
+      }
    }
 }
 // ----------------------------------------------------------------------------------------------

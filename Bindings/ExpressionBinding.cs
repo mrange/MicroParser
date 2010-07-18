@@ -183,7 +183,7 @@ namespace Bindings
 
       static Binding MakeBinding (Ast_Variable key)
       {
-         var names = key.Names.Concatenate (".");
+         var names = key.Names.Select (ss => ss.ToString ()).Concatenate (".");
 
          string path;
          
@@ -216,7 +216,7 @@ namespace Bindings
             switch (key.VariableModifier.Value)
             {
                case VariableModifier.ElementName:
-                  binding.ElementName = key.Root;
+                  binding.ElementName = key.Root.ToString ();
                   break;
                case VariableModifier.TemplatedParent:
                   binding.RelativeSource = new RelativeSource (RelativeSourceMode.TemplatedParent);

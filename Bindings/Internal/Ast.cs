@@ -145,19 +145,19 @@ namespace Bindings.Internal
 
    sealed class Ast_Variable : BaseAst, IEquatable<Ast_Variable>
    {
-      public readonly Optional<VariableModifier> VariableModifier; 
-      public readonly string Root;
-      public readonly string[] Names;
+      public readonly Optional<VariableModifier> VariableModifier;
+      public readonly SubString Root;
+      public readonly SubString[] Names;
 
       public Ast_Variable (
          Optional<VariableModifier> variableModifier,
-         string root, 
-         string[] names
+         SubString root,
+         SubString[] names
          )
       {
          VariableModifier = variableModifier;
-         Root = root ?? "";
-         Names = names ?? new string[0];
+         Root = root;
+         Names = names;
       }
 
       public override string ToString ()
@@ -167,18 +167,18 @@ namespace Bindings.Internal
             NodeType = "Variable",
             VariableModifier,
             Root,
-            Names = Names.Concatenate (","),
+            Names = Names.Select (ss => ss.ToString ()).Concatenate (","),
          }.ToString ();
       }
 
       protected override int CalculateHashCode ()
       {
          return
-               Root.SafeGetHashCode ()
+               Root.GetHashCode ()
             ^ Names
                .Aggregate (
                   0x55555555,
-                  (s, v) => s ^ v.SafeGetHashCode ()
+                  (s, v) => s ^ v.GetHashCode ()
                   );
       }
 
@@ -195,7 +195,7 @@ namespace Bindings.Internal
          }
 
          return
-               Root.SafeEquals (other.Root)
+               Root.Equals (other.Root)
             && Names.SequenceEqual (other.Names)
             ;
       }

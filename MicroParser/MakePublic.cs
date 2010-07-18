@@ -15,7 +15,7 @@ namespace MicroParser
    using System;
 #if MICRO_PARSER_MAKE_PUBLIC
    public delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   public delegate bool CharSatisfyFunction(char ch, int index);
+   public delegate bool CharSatisfyFunction (char ch, int index);
 
    // ReSharper disable InconsistentNaming
    [Flags]
@@ -135,7 +135,7 @@ namespace MicroParser
 
 #else
    delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   delegate bool CharSatisfyFunction(char ch, int index);
+   delegate bool CharSatisfyFunction (char ch, int index);
 
    // ReSharper disable InconsistentNaming
    [Flags]
