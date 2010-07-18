@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;SUPPRESS_ANONYMOUS_TYPE</DefineConstants>
+    <DefineConstants>TRACE;MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE,MICRO_PARSER_MAKE_PUBLIC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

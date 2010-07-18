@@ -43,7 +43,7 @@ namespace MicroParser
       public TValue1 Item1;
       public TValue2 Item2;
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new 
@@ -60,7 +60,7 @@ namespace MicroParser
       public TValue2 Item2;
       public TValue3 Item3;
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new 

@@ -34,7 +34,7 @@ namespace MicroParser
          ErrorMessage = errorMessage ?? Strings.Empty;
       }
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          if (IsSuccessful)

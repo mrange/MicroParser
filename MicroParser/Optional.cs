@@ -35,7 +35,7 @@ namespace MicroParser
          Value = value;
       }
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
