@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
-
 namespace MicroParser
 {
+   using Internal;
+
    using System;
    using System.Diagnostics;
 
@@ -34,7 +34,7 @@ namespace MicroParser
    }
    // ReSharper restore InconsistentNaming
 
-   public struct ParserReply<TValue>
+   partial struct ParserReply<TValue>
    {
       public readonly ParserReply_State State;
       public readonly ParserState ParserState;
@@ -104,7 +104,7 @@ namespace MicroParser
             );
       }
 
-      public ParserReply<TValue> VerifyConsistency (ParseStatePosition initialPosition)
+      public ParserReply<TValue> VerifyConsistency (ParserStatePosition initialPosition)
       {
          if (
                State.HasError () 

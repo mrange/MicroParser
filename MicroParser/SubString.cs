@@ -13,7 +13,7 @@ namespace MicroParser
 {
    using System.Diagnostics;
 
-   public struct SubString
+   partial struct SubString
    {
       public string Value;
       public int Position;

@@ -9,15 +9,15 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
-
 namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
    using System.Linq;
+   using Internal;
 
-   public static class Parser
+
+   static partial class Parser
    {
       public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
       {

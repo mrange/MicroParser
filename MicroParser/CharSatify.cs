@@ -9,13 +9,11 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
-
 namespace MicroParser
 {
-   public delegate bool CharSatisfyFunction (char ch, int index);
+   using Internal;
 
-   public sealed class CharSatify
+   sealed partial class CharSatify
    {
       public readonly IParserErrorMessage Expected;
       public readonly CharSatisfyFunction Satisfy;

@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   public static class Optional
+   static partial class Optional
    {
       public static Optional<TValue> Create<TValue> (TValue value)
       {
@@ -24,7 +24,7 @@ namespace MicroParser
       }
    }
 
-   public struct Optional<TValue>
+   partial struct Optional<TValue>
    {
       public readonly bool HasValue;
       public readonly TValue Value;

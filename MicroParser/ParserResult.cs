@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   public abstract class BaseParserResult
+   abstract partial class BaseParserResult
    {
       public readonly bool IsSuccessful;
       public readonly string Text;
@@ -66,7 +66,7 @@ namespace MicroParser
       protected abstract object GetValue ();
    }
 
-   public sealed class ParserResult<TValue> : BaseParserResult
+   sealed partial class ParserResult<TValue> : BaseParserResult
    {
       public readonly TValue Value;
 

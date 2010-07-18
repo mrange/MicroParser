@@ -44,6 +44,7 @@
     <Compile Include="CharSatify.cs" />
     <Compile Include="Empty.cs" />
     <Compile Include="Internal\Extensions.cs" />
+    <Compile Include="MakePublic.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />

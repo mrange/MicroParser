@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
 namespace MicroParser.Internal
 {
-   static class Extensions
+   using System.Collections.Generic;
+   using System.Globalization;
+   using System.Linq;
+   using System.Text;
+
+   static partial class Extensions
    {
 
       // System.String

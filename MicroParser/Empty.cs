@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   public struct Empty
+   partial struct Empty
    {
       public static Empty Value;
 
