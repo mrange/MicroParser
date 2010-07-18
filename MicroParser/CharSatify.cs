@@ -34,6 +34,7 @@ namespace MicroParser
          Satisfy = satisfy;
       }
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
@@ -41,5 +42,6 @@ namespace MicroParser
                       Expected,
                    }.ToString ();
       }
+#endif
    }
 }

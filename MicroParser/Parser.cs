@@ -28,12 +28,11 @@ namespace MicroParser
             var errorResult = parseResult
                .ParserErrorMessage
                .DeepTraverse ()
-               .Select (msg => new {Type = msg.Description, msg.Value})
-               .GroupBy (tuple => tuple.Type)
-               .Select (x =>
+               .GroupBy (msg => msg.Description)
+               .Select (messages =>
                         Strings.Parser.ErrorMessage_2.Form (
-                           x.Key,
-                           x.Distinct ().Select (y => y.Value.ToString ()).Concatenate (", ")
+                           messages.Key,
+                           messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
                            ))
                .Concatenate (", ");
 

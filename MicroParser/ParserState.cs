@@ -35,6 +35,7 @@ namespace MicroParser
          Position = position;
       }
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
@@ -42,6 +43,7 @@ namespace MicroParser
                       Position,
                    }.ToString ();
       }
+#endif
 
    }
 
@@ -141,6 +143,7 @@ namespace MicroParser
          return Advance (ref subString, satisfy, minCount, maxCount);
       }
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
@@ -150,6 +153,7 @@ namespace MicroParser
                       Current = !EndOfStream ? new string (m_text[m_position], 1) : Strings.ParserErrorMessages.Eos,
                    }.ToString ();
       }
+#endif
 
       public static ParserState Create (string text, int position = 0)
       {

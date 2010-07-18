@@ -9,6 +9,9 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+
+// ReSharper disable InconsistentNaming
+
 namespace MicroParser
 {
    using System;
@@ -32,6 +35,10 @@ namespace MicroParser
 
       public static class ParserErrorMessages
       {
+         public const string Message_1 = "Message:{0}";
+         public const string Expected_1 = "Expected:{0}";
+         public const string Unexpected_1 = "Unexpected:{0}";
+         public const string Group_1 = "Group:{0}";
 
          [Obsolete]
          public const string Todo = "TODO:";

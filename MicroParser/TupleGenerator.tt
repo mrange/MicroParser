@@ -66,6 +66,7 @@ namespace MicroParser
    }
 #>
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new 
@@ -80,8 +81,8 @@ namespace MicroParser
 #>
          }.ToString ();
       }
+#endif
    }
-
 <#
    }
 #>

@@ -43,6 +43,7 @@ namespace MicroParser
       public TValue1 Item1;
       public TValue2 Item2;
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new 
@@ -51,14 +52,15 @@ namespace MicroParser
             Item2,
          }.ToString ();
       }
+#endif
    }
-
    public struct MicroTuple<TValue1, TValue2, TValue3>
    {
       public TValue1 Item1;
       public TValue2 Item2;
       public TValue3 Item3;
 
+#if !SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new 
@@ -68,6 +70,6 @@ namespace MicroParser
             Item3,
          }.ToString ();
       }
+#endif
    }
-
 }
