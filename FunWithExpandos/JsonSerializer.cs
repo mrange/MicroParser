@@ -10,8 +10,11 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
+using System.Text;
 using MicroParser;
 
 // ReSharper disable InconsistentNaming
@@ -117,7 +120,6 @@ namespace FunWithExpandos
          s_parser = p_spaces.KeepRight (p_value);
       }
       
-
       public static dynamic Unserialize (string str)
       {
          var result = Parser.Parse (s_parser, str);
@@ -127,5 +129,110 @@ namespace FunWithExpandos
             :  new ExpandoUnserializeError (result.ErrorMessage)
             ;
       }
+
+      static readonly CultureInfo s_cultureInfo = CultureInfo.InvariantCulture;
+
+      static void SerializeImpl (StringBuilder stringBuilder, object dyn)
+      {
+         if (dyn is double)
+         {
+            stringBuilder.Append (((double) dyn).ToString (s_cultureInfo));
+         }
+         else if (dyn is int)
+         {
+            stringBuilder.Append (((int)dyn).ToString (s_cultureInfo));
+         }
+         else if (dyn is string)
+         {
+            SerializeString (stringBuilder, (string)dyn);
+         }
+         else if (dyn is bool)
+         {
+            if ((bool)dyn)
+            {
+               stringBuilder.Append ("true");
+            }
+            else
+            {
+               stringBuilder.Append ("false");
+            }
+         }
+         else if (dyn is ExpandoObject)
+         {
+            var expandoObject = (ExpandoObject)dyn;
+            IDictionary<string, object> dictionary = expandoObject;
+
+            stringBuilder.Append ('{');
+
+            var first = true;
+
+            foreach (var kv in dictionary)
+            {
+               if (first)
+               {
+                  first = false;
+               }
+               else
+               {
+                  stringBuilder.Append (',');
+               }
+
+               SerializeString (stringBuilder, kv.Key);
+               stringBuilder.Append (':');
+               SerializeImpl (stringBuilder, kv.Value);
+            }
+
+            stringBuilder.Append ('}');
+         }
+         else if (dyn is IEnumerable)
+         {
+            var enumerable = (IEnumerable) dyn;
+
+            stringBuilder.Append ('[');
+
+            var first = true;
+
+            foreach (var obj in enumerable)
+            {
+               if (first)
+               {
+                  first = false;
+               }
+               else
+               {
+                  stringBuilder.Append (',');
+               }
+
+               SerializeImpl (stringBuilder, obj);
+            }
+
+            stringBuilder.Append (']');
+         }
+         else
+         {
+            stringBuilder.Append ("null");
+         }
+
+
+
+
+      }
+
+      static void SerializeString (StringBuilder stringBuilder, string str)
+      {
+         stringBuilder.Append ('"');
+         stringBuilder.Append (str);
+         stringBuilder.Append ('"');
+      }
+
+      public static string Serialize (object dyn)
+      {
+         var sb = new StringBuilder (32);
+
+         SerializeImpl (sb, dyn);
+
+         return sb.ToString ();
+      }
+
    }
 }

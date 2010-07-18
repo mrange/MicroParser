@@ -11,7 +11,6 @@
 // ----------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using FunWithExpandos;
@@ -26,22 +25,22 @@ namespace TestFunWithExpandos
    {
       public TestContext TestContext { get; set; }
 
-      static readonly Tuple<string, object>[] s_primitiveTest =
+      static readonly Tuple<string, object, string>[] s_primitiveTest =
          new[]
             {
-               Tuple.Create ("\"\""             , ""           as object),
-               Tuple.Create ("\"Test\""         , "Test"       as object),
+               Tuple.Create ("\"\""             , ""           as object   , "\"\""          ),
+               Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""      ),
 
-               Tuple.Create ("3"                , 3.0          as object),
-               Tuple.Create ("3.14"             , 3.14         as object),
-               Tuple.Create ("3e3"              , 3e3          as object),
-               Tuple.Create ("3.14E-4"          , 3.14E-4      as object),
-               Tuple.Create ("2.7182828e+4"     , 2.7182828e+4 as object),
+               Tuple.Create ("3"                , 3.0          as object   , "3"             ),
+               Tuple.Create ("3.14"             , 3.14         as object   , "3.14"          ),
+               Tuple.Create ("3e3"              , 3e3          as object   , "3000"          ),
+               Tuple.Create ("3.14E-4"          , 3.14E-4      as object   , "0.000314"      ),
+               Tuple.Create ("2.7182828e+4"     , 2.7182828e+4 as object   , "27182.828"     ),
 
-               Tuple.Create ("true"             , true         as object),
-               Tuple.Create ("false"            , false        as object),
+               Tuple.Create ("true"             , true         as object   , "true"          ),
+               Tuple.Create ("false"            , false        as object   , "false"         ),
 
-               Tuple.Create ("null"             , null         as object),
+               Tuple.Create ("null"             , null         as object   , "null"          ),
 
             };
 
@@ -127,7 +126,12 @@ namespace TestFunWithExpandos
 
          var object0 = JsonSerializer.Unserialize (json);
 
-         var glossary = object0.glossary;
+         VerifyComplexObject ((object) object0);
+      }
+
+      static void VerifyComplexObject (dynamic complexObject)
+      {
+         var glossary = complexObject.glossary;
 
          var glossary_Title = glossary.title;
          var glossary_GlossDiv = glossary.GlossDiv;
@@ -166,8 +170,6 @@ namespace TestFunWithExpandos
          Assert.AreEqual (2, glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso.Length);
          Assert.AreEqual ("GML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[0]);
          Assert.AreEqual ("XML", glossary_GlossDiv_GlossList_GlossEntry_GlossDef_GlossSeeAlso[1]);
-
-
       }
 
       [TestMethod]
@@ -189,6 +191,32 @@ namespace TestFunWithExpandos
          Assert.IsTrue (diff.TotalSeconds < 10);
       }
 
+      [TestMethod]
+      public void Test_SimpleSerialize ()
+      {
+         foreach (var primitiveTest in s_primitiveTest)
+         {
+            var serialize = JsonSerializer.Serialize (primitiveTest.Item2);
+
+            Assert.AreEqual (primitiveTest.Item3, serialize);
+         }
+
+      }
+
+      [TestMethod]
+      public void Test_ComplexSerialize ()
+      {
+         var json = GetStringResource ();
+
+         var object0 = JsonSerializer.Unserialize (json);
+
+         var serialize = JsonSerializer.Serialize (object0);
+
+         var object1 = JsonSerializer.Unserialize (serialize);
+
+         VerifyComplexObject (object1);
+
+      }
 
       static string GetStringResource ()
       {
