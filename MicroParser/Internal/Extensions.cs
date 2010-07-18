@@ -11,6 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser.Internal
 {
+   using System;
    using System.Collections.Generic;
    using System.Globalization;
    using System.Linq;
@@ -42,9 +43,9 @@ namespace MicroParser.Internal
       {
          var first = true;
 
-         var sb = new StringBuilder (prepend ?? Strings.Empty);
+         var sb = new StringBuilder (prepend ?? String.Empty);
 
-         var del = delimiter ?? Strings.Empty;
+         var del = delimiter ?? String.Empty;
 
          foreach (var value in strings)
          {
@@ -59,7 +60,7 @@ namespace MicroParser.Internal
             sb.Append (value);
          }
 
-         sb.Append (append ?? Strings.Empty);
+         sb.Append (append ?? String.Empty);
          return sb.ToString ();
       }
 
