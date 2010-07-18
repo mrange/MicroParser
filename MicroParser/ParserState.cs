@@ -14,18 +14,6 @@ namespace MicroParser
    using System;
    using System.Diagnostics;
 
-   // ReSharper disable InconsistentNaming
-   public enum ParserState_AdvanceResult
-   {
-      Successful                                   = 00,
-      Error                                        = 10,
-      Error_EndOfStream                            = 11,
-      Error_SatisfyFailed                          = 12,
-      Error_EndOfStream_PostionChanged             = 23,
-      Error_SatisfyFailed_PositionChanged          = 24,
-   }
-   // ReSharper restore InconsistentNaming
-
    partial struct ParserStatePosition
    {
       public readonly int Position;

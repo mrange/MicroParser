@@ -16,24 +16,6 @@ namespace MicroParser
    using System;
    using System.Diagnostics;
 
-   // ReSharper disable InconsistentNaming
-   [Flags]
-   public enum ParserReply_State
-   {
-      Successful                       = 00,
-      Error                            = 10,
-      Error_Message                    = 11,
-      Error_Expected                   = 12,
-      Error_Unexpected                 = 13,
-      Error_Group                      = 14,
-      Error_StateIsRestored            = 15,
-      FatalError                       = 0x00010000,
-      FatalError_Mask                  = 0x7FFF0000,
-      FatalError_Terminate             = 0x00010000,
-      FatalError_StateIsNotRestored    = 0x00020000,
-   }
-   // ReSharper restore InconsistentNaming
-
    partial struct ParserReply<TValue>
    {
       public readonly ParserReply_State State;
