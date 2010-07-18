@@ -18,6 +18,11 @@ using System.Text;
 using MicroParser;
 
 // ReSharper disable InconsistentNaming
+namespace MicroParser
+{
+   delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
+   delegate bool CharSatisfyFunction(char ch, int index);
+}
 
 namespace FunWithExpandos
 {

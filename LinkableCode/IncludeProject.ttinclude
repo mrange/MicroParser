@@ -1,0 +1,44 @@
+<#@ template hostspecific="true" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.IO" #>a
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml.Linq" #>
+
+<#
+   var projectFilePath = Path.GetFullPath (projectFile);
+   var projectFileLocation = Path.GetDirectoryName (projectFilePath);
+   const string Namespace = @"http://schemas.microsoft.com/developer/msbuild/2003";
+   const string Project = @"{"+Namespace+@"}Project";
+   const string ItemGroup = @"{"+Namespace+@"}ItemGroup";
+   const string Compile = @"{"+Namespace+@"}Compile";
+   using (var streamReader = new StreamReader (projectFilePath))
+   {
+      var xdoc = XDocument.Load (streamReader);
+
+      var compileElements = xdoc.Elements (Project).Elements (ItemGroup).Elements (Compile);
+
+
+      foreach (var path in compileElements
+         .Select (compileElement => Path.Combine (projectFileLocation, compileElement.Attribute ("Include").Value))
+         .Where (path => !blackList.Any (bl => bl.IsMatch (path)))
+      )
+      {
+         var allText = File.ReadAllText (path);
+         WriteLine (allText);
+      }
+
+   }
+#>
+<#+
+   static Regex BlackList (string str)
+   {
+      return new Regex (
+         str,
+         RegexOptions.IgnoreCase | RegexOptions.Compiled
+         );
+   }
+#>
