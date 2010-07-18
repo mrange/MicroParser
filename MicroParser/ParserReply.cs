@@ -104,7 +104,7 @@ namespace MicroParser
          return this;
       }
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          if (State == ParserReply_State.Successful)

@@ -23,7 +23,7 @@ namespace MicroParser
          Position = position;
       }
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
@@ -131,7 +131,7 @@ namespace MicroParser
          return Advance (ref subString, satisfy, minCount, maxCount);
       }
 
-#if !SUPPRESS_ANONYMOUS_TYPE
+#if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
          return new
