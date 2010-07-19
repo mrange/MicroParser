@@ -14,23 +14,21 @@ namespace MicroParser
    abstract partial class BaseParserResult
    {
       public readonly bool IsSuccessful;
-      public readonly string Text;
-      public readonly int Position;
+      public readonly SubString Unconsumed;
       public readonly string ErrorMessage;
 
       public bool EndOfStream
       {
          get
          {
-            return !(Position < Text.Length);
+            return !(Unconsumed.Begin < Unconsumed.End);
          }
       }
 
-      protected BaseParserResult (bool isSuccessful, string text, int position, string errorMessage)
+      protected BaseParserResult (bool isSuccessful, SubString unconsumed, string errorMessage)
       {
          IsSuccessful = isSuccessful;
-         Position = position;
-         Text = text;
+         Unconsumed = unconsumed;
          ErrorMessage = errorMessage ?? Strings.Empty;
       }
 
@@ -42,7 +40,7 @@ namespace MicroParser
             return new
                       {
                          IsSuccessful,
-                         Position,
+                         Position = Unconsumed.Begin,
                          EndOfStream,
                          Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
@@ -54,7 +52,7 @@ namespace MicroParser
             return new
             {
                IsSuccessful,
-               Position,
+               Position = Unconsumed.Begin,
                EndOfStream,
                Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
@@ -70,8 +68,8 @@ namespace MicroParser
    {
       public readonly TValue Value;
 
-      public ParserResult (bool isSuccessful, string text, int position, string errorMessage, TValue value)
-         :  base (isSuccessful, text, position, errorMessage)
+      public ParserResult (bool isSuccessful, SubString subString, string errorMessage, TValue value)
+         : base (isSuccessful, subString, errorMessage)
       {
          Value = value;
       }

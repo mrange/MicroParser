@@ -25,9 +25,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Parser lib", "0. Parser 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFunWithExpandos", "TestFunWithExpandos\TestFunWithExpandos.csproj", "{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMicroParser", "TestMicroParser\TestMicroParser.csproj", "{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{726D6FBA-41DF-4BB1-AFE5-0195B2DB8EE5}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		MicroParser1.vsmdi = MicroParser1.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = MicroParser.vsmdi
+		CategoryFile = MicroParser1.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,12 +99,24 @@ Global
 		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7}.Release|x86.ActiveCfg = Release|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5C289FB2-2A23-4929-AB17-1429750BDAC0} = {BE182199-90F3-48DB-91AF-91D83D937714}
+		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B} = {BE182199-90F3-48DB-91AF-91D83D937714}
+		{726D6FBA-41DF-4BB1-AFE5-0195B2DB8EE5} = {BE182199-90F3-48DB-91AF-91D83D937714}
 		{5F523787-43AE-4783-912C-C5BD986533FB} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
 		{06DA2CF9-A357-48E9-B290-0723340E7CC2} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
 		{23ADA443-D3D3-4E02-B949-B939324E6E29} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}

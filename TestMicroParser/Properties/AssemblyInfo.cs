@@ -15,11 +15,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("TestParser")]
+[assembly: AssemblyTitle ("TestMicroParser")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Mårten Rånge")]
-[assembly: AssemblyProduct ("TestParser")]
+[assembly: AssemblyProduct ("TestMicroParser")]
 [assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid ("fa65e86b-d27b-4547-b983-bd8fb3d784cf")]
+[assembly: Guid ("17c25e51-77d4-4e94-8843-24e9c1470ba6")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -41,6 +41,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion ("1.0.*")]
 [assembly: AssemblyVersion ("1.0.0.0")]
 [assembly: AssemblyFileVersion ("1.0.0.0")]

@@ -15,3 +15,5 @@ relre:^TestFunWithExpandos/obj/
 relre:^FunWithExpandos/bin/
 relre:^FunWithExpandos/obj/
 relre:^NDependOut/
+relre:^TestMicroParser/bin/
+relre:^TestMicroParser/obj/

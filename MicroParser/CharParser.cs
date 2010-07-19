@@ -178,7 +178,7 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<MicroTuple<uint,int>> ParseUIntImpl (
+      static ParserFunction<MicroTuple<uint,int>> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -218,9 +218,9 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<uint> ParseUInt ()
+      public static ParserFunction<uint> UInt ()
       {
-         var uintParser = ParseUIntImpl ();
+         var uintParser = UIntImpl ();
 
          return state =>
          {
@@ -235,12 +235,12 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<int> ParseInt (
+      public static ParserFunction<int> Int (
          )
       {
          var intParser = Parser.Tuple (
             SkipChar ('-').Opt (),
-            ParseUInt ()
+            UInt ()
             );
 
          return state =>
@@ -258,11 +258,11 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<double> ParseDouble ()
+      public static ParserFunction<double> Double ()
       {
-         var intParser = ParseInt ();
-         var fracParser = SkipChar ('.').KeepRight (ParseUIntImpl ());
-         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), ParseUInt ()));
+         var intParser = Int ();
+         var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), UInt ()));
 
          var doubleParser = Parser.Tuple (
             intParser,
