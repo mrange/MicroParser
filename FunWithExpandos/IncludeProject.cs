@@ -811,8 +811,10 @@ namespace MicroParser
 
             return new ParserResult<TValue> (
                false,
-               text,
-               parseResult.ParserState.InternalPosition,
+               new SubString ( 
+                     text,
+                     parseResult.ParserState.InternalPosition
+                  ),
                errorResult,
                default (TValue)
                );
@@ -820,8 +822,10 @@ namespace MicroParser
 
          return new ParserResult<TValue> (
             true,
-            text,
-            parseResult.ParserState.InternalPosition,
+            new SubString ( 
+                  text,
+                  parseResult.ParserState.InternalPosition
+               ),
             Strings.Empty,
             parseResult.Value
             );
@@ -1701,23 +1705,21 @@ namespace MicroParser
    abstract partial class BaseParserResult
    {
       public readonly bool IsSuccessful;
-      public readonly string Text;
-      public readonly int Position;
+      public readonly SubString Unconsumed;
       public readonly string ErrorMessage;
 
       public bool EndOfStream
       {
          get
          {
-            return !(Position < Text.Length);
+            return !(Unconsumed.Begin < Unconsumed.End);
          }
       }
 
-      protected BaseParserResult (bool isSuccessful, string text, int position, string errorMessage)
+      protected BaseParserResult (bool isSuccessful, SubString unconsumed, string errorMessage)
       {
          IsSuccessful = isSuccessful;
-         Position = position;
-         Text = text;
+         Unconsumed = unconsumed;
          ErrorMessage = errorMessage ?? Strings.Empty;
       }
 
@@ -1729,7 +1731,7 @@ namespace MicroParser
             return new
                       {
                          IsSuccessful,
-                         Position,
+                         Position = Unconsumed.Begin,
                          EndOfStream,
                          Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
@@ -1741,7 +1743,7 @@ namespace MicroParser
             return new
             {
                IsSuccessful,
-               Position,
+               Position = Unconsumed.Begin,
                EndOfStream,
                Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
@@ -1757,8 +1759,8 @@ namespace MicroParser
    {
       public readonly TValue Value;
 
-      public ParserResult (bool isSuccessful, string text, int position, string errorMessage, TValue value)
-         :  base (isSuccessful, text, position, errorMessage)
+      public ParserResult (bool isSuccessful, SubString subString, string errorMessage, TValue value)
+         : base (isSuccessful, subString, errorMessage)
       {
          Value = value;
       }
@@ -2010,6 +2012,49 @@ namespace MicroParser
       public int Position;
       public int Length;
 
+      public SubString (string value, int position, int length)
+      {
+         Value = value;
+         Position = position;
+         Length = length;
+      }
+
+      public SubString (string value, int position)
+         :  this (value, position, (value ?? "").Length - position)
+      {
+
+      }
+
+      public SubString (string value)
+         : this (value, 0, (value ?? "").Length)
+      {
+
+      }
+
+      public int EffectiveLength
+      {
+         get
+         {
+            return End - Begin;
+         }
+      }
+
+      public int Begin
+      {
+         get
+         {
+            return Math.Max (Position, 0);
+         }
+      }
+
+      public int End
+      {
+         get
+         {
+            return Math.Min (Position + Length, SafeValue.Length);
+         }
+      }
+
       string SafeValue
       {
          get
@@ -2024,20 +2069,23 @@ namespace MicroParser
          var value = SafeValue;
          var otherValue = other.SafeValue;
 
-         var end = Math.Min (Position + Length, value.Length);
-         var otherEnd = Math.Min (other.Position + other.Length, otherValue.Length);
-
-         var effectiveLength = end - Position;
-         var effectiveOtherLength = otherEnd - other.Position;
+         var effectiveLength = EffectiveLength;
+         var effectiveOtherLength = other.EffectiveLength;
 
          if (effectiveLength != effectiveOtherLength)
          {
             return false;
          }
 
-         var diff = other.Position - Position;
+         var begin = Begin;
+         var otherBegin = other.Begin;
+
+         var end = End;
+         var otherEnd = other.End;
+
+         var diff = otherBegin - begin;
  
-         for (var iter = Position; iter < end; ++iter)
+         for (var iter = begin; iter < end; ++iter)
          {
             if (value[iter] != otherValue[iter + diff])
             {
@@ -2073,9 +2121,9 @@ namespace MicroParser
 
          var value = SafeValue;
 
-         var end = Math.Min (Position + Length, value.Length);
+         var end = End;
 
-         for (var iter = Position; iter < end; ++iter)
+         for (var iter = Begin; iter < end; ++iter)
          {
             result = (result * 397) ^ value[iter];
          }

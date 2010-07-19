@@ -36,19 +36,32 @@ namespace MicroParser
                            ))
                .Concatenate (", ");
 
+            var subString = new SubString ( 
+                     text,
+                     parseResult.ParserState.InternalPosition
+                  );
+
+            var completeErrorResult =
+               "Pos: {0} ('{1}') - {2}".Form (
+                  subString.Position,
+                  subString[0],
+                  errorResult
+                  );
+
             return new ParserResult<TValue> (
                false,
-               text,
-               parseResult.ParserState.InternalPosition,
-               errorResult,
+               subString,
+               completeErrorResult,
                default (TValue)
                );
          }
 
          return new ParserResult<TValue> (
             true,
-            text,
-            parseResult.ParserState.InternalPosition,
+            new SubString ( 
+                  text,
+                  parseResult.ParserState.InternalPosition
+               ),
             Strings.Empty,
             parseResult.Value
             );

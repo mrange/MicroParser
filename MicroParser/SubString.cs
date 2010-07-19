@@ -21,6 +21,49 @@ namespace MicroParser
       public int Position;
       public int Length;
 
+      public SubString (string value, int position, int length)
+      {
+         Value = value;
+         Position = position;
+         Length = length;
+      }
+
+      public SubString (string value, int position)
+         :  this (value, position, (value ?? "").Length - position)
+      {
+
+      }
+
+      public SubString (string value)
+         : this (value, 0, (value ?? "").Length)
+      {
+
+      }
+
+      public int EffectiveLength
+      {
+         get
+         {
+            return End - Begin;
+         }
+      }
+
+      public int Begin
+      {
+         get
+         {
+            return Math.Max (Position, 0);
+         }
+      }
+
+      public int End
+      {
+         get
+         {
+            return Math.Min (Position + Length, SafeValue.Length);
+         }
+      }
+
       string SafeValue
       {
          get
@@ -35,20 +78,23 @@ namespace MicroParser
          var value = SafeValue;
          var otherValue = other.SafeValue;
 
-         var end = Math.Min (Position + Length, value.Length);
-         var otherEnd = Math.Min (other.Position + other.Length, otherValue.Length);
-
-         var effectiveLength = end - Position;
-         var effectiveOtherLength = otherEnd - other.Position;
+         var effectiveLength = EffectiveLength;
+         var effectiveOtherLength = other.EffectiveLength;
 
          if (effectiveLength != effectiveOtherLength)
          {
             return false;
          }
 
-         var diff = other.Position - Position;
+         var begin = Begin;
+         var otherBegin = other.Begin;
+
+         var end = End;
+         var otherEnd = other.End;
+
+         var diff = otherBegin - begin;
  
-         for (var iter = Position; iter < end; ++iter)
+         for (var iter = begin; iter < end; ++iter)
          {
             if (value[iter] != otherValue[iter + diff])
             {
@@ -61,7 +107,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return SafeValue.Substring (Position, Length);
+         return SafeValue.Substring (Begin, EffectiveLength);
       }
 
       public char this[int index]
@@ -84,9 +130,9 @@ namespace MicroParser
 
          var value = SafeValue;
 
-         var end = Math.Min (Position + Length, value.Length);
+         var end = End;
 
-         for (var iter = Position; iter < end; ++iter)
+         for (var iter = Begin; iter < end; ++iter)
          {
             result = (result * 397) ^ value[iter];
          }
