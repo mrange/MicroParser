@@ -34,17 +34,17 @@ namespace TestMicroParser
 
          {
             var pResult = Parser.Parse (p_double, "3,14");
-            Assert.IsTrue(pResult.IsSuccessful);
-            Assert.AreEqual(3, pResult.Value);
+            Assert.IsTrue (pResult.IsSuccessful);
+            Assert.AreEqual (3, pResult.Value);
          }
 
          {
-            var pResult = Parser.Parse(p_double, "a");
-            Assert.IsFalse(pResult.IsSuccessful);
+            var pResult = Parser.Parse (p_double, "a");
+            Assert.IsFalse (pResult.IsSuccessful);
          }
 
          {
-            var pResult = Parser.Parse(p_double.KeepLeft (Parser.EndOfStream ()), "3,14");
+            var pResult = Parser.Parse (p_double.KeepLeft (Parser.EndOfStream ()), "3,14");
             Assert.IsFalse (pResult.IsSuccessful);
          }
       }

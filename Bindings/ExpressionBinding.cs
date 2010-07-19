@@ -42,7 +42,7 @@ namespace Bindings
          Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString (token).KeepLeft (p_spaces);
 
          var p_value = CharParser
-            .ParseDouble ()
+            .Double ()
             .KeepLeft (p_spaces)
             .Map (i => new Ast_Value (i) as IAst);
 

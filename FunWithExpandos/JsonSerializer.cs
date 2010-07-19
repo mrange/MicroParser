@@ -57,7 +57,7 @@ namespace FunWithExpandos
          var p_true = p_str ("true").Map (empty => true as dynamic);
          var p_false = p_str ("false").Map (empty => false as dynamic);
 
-         var p_number = CharParser.ParseDouble ().Map (d => d as dynamic);
+         var p_number = CharParser.Double ().Map (d => d as dynamic);
 
          var p_array_redirect = Parser.Redirect<dynamic> ();
          var p_object_redirect = Parser.Redirect<dynamic> ();
