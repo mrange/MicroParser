@@ -181,7 +181,7 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<MicroTuple<uint,int>> ParseUIntImpl (
+      static ParserFunction<MicroTuple<uint,int>> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -221,9 +221,9 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<uint> ParseUInt ()
+      public static ParserFunction<uint> UInt ()
       {
-         var uintParser = ParseUIntImpl ();
+         var uintParser = UIntImpl ();
 
          return state =>
          {
@@ -238,12 +238,12 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<int> ParseInt (
+      public static ParserFunction<int> Int (
          )
       {
          var intParser = Parser.Tuple (
             SkipChar ('-').Opt (),
-            ParseUInt ()
+            UInt ()
             );
 
          return state =>
@@ -261,11 +261,11 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<double> ParseDouble ()
+      public static ParserFunction<double> Double ()
       {
-         var intParser = ParseInt ();
-         var fracParser = SkipChar ('.').KeepRight (ParseUIntImpl ());
-         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), ParseUInt ()));
+         var intParser = Int ();
+         var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), UInt ()));
 
          var doubleParser = Parser.Tuple (
             intParser,
@@ -809,13 +809,22 @@ namespace MicroParser
                            ))
                .Concatenate (", ");
 
-            return new ParserResult<TValue> (
-               false,
-               new SubString ( 
+            var subString = new SubString ( 
                      text,
                      parseResult.ParserState.InternalPosition
-                  ),
-               errorResult,
+                  );
+
+            var completeErrorResult =
+               "Pos: {0} ('{1}') - {2}".Form (
+                  subString.Position,
+                  subString[0],
+                  errorResult
+                  );
+
+            return new ParserResult<TValue> (
+               false,
+               subString,
+               completeErrorResult,
                default (TValue)
                );
          }
@@ -2098,7 +2107,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return SafeValue.Substring (Position, Length);
+         return SafeValue.Substring (Begin, EffectiveLength);
       }
 
       public char this[int index]
