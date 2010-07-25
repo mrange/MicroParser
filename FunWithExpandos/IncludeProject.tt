@@ -1,13 +1,4 @@
-﻿<#@ template hostspecific="true" #>
-<#@ output extension="cs" #>
-<#@ assembly name="System.Core" #>
-<#@ assembly name="System.Xml" #>
-<#@ assembly name="System.Xml.Linq" #>
-<#@ import namespace="System.IO" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text.RegularExpressions" #>
-<#@ import namespace="System.Xml" #>
-<#@ import namespace="System.Xml.Linq" #>
+﻿<#@ output extension="cs" #>
 
 <#
    var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");

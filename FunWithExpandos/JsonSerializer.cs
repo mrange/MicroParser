@@ -62,12 +62,37 @@ namespace FunWithExpandos
          var p_array_redirect = Parser.Redirect<dynamic> ();
          var p_object_redirect = Parser.Redirect<dynamic> ();
 
-         var p_string = CharParser.ManyCharSatisfy (CharParser.SatisyAnyChar.Except ('"'))
+         var p_escape = CharParser
+            .AnyOf ("\"\\/bfnrt")
+            .Map (ch =>
+               {
+                  switch (ch)
+                  {
+                     case 'b':
+                        return '\b';
+                     case 'f':
+                        return '\f';
+                     case 'n':
+                        return '\n';
+                     case 'r':
+                        return '\r';
+                     case 't':
+                        return '\t';
+                     default:
+                        return ch;
+                  }
+               });
+
+         var p_string = Parser
+            .Choice (
+               CharParser.NoneOf ("\\\""),
+               CharParser.SkipChar ('\\').KeepRight (p_escape))
+            .Many ()
             .Between (
                p_char ('"'),
                p_char ('"')
                )
-            .Map (subString => subString.ToString () as dynamic);
+            .Map (cs => new string (cs) as dynamic);
 
          var p_array = p_array_redirect.Function;
          var p_object = p_object_redirect.Function;
@@ -221,7 +246,30 @@ namespace FunWithExpandos
       static void SerializeString (StringBuilder stringBuilder, string str)
       {
          stringBuilder.Append ('"');
-         stringBuilder.Append (str);
+         foreach (var ch in str)
+         {
+            switch (ch)
+            {
+               case '\b':
+                  stringBuilder.Append ("\\b");
+                  break;
+               case '\f':
+                  stringBuilder.Append ("\\f");
+                  break;
+               case '\n':
+                  stringBuilder.Append ("\\n");
+                  break;
+               case '\r':
+                  stringBuilder.Append ("\\r");
+                  break;
+               case '\t':
+                  stringBuilder.Append ("\\t");
+                  break;
+               default:
+                  stringBuilder.Append (ch);
+                  break;
+            }
+         }
          stringBuilder.Append ('"');
       }
 

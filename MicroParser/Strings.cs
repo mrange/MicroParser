@@ -30,7 +30,7 @@ namespace MicroParser
 
       public static class CharSatisfy
       {
-         public const string ExpectedChar_1 = "'{0}'";
+         public const string FormatChar_1 = "'{0}'";
       }
 
       public static class ParserErrorMessages

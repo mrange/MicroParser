@@ -21,7 +21,7 @@ namespace MicroParser
       public static implicit operator CharSatify (char ch)
       {
          return new CharSatify (
-            new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (ch)), 
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (ch)), 
             (c, i) => ch == c
             );
       }
