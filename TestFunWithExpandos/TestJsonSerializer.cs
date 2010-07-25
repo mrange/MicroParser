@@ -28,19 +28,21 @@ namespace TestFunWithExpandos
       static readonly Tuple<string, object, string>[] s_primitiveTest =
          new[]
             {
-               Tuple.Create ("\"\""             , ""           as object   , "\"\""          ),
-               Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""      ),
+               Tuple.Create ("\"\""             , ""           as object   , "\"\""             ),
+               Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""         ),
+               Tuple.Create ("\"\\tNR\\r\\n\""  , "\tNR\r\n"   as object   , "\"\\tNR\\r\\n\""  ),
+               Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""         ),
 
-               Tuple.Create ("3"                , 3.0          as object   , "3"             ),
-               Tuple.Create ("3.14"             , 3.14         as object   , "3.14"          ),
-               Tuple.Create ("3e3"              , 3e3          as object   , "3000"          ),
-               Tuple.Create ("3.14E-4"          , 3.14E-4      as object   , "0.000314"      ),
-               Tuple.Create ("2.7182828e+4"     , 2.7182828e+4 as object   , "27182.828"     ),
+               Tuple.Create ("3"                , 3.0          as object   , "3"                ),
+               Tuple.Create ("3.14"             , 3.14         as object   , "3.14"             ),
+               Tuple.Create ("3e3"              , 3e3          as object   , "3000"             ),
+               Tuple.Create ("3.14E-4"          , 3.14E-4      as object   , "0.000314"         ),
+               Tuple.Create ("2.7182828e+4"     , 2.7182828e+4 as object   , "27182.828"        ),
 
-               Tuple.Create ("true"             , true         as object   , "true"          ),
-               Tuple.Create ("false"            , false        as object   , "false"         ),
+               Tuple.Create ("true"             , true         as object   , "true"             ),
+               Tuple.Create ("false"            , false        as object   , "false"            ),
 
-               Tuple.Create ("null"             , null         as object   , "null"          ),
+               Tuple.Create ("null"             , null         as object   , "null"             ),
 
             };
 
@@ -181,7 +183,7 @@ namespace TestFunWithExpandos
 
          var then = DateTime.Now;
 
-         for (var iter = 0; iter < 30000; ++iter)
+         for (var iter = 0; iter < 10000; ++iter)
          {
             var innerObject0 = JsonSerializer.Unserialize (json);
          }

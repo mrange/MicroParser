@@ -29,7 +29,7 @@ namespace MicroParser
       public static ParserFunction<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
          CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
@@ -44,6 +44,15 @@ namespace MicroParser
          return SkipSatisfy (
             sat,
             maxCount:1
+            );
+      }
+
+      public static ParserFunction<Empty> SkipNoneOf (string skipNoneOfThese)
+      {
+         var sat = CreateSatisfyForNoneOf (skipNoneOfThese);
+         return SkipSatisfy (
+            sat,
+            maxCount: 1
             );
       }
 
@@ -79,12 +88,24 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      static CharSatify CreateSatisfyForAnyOf (string match)
+      public static ParserFunction<char> NoneOf (
+         string match
+         )
+      {
+         var satisfy = CreateSatisfyForNoneOf (match);
+
+         return CharSatisfy (satisfy);
+      }
+
+      static CharSatify CreateSatisfyForAnyOfOrNoneOf (
+         string match,
+         Func<char, IParserErrorMessage> action,
+         bool matchResult)
       {
          var matchArray = (match ?? Strings.Empty).ToArray ();
 
          var expected = matchArray
-            .Select (x => new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (x)))
+            .Select (action)
             .ToArray ()
             ;
 
@@ -93,17 +114,35 @@ namespace MicroParser
          return new CharSatify (
             group,
             (c, i) =>
+            {
+               foreach (var ch in matchArray)
                {
-                  foreach (var ch in matchArray)
+                  if (ch == c)
                   {
-                     if (ch == c)
-                     {
-                        return true;
-                     }
+                     return matchResult;
                   }
-
-                  return false;
                }
+
+               return !matchResult;
+            }
+            );
+      }
+
+      static CharSatify CreateSatisfyForAnyOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            true
+            );
+      }
+
+      static CharSatify CreateSatisfyForNoneOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            false
             );
       }
 
@@ -366,7 +405,7 @@ namespace MicroParser
       public static implicit operator CharSatify (char ch)
       {
          return new CharSatify (
-            new ParserErrorMessage_Expected (Strings.CharSatisfy.ExpectedChar_1.Form (ch)), 
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (ch)), 
             (c, i) => ch == c
             );
       }
@@ -1969,7 +2008,7 @@ namespace MicroParser
 
       public static class CharSatisfy
       {
-         public const string ExpectedChar_1 = "'{0}'";
+         public const string FormatChar_1 = "'{0}'";
       }
 
       public static class ParserErrorMessages
@@ -2114,8 +2153,11 @@ namespace MicroParser
       {
          get
          {
-            Debug.Assert (Value != null);
-            return Value[Position + index];
+            var realIndex = Position + index;
+            return realIndex > -1 && realIndex < Value.Length 
+               ?  Value[Position + index] 
+               :  ' '
+               ;
          }
       }
 

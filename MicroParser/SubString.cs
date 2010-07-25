@@ -114,8 +114,11 @@ namespace MicroParser
       {
          get
          {
-            Debug.Assert (Value != null);
-            return Value[Position + index];
+            var realIndex = Position + index;
+            return realIndex > -1 && realIndex < Value.Length 
+               ?  Value[Position + index] 
+               :  ' '
+               ;
          }
       }
 
