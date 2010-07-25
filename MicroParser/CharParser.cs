@@ -156,7 +156,7 @@ namespace MicroParser
                advanceResult,
                state,
                satisfy.Expected,
-               () => subString[0]
+               subString[0]
                );
          };
       }
