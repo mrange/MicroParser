@@ -104,7 +104,7 @@ namespace Bindings
 
          var p_ast_redirect = Parser.Redirect<IAst> ();
 
-         var p_ast = p_ast_redirect.Function;
+         var p_ast = p_ast_redirect.Parser;
 
          var p_term = Parser.Choice (
             p_ast.Between (p_token ("(").KeepLeft (p_spaces), p_token (")").KeepLeft (p_spaces)),
@@ -118,7 +118,7 @@ namespace Bindings
          var p_level1 = p_level0.Chain (p_addOp, makeBinOp);
          var p_level2 = p_level1.Chain (p_maxOp, makeBinOp);
 
-         p_ast_redirect.Redirect = p_level2;
+         p_ast_redirect.ParserRedirect = p_level2;
 
          s_parser = p_ast.KeepLeft (p_eos);
          // ReSharper restore InconsistentNaming
