@@ -14,12 +14,12 @@ namespace MicroParser
 
    sealed partial class ParserFunctionRedirect<TValue>
    {
-      public readonly ParserFunction<TValue> Function;
-      public ParserFunction<TValue> Redirect;
+      public readonly ParserFunction<TValue> Parser;
+      public ParserFunction<TValue> ParserRedirect;
 
       public ParserFunctionRedirect ()
       {
-         Function = state => Redirect (state);
+         Parser = state => ParserRedirect (state);
       }
       
    }

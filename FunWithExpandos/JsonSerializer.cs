@@ -94,8 +94,8 @@ namespace FunWithExpandos
                )
             .Map (cs => new string (cs) as dynamic);
 
-         var p_array = p_array_redirect.Function;
-         var p_object = p_object_redirect.Function;
+         var p_array = p_array_redirect.Parser;
+         var p_object = p_object_redirect.Parser;
 
          var p_value = Parser.Choice (
             p_string,
@@ -110,7 +110,7 @@ namespace FunWithExpandos
 
          var p_elements = p_value.Array (p_char (',').KeepLeft (p_spaces));
 
-         p_array_redirect.Redirect = p_elements.Between (
+         p_array_redirect.ParserRedirect = p_elements.Between(
             p_char ('[').KeepLeft (p_spaces),
             p_char (']')
             )
@@ -123,7 +123,7 @@ namespace FunWithExpandos
 
          var p_members = p_member.Array (p_char (',').KeepLeft (p_spaces));
 
-         p_object_redirect.Redirect =
+         p_object_redirect.ParserRedirect =
             p_members
                .Between (
                   p_char ('{').KeepLeft (p_spaces), 
