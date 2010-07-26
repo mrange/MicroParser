@@ -9,6 +9,9 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+using System.IO;
+using System.Reflection;
+
 namespace SilverlightDynamicJson
 {
    public partial class MainPage
@@ -16,6 +19,30 @@ namespace SilverlightDynamicJson
       public MainPage()
       {
          InitializeComponent();
+
+         var obj = JsonSerializer.Unserialize(GetStringResource());
+
+         var books = obj.Books;
+
+         LB.ItemsSource = books;
+
       }
+
+      static string GetStringResource()
+      {
+         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SilverlightDynamicJson.JSON.txt"))
+         {
+            if (resourceStream == null)
+            {
+               return "";
+            }
+
+            using (var streamReader = new StreamReader(resourceStream))
+            {
+               return streamReader.ReadToEnd();
+            }
+         }
+      }
+
    }
 }

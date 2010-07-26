@@ -7,6 +7,21 @@
     d:DesignHeight="300" d:DesignWidth="400">
 
     <Grid x:Name="LayoutRoot" Background="White">
-
+      <ListBox x:Name="LB">
+         <ListBox.ItemTemplate>
+            <DataTemplate>
+               <Grid>
+                  <Grid.ColumnDefinitions>
+                     <ColumnDefinition Width="100"/>
+                     <ColumnDefinition Width="100"/>
+                     <ColumnDefinition Width="100"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0" Text="{Binding ISBN}"/>
+                  <TextBlock Grid.Column="0" Text="{Binding Title}"/>
+                  <TextBlock Grid.Column="0" Text="{Binding Author}"/>
+               </Grid>
+            </DataTemplate>
+         </ListBox.ItemTemplate>
+      </ListBox>
     </Grid>
 </UserControl>
