@@ -20,7 +20,7 @@ namespace SilverlightDynamicJson
       {
          InitializeComponent();
 
-         var obj = JsonSerializer.Unserialize(GetStringResource());
+         var obj = JsonSerializer.Unserialize(GetStringResource("SilverlightDynamicJson.JSON.txt"));
 
          var books = obj.Books;
 
@@ -28,9 +28,9 @@ namespace SilverlightDynamicJson
 
       }
 
-      static string GetStringResource()
+      static string GetStringResource(string resourceName)
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SilverlightDynamicJson.JSON.txt"))
+         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
          {
             if (resourceStream == null)
             {

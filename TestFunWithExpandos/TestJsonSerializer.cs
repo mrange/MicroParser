@@ -124,7 +124,7 @@ namespace TestFunWithExpandos
       [TestMethod]
       public void Test_ComplexExpressions ()
       {
-         var json = GetStringResource ();
+         var json = GetStringResource ("TestFunWithExpandos.JSON.txt");
 
          var object0 = JsonSerializer.Unserialize (json);
 
@@ -177,7 +177,7 @@ namespace TestFunWithExpandos
       [TestMethod]
       public void Test_Performance ()
       {
-         var json = GetStringResource ();
+         var json = GetStringResource ("TestFunWithExpandos.JSON.txt");
          var object0 = JsonSerializer.Unserialize (json);
          var glossary = object0.glossary;
 
@@ -208,7 +208,7 @@ namespace TestFunWithExpandos
       [TestMethod]
       public void Test_ComplexSerialize ()
       {
-         var json = GetStringResource ();
+         var json = GetStringResource ("TestFunWithExpandos.JSON.txt");
 
          var object0 = JsonSerializer.Unserialize (json);
 
@@ -220,9 +220,9 @@ namespace TestFunWithExpandos
 
       }
 
-      static string GetStringResource ()
+      static string GetStringResource (string resourceName)
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream ("TestFunWithExpandos.JSON.txt"))
+         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream (resourceName))
          {
             if (resourceStream == null)
             {
