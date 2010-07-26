@@ -1,0 +1,11 @@
+﻿<#@ output extension="cs" #>
+
+<#
+   var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
+   var blackList = new Regex[]
+      {
+         BlackList (@"AssemblyInfo.cs$"),
+      };
+#>
+
+<#@ include file="..\LinkableCode\IncludeProject.ttinclude"#>
