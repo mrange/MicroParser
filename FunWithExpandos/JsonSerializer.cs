@@ -140,9 +140,9 @@ namespace FunWithExpandos
                            return exp as object;
                         });
 
-         // ReSharper restore InconsistentNaming
-
          s_parser = p_spaces.KeepRight (p_value);
+
+         // ReSharper restore InconsistentNaming
       }
       
       public static dynamic Unserialize (string str)

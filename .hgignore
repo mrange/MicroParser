@@ -17,3 +17,5 @@ relre:^FunWithExpandos/obj/
 relre:^NDependOut/
 relre:^TestMicroParser/bin/
 relre:^TestMicroParser/obj/
+relre:^SilverlightDynamicJson/Bin/
+relre:^SilverlightDynamicJson/obj/
