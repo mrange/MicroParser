@@ -9,8 +9,12 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Windows;
 
 namespace SilverlightDynamicJson
 {
@@ -20,11 +24,11 @@ namespace SilverlightDynamicJson
       {
          InitializeComponent();
 
-         var obj = JsonSerializer.Unserialize(GetStringResource("SilverlightDynamicJson.JSON.txt"));
+         var obj = (DynamicDependencyObject)JsonSerializer.Unserialize(GetStringResource("SilverlightDynamicJson.JSON.txt"));
 
-         var books = obj.Books;
+         var books = obj.GetNamedValue ("Books");
 
-         LB.ItemsSource = books;
+         LB.ItemsSource = (IEnumerable) books;
 
       }
 
@@ -44,5 +48,10 @@ namespace SilverlightDynamicJson
          }
       }
 
+      void Change (object sender, RoutedEventArgs e)
+      {
+         var dynamicDependencyObject = LB.ItemsSource.Cast<DynamicDependencyObject>().First();
+         dynamicDependencyObject.SetNamedValue("ISBN", "TEST");
+      }
    }
 }
