@@ -10,11 +10,7 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.Text;
+using System.Collections.ObjectModel;
 using MicroParser;
 
 namespace SilverlightDynamicJson
@@ -52,15 +48,15 @@ namespace SilverlightDynamicJson
 
          var p_spaces = CharParser.SkipWhiteSpace();
 
-         var p_null = p_str("null").Map(empty => null as dynamic);
+         var p_null = p_str("null").Map(empty => null as object);
 
-         var p_true = p_str("true").Map(empty => true as dynamic);
-         var p_false = p_str("false").Map(empty => false as dynamic);
+         var p_true = p_str("true").Map(empty => true as object);
+         var p_false = p_str("false").Map(empty => false as object);
 
-         var p_number = CharParser.Double().Map(d => d as dynamic);
+         var p_number = CharParser.Double().Map(d => d as object);
 
-         var p_array_redirect = Parser.Redirect<dynamic>();
-         var p_object_redirect = Parser.Redirect<dynamic>();
+         var p_array_redirect = Parser.Redirect<object>();
+         var p_object_redirect = Parser.Redirect<object>();
 
          var p_escape = CharParser
             .AnyOf("\"\\/bfnrt")
@@ -92,7 +88,7 @@ namespace SilverlightDynamicJson
                p_char('"'),
                p_char('"')
                )
-            .Map(cs => new string(cs) as dynamic);
+            .Map(cs => new string(cs) as object);
 
          var p_array = p_array_redirect.Parser;
          var p_object = p_object_redirect.Parser;
@@ -108,16 +104,19 @@ namespace SilverlightDynamicJson
             )
             .KeepLeft(p_spaces);
 
-         var p_elements = p_value.Array(p_char(',').KeepLeft(p_spaces));
+         var p_elements = p_value
+            .Array(p_char(',')
+            .KeepLeft(p_spaces))
+            .Map (objects => new ObservableCollection<object> (objects));
 
          p_array_redirect.ParserRedirect = p_elements.Between(
             p_char('[').KeepLeft(p_spaces),
             p_char(']')
             )
-            .Map(objects => objects as dynamic);
+            .Map(objects => objects as object);
 
          var p_member = Parser.Tuple(
-            p_string,
+            p_string.KeepLeft (p_spaces),
             p_char(':').KeepLeft(p_spaces).KeepRight(p_value)
             );
 
@@ -129,23 +128,14 @@ namespace SilverlightDynamicJson
                   p_char('{').KeepLeft(p_spaces),
                   p_char('}')
                   )
-               .Map(values =>
-               {
-                  IDictionary<string, object> exp = new ExpandoObject();
-                  foreach (var value in values)
-                  {
-                     exp.Add(value.Item1, value.Item2);
-                  }
-
-                  return exp as object;
-               });
+               .Map(values => new DynamicDependencyObject (values) as object);
 
          s_parser = p_spaces.KeepRight(p_value);
 
          // ReSharper restore InconsistentNaming
       }
 
-      public static dynamic Unserialize(string str)
+      public static object Unserialize(string str)
       {
          var result = Parser.Parse(s_parser, str);
 
@@ -154,133 +144,5 @@ namespace SilverlightDynamicJson
             : new ExpandoUnserializeError(result.ErrorMessage)
             ;
       }
-
-      static readonly CultureInfo s_cultureInfo = CultureInfo.InvariantCulture;
-
-      static void SerializeImpl(StringBuilder stringBuilder, object dyn)
-      {
-         if (dyn is double)
-         {
-            stringBuilder.Append(((double)dyn).ToString(s_cultureInfo));
-         }
-         else if (dyn is int)
-         {
-            stringBuilder.Append(((int)dyn).ToString(s_cultureInfo));
-         }
-         else if (dyn is string)
-         {
-            SerializeString(stringBuilder, (string)dyn);
-         }
-         else if (dyn is bool)
-         {
-            if ((bool)dyn)
-            {
-               stringBuilder.Append("true");
-            }
-            else
-            {
-               stringBuilder.Append("false");
-            }
-         }
-         else if (dyn is ExpandoObject)
-         {
-            var expandoObject = (ExpandoObject)dyn;
-            IDictionary<string, object> dictionary = expandoObject;
-
-            stringBuilder.Append('{');
-
-            var first = true;
-
-            foreach (var kv in dictionary)
-            {
-               if (first)
-               {
-                  first = false;
-               }
-               else
-               {
-                  stringBuilder.Append(',');
-               }
-
-               SerializeString(stringBuilder, kv.Key);
-               stringBuilder.Append(':');
-               SerializeImpl(stringBuilder, kv.Value);
-            }
-
-            stringBuilder.Append('}');
-         }
-         else if (dyn is IEnumerable)
-         {
-            var enumerable = (IEnumerable)dyn;
-
-            stringBuilder.Append('[');
-
-            var first = true;
-
-            foreach (var obj in enumerable)
-            {
-               if (first)
-               {
-                  first = false;
-               }
-               else
-               {
-                  stringBuilder.Append(',');
-               }
-
-               SerializeImpl(stringBuilder, obj);
-            }
-
-            stringBuilder.Append(']');
-         }
-         else
-         {
-            stringBuilder.Append("null");
-         }
-
-
-
-
-      }
-
-      static void SerializeString(StringBuilder stringBuilder, string str)
-      {
-         stringBuilder.Append('"');
-         foreach (var ch in str)
-         {
-            switch (ch)
-            {
-               case '\b':
-                  stringBuilder.Append("\\b");
-                  break;
-               case '\f':
-                  stringBuilder.Append("\\f");
-                  break;
-               case '\n':
-                  stringBuilder.Append("\\n");
-                  break;
-               case '\r':
-                  stringBuilder.Append("\\r");
-                  break;
-               case '\t':
-                  stringBuilder.Append("\\t");
-                  break;
-               default:
-                  stringBuilder.Append(ch);
-                  break;
-            }
-         }
-         stringBuilder.Append('"');
-      }
-
-      public static string Serialize(object dyn)
-      {
-         var sb = new StringBuilder(32);
-
-         SerializeImpl(sb, dyn);
-
-         return sb.ToString();
-      }
-
    }
 }

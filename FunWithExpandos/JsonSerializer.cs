@@ -117,7 +117,7 @@ namespace FunWithExpandos
             .Map (objects => objects as dynamic);
 
          var p_member = Parser.Tuple (
-            p_string,
+            p_string.KeepLeft (p_spaces),
             p_char (':').KeepLeft (p_spaces).KeepRight (p_value)
             );
 
