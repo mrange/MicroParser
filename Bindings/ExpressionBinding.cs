@@ -69,7 +69,7 @@ namespace Bindings
          var p_modifier = CharParser.AnyOf ("#^").Map (charToModifier);
 
          var p_variable =
-            Parser.Tuple (
+            Parser.Group (
                p_modifier.Opt (),
                p_identifier,
                p_token (".").KeepRight (p_identifier).Many ())

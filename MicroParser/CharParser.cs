@@ -15,7 +15,6 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-
    static partial class CharParser
    {
       public static ParserFunction<Empty> SkipChar (char toSkip)
@@ -217,7 +216,7 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<MicroTuple<uint,int>> UIntImpl (
+      static ParserFunction<Tuple<uint,int>> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -251,7 +250,7 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return MicroTuple.Create (accumulated, newPos.Position - oldPos.Position);
+                     return Tuple.Create (accumulated, newPos.Position - oldPos.Position);
                   }
                );
          };
@@ -277,7 +276,7 @@ namespace MicroParser
       public static ParserFunction<int> Int (
          )
       {
-         var intParser = Parser.Tuple (
+         var intParser = Parser.Group (
             SkipChar ('-').Opt (),
             UInt ()
             );
@@ -301,9 +300,9 @@ namespace MicroParser
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
-         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), UInt ()));
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Group (AnyOf ("+-").Opt (), UInt ()));
 
-         var doubleParser = Parser.Tuple (
+         var doubleParser = Parser.Group (
             intParser,
             fracParser.Opt (),
             expParser.Opt ()

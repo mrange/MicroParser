@@ -19,17 +19,17 @@ namespace SilverlightDynamicJson
    {
       public readonly string ErrorMessage;
 
-      public ExpandoUnserializeError(string errorMessage)
+      public ExpandoUnserializeError (string errorMessage)
       {
          ErrorMessage = errorMessage ?? "<NULL>";
       }
 
-      public override string ToString()
+      public override string ToString ()
       {
          return new
          {
             ErrorMessage
-         }.ToString();
+         }.ToString ();
       }
 
    }
@@ -38,7 +38,7 @@ namespace SilverlightDynamicJson
    {
       static readonly ParserFunction<object> s_parser;
 
-      static JsonSerializer()
+      static JsonSerializer ()
       {
          // Language spec at www.json.org
 
@@ -46,21 +46,21 @@ namespace SilverlightDynamicJson
          Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
          Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
 
-         var p_spaces = CharParser.SkipWhiteSpace();
+         var p_spaces = CharParser.SkipWhiteSpace ();
 
-         var p_null = p_str("null").Map(empty => null as object);
+         var p_null = p_str ("null").Map (empty => null as object);
 
-         var p_true = p_str("true").Map(empty => true as object);
-         var p_false = p_str("false").Map(empty => false as object);
+         var p_true = p_str ("true").Map (empty => true as object);
+         var p_false = p_str ("false").Map (empty => false as object);
 
-         var p_number = CharParser.Double().Map(d => d as object);
+         var p_number = CharParser.Double ().Map (d => d as object);
 
          var p_array_redirect = Parser.Redirect<object>();
          var p_object_redirect = Parser.Redirect<object>();
 
          var p_escape = CharParser
-            .AnyOf("\"\\/bfnrt")
-            .Map(ch =>
+            .AnyOf ("\"\\/bfnrt")
+            .Map (ch =>
             {
                switch (ch)
                {
@@ -80,20 +80,20 @@ namespace SilverlightDynamicJson
             });
 
          var p_string = Parser
-            .Choice(
-               CharParser.NoneOf("\\\""),
-               CharParser.SkipChar('\\').KeepRight(p_escape))
-            .Many()
-            .Between(
-               p_char('"'),
-               p_char('"')
+            .Choice (
+               CharParser.NoneOf ("\\\""),
+               CharParser.SkipChar ('\\').KeepRight (p_escape))
+            .Many ()
+            .Between (
+               p_char ('"'),
+               p_char ('"')
                )
-            .Map(cs => new string(cs) as object);
+            .Map (cs => new string (cs) as object);
 
          var p_array = p_array_redirect.Parser;
          var p_object = p_object_redirect.Parser;
 
-         var p_value = Parser.Choice(
+         var p_value = Parser.Choice (
             p_string,
             p_number,
             p_object,
@@ -102,46 +102,46 @@ namespace SilverlightDynamicJson
             p_false,
             p_null
             )
-            .KeepLeft(p_spaces);
+            .KeepLeft (p_spaces);
 
          var p_elements = p_value
-            .Array(p_char(',')
-            .KeepLeft(p_spaces))
+            .Array (p_char (',')
+            .KeepLeft (p_spaces))
             .Map (objects => new ObservableCollection<object> (objects));
 
-         p_array_redirect.ParserRedirect = p_elements.Between(
-            p_char('[').KeepLeft(p_spaces),
-            p_char(']')
+         p_array_redirect.ParserRedirect = p_elements.Between (
+            p_char ('[').KeepLeft (p_spaces),
+            p_char (']')
             )
-            .Map(objects => objects as object);
+            .Map (objects => objects as object);
 
-         var p_member = Parser.Tuple(
+         var p_member = Parser.Group (
             p_string.KeepLeft (p_spaces),
-            p_char(':').KeepLeft(p_spaces).KeepRight(p_value)
+            p_char (':').KeepLeft (p_spaces).KeepRight (p_value)
             );
 
-         var p_members = p_member.Array(p_char(',').KeepLeft(p_spaces));
+         var p_members = p_member.Array (p_char (',').KeepLeft (p_spaces));
 
          p_object_redirect.ParserRedirect =
             p_members
-               .Between(
-                  p_char('{').KeepLeft(p_spaces),
-                  p_char('}')
+               .Between (
+                  p_char ('{').KeepLeft (p_spaces),
+                  p_char ('}')
                   )
-               .Map(values => new DynamicDependencyObject (values) as object);
+               .Map (values => new DynamicDependencyObject (values) as object);
 
-         s_parser = p_spaces.KeepRight(p_value);
+         s_parser = p_spaces.KeepRight (p_value);
 
          // ReSharper restore InconsistentNaming
       }
 
-      public static object Unserialize(string str)
+      public static object Unserialize (string str)
       {
-         var result = Parser.Parse(s_parser, str);
+         var result = Parser.Parse (s_parser, str);
 
          return result.IsSuccessful
             ? result.Value
-            : new ExpandoUnserializeError(result.ErrorMessage)
+            : new ExpandoUnserializeError (result.ErrorMessage)
             ;
       }
    }

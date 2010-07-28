@@ -11,18 +11,19 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
+#if !MICRO_PARSER_USE_NET4_TUPLE
 <#
    const int MinCount = 2;
    const int MaxCount = 3;
 #>
-   static partial class MicroTuple
+   static partial class Tuple
    {
 <#
    for (var iter = MinCount; iter <= MaxCount; ++iter)
    {
       var typeSpec = BuildTypeSpec (iter);
 #>
-      public static MicroTuple<<#=typeSpec#>> Create<<#=typeSpec#>> (
+      public static Tuple<<#=typeSpec#>> Create<<#=typeSpec#>> (
             TValue1 value1
 <#
       for (var ita = 1; ita < iter; ++ita)
@@ -34,7 +35,7 @@ namespace MicroParser
 #>
          )
       {
-         return new MicroTuple<<#=typeSpec#>>
+         return new Tuple<<#=typeSpec#>>
             {
 <#
       for (var ita = 0; ita < iter; ++ita)
@@ -55,7 +56,7 @@ namespace MicroParser
    {
       var typeSpec = BuildTypeSpec (iter);
 #>
-   partial struct MicroTuple<<#=typeSpec#>>
+   partial struct Tuple<<#=typeSpec#>>
    {
 <#
       for (var ita = 0; ita < iter; ++ita)
@@ -86,6 +87,7 @@ namespace MicroParser
 <#
    }
 #>
+#endif
 }
 <#+
    static string BuildTypeSpec (int iter)

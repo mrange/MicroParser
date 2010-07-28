@@ -68,17 +68,17 @@ namespace MicroParser
       
    }
 
-   public static partial class MicroTuple
+   public static partial class Tuple
    {
       
    }
 
-   public partial struct MicroTuple<TValue1, TValue2>
+   public partial struct Tuple<TValue1, TValue2>
    {
       
    }
 
-   public partial struct MicroTuple<TValue1, TValue2, TValue3>
+   public partial struct Tuple<TValue1, TValue2, TValue3>
    {
 
    }
