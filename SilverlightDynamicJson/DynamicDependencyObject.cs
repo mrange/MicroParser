@@ -4,9 +4,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows;
-using MicroParser;
 using Expression = System.Linq.Expressions.Expression;
-using SW = System.Windows;
 
 namespace SilverlightDynamicJson
 {
@@ -21,7 +19,7 @@ namespace SilverlightDynamicJson
          {
             foreach (var value in values)
             {
-               SetNamedValue (value.Item1, value.Item2);
+               SetNamedValueImpl (value.Item1, value.Item2);
             }
          }
       }
