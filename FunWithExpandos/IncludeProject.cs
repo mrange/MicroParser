@@ -18,7 +18,6 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-
    static partial class CharParser
    {
       public static ParserFunction<Empty> SkipChar (char toSkip)
@@ -220,7 +219,7 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<MicroTuple<uint,int>> UIntImpl (
+      static ParserFunction<Tuple<uint,int>> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -254,7 +253,7 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return MicroTuple.Create (accumulated, newPos.Position - oldPos.Position);
+                     return Tuple.Create (accumulated, newPos.Position - oldPos.Position);
                   }
                );
          };
@@ -280,7 +279,7 @@ namespace MicroParser
       public static ParserFunction<int> Int (
          )
       {
-         var intParser = Parser.Tuple (
+         var intParser = Parser.Group (
             SkipChar ('-').Opt (),
             UInt ()
             );
@@ -304,9 +303,9 @@ namespace MicroParser
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
-         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Tuple (AnyOf ("+-").Opt (), UInt ()));
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Group (AnyOf ("+-").Opt (), UInt ()));
 
-         var doubleParser = Parser.Tuple (
+         var doubleParser = Parser.Group (
             intParser,
             fracParser.Opt (),
             expParser.Opt ()
@@ -659,17 +658,17 @@ namespace MicroParser
       
    }
 
-   public static partial class MicroTuple
+   public static partial class Tuple
    {
       
    }
 
-   public partial struct MicroTuple<TValue1, TValue2>
+   public partial struct Tuple<TValue1, TValue2>
    {
       
    }
 
-   public partial struct MicroTuple<TValue1, TValue2, TValue3>
+   public partial struct Tuple<TValue1, TValue2, TValue3>
    {
 
    }
@@ -827,7 +826,6 @@ namespace MicroParser
    using System.Collections.Generic;
    using System.Linq;
    using Internal;
-
 
    static partial class Parser
    {
@@ -1200,7 +1198,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2>> Tuple<TValue1, TValue2> (
+      public static ParserFunction<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
          ParserFunction<TValue1> firstParser,
          ParserFunction<TValue2> secondParser
          )
@@ -1213,25 +1211,25 @@ namespace MicroParser
 
             if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2>> ();
+               return firstResult.Failure<Tuple<TValue1, TValue2>> ();
             }
 
             var secondResult = secondParser (state);
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2>> ().VerifyConsistency (initialPosition);
+               return secondResult.Failure<Tuple<TValue1, TValue2>> ().VerifyConsistency (initialPosition);
             }
 
             return secondResult.Success (
-               MicroTuple.Create (
+               Tuple.Create(
                   firstResult.Value,
                   secondResult.Value
                   ));
          };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2, TValue3>> Tuple<TValue1, TValue2, TValue3> (
+      public static ParserFunction<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3>(
          ParserFunction<TValue1> firstParser, 
          ParserFunction<TValue2> secondParser,
          ParserFunction<TValue3> thirdParser
@@ -1245,26 +1243,26 @@ namespace MicroParser
 
             if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
+               return firstResult.Failure<Tuple<TValue1, TValue2, TValue3>> ();
             }
 
             var secondResult = secondParser (state);
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
+               return secondResult.Failure<Tuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
             var thirdResult = thirdParser (state);
 
             if (thirdResult.State.HasError ())
             {
-               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
+               return thirdResult.Failure<Tuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
 
             return thirdResult.Success (
-               MicroTuple.Create (
+               Tuple.Create (
                   firstResult.Value,
                   secondResult.Value,
                   thirdResult.Value
@@ -2196,26 +2194,27 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   static partial class MicroTuple
+#if !MICRO_PARSER_USE_NET4_TUPLE
+   static partial class Tuple
    {
-      public static MicroTuple<TValue1, TValue2> Create<TValue1, TValue2> (
+      public static Tuple<TValue1, TValue2> Create<TValue1, TValue2> (
             TValue1 value1
          ,  TValue2 value2
          )
       {
-         return new MicroTuple<TValue1, TValue2>
+         return new Tuple<TValue1, TValue2>
             {
                Item1 = value1 ,
                Item2 = value2 ,
             };
       }
-      public static MicroTuple<TValue1, TValue2, TValue3> Create<TValue1, TValue2, TValue3> (
+      public static Tuple<TValue1, TValue2, TValue3> Create<TValue1, TValue2, TValue3> (
             TValue1 value1
          ,  TValue2 value2
          ,  TValue3 value3
          )
       {
-         return new MicroTuple<TValue1, TValue2, TValue3>
+         return new Tuple<TValue1, TValue2, TValue3>
             {
                Item1 = value1 ,
                Item2 = value2 ,
@@ -2223,7 +2222,7 @@ namespace MicroParser
             };
       }
    }
-   partial struct MicroTuple<TValue1, TValue2>
+   partial struct Tuple<TValue1, TValue2>
    {
       public TValue1 Item1;
       public TValue2 Item2;
@@ -2239,7 +2238,7 @@ namespace MicroParser
       }
 #endif
    }
-   partial struct MicroTuple<TValue1, TValue2, TValue3>
+   partial struct Tuple<TValue1, TValue2, TValue3>
    {
       public TValue1 Item1;
       public TValue2 Item2;
@@ -2257,5 +2256,6 @@ namespace MicroParser
       }
 #endif
    }
+#endif
 }
 

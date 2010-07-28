@@ -11,26 +11,27 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-   static partial class MicroTuple
+#if !MICRO_PARSER_USE_NET4_TUPLE
+   static partial class Tuple
    {
-      public static MicroTuple<TValue1, TValue2> Create<TValue1, TValue2> (
+      public static Tuple<TValue1, TValue2> Create<TValue1, TValue2> (
             TValue1 value1
          ,  TValue2 value2
          )
       {
-         return new MicroTuple<TValue1, TValue2>
+         return new Tuple<TValue1, TValue2>
             {
                Item1 = value1 ,
                Item2 = value2 ,
             };
       }
-      public static MicroTuple<TValue1, TValue2, TValue3> Create<TValue1, TValue2, TValue3> (
+      public static Tuple<TValue1, TValue2, TValue3> Create<TValue1, TValue2, TValue3> (
             TValue1 value1
          ,  TValue2 value2
          ,  TValue3 value3
          )
       {
-         return new MicroTuple<TValue1, TValue2, TValue3>
+         return new Tuple<TValue1, TValue2, TValue3>
             {
                Item1 = value1 ,
                Item2 = value2 ,
@@ -38,7 +39,7 @@ namespace MicroParser
             };
       }
    }
-   partial struct MicroTuple<TValue1, TValue2>
+   partial struct Tuple<TValue1, TValue2>
    {
       public TValue1 Item1;
       public TValue2 Item2;
@@ -54,7 +55,7 @@ namespace MicroParser
       }
 #endif
    }
-   partial struct MicroTuple<TValue1, TValue2, TValue3>
+   partial struct Tuple<TValue1, TValue2, TValue3>
    {
       public TValue1 Item1;
       public TValue2 Item2;
@@ -72,4 +73,5 @@ namespace MicroParser
       }
 #endif
    }
+#endif
 }

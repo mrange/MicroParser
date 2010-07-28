@@ -110,13 +110,13 @@ namespace FunWithExpandos
 
          var p_elements = p_value.Array (p_char (',').KeepLeft (p_spaces));
 
-         p_array_redirect.ParserRedirect = p_elements.Between(
+         p_array_redirect.ParserRedirect = p_elements.Between (
             p_char ('[').KeepLeft (p_spaces),
             p_char (']')
             )
             .Map (objects => objects as dynamic);
 
-         var p_member = Parser.Tuple (
+         var p_member = Parser.Group (
             p_string.KeepLeft (p_spaces),
             p_char (':').KeepLeft (p_spaces).KeepRight (p_value)
             );

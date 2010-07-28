@@ -16,7 +16,6 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-
    static partial class Parser
    {
       public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
@@ -388,7 +387,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2>> Tuple<TValue1, TValue2> (
+      public static ParserFunction<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
          ParserFunction<TValue1> firstParser,
          ParserFunction<TValue2> secondParser
          )
@@ -401,25 +400,25 @@ namespace MicroParser
 
             if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2>> ();
+               return firstResult.Failure<Tuple<TValue1, TValue2>> ();
             }
 
             var secondResult = secondParser (state);
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2>> ().VerifyConsistency (initialPosition);
+               return secondResult.Failure<Tuple<TValue1, TValue2>> ().VerifyConsistency (initialPosition);
             }
 
             return secondResult.Success (
-               MicroTuple.Create (
+               Tuple.Create(
                   firstResult.Value,
                   secondResult.Value
                   ));
          };
       }
 
-      public static ParserFunction<MicroTuple<TValue1, TValue2, TValue3>> Tuple<TValue1, TValue2, TValue3> (
+      public static ParserFunction<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3>(
          ParserFunction<TValue1> firstParser, 
          ParserFunction<TValue2> secondParser,
          ParserFunction<TValue3> thirdParser
@@ -433,26 +432,26 @@ namespace MicroParser
 
             if (firstResult.State.HasError ())
             {
-               return firstResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ();
+               return firstResult.Failure<Tuple<TValue1, TValue2, TValue3>> ();
             }
 
             var secondResult = secondParser (state);
 
             if (secondResult.State.HasError ())
             {
-               return secondResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
+               return secondResult.Failure<Tuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
             var thirdResult = thirdParser (state);
 
             if (thirdResult.State.HasError ())
             {
-               return thirdResult.Failure<MicroTuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
+               return thirdResult.Failure<Tuple<TValue1, TValue2, TValue3>> ().VerifyConsistency (initialPosition);
             }
 
 
             return thirdResult.Success (
-               MicroTuple.Create (
+               Tuple.Create (
                   firstResult.Value,
                   secondResult.Value,
                   thirdResult.Value
