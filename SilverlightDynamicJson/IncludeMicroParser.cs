@@ -1222,7 +1222,7 @@ namespace MicroParser
             }
 
             return secondResult.Success (
-               Tuple.Create(
+               Tuple.Create (
                   firstResult.Value,
                   secondResult.Value
                   ));
