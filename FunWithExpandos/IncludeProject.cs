@@ -936,7 +936,12 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue1> Chain<TValue1, TValue2> (
+      public static ParserFunction<TValue2> Map<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, TValue2 value2)
+      {
+         return firstParser.Map (ignore => value2);
+      }
+
+      public static ParserFunction<TValue1> Chain<TValue1, TValue2>(
          this ParserFunction<TValue1> parser,
          ParserFunction<TValue2> separator,
          Func<TValue1, TValue2, TValue1, TValue1> combiner

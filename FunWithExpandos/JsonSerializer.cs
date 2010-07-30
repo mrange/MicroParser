@@ -52,15 +52,15 @@ namespace FunWithExpandos
 
          var p_spaces = CharParser.SkipWhiteSpace ();
 
-         var p_null = p_str ("null").Map (empty => null as dynamic);
+         var p_null = p_str ("null").Map (null as object);
 
-         var p_true = p_str ("true").Map (empty => true as dynamic);
-         var p_false = p_str ("false").Map (empty => false as dynamic);
+         var p_true = p_str ("true").Map (true as object);
+         var p_false = p_str ("false").Map (false as object);
 
-         var p_number = CharParser.Double ().Map (d => d as dynamic);
+         var p_number = CharParser.Double ().Map (d => d as object);
 
-         var p_array_redirect = Parser.Redirect<dynamic> ();
-         var p_object_redirect = Parser.Redirect<dynamic> ();
+         var p_array_redirect = Parser.Redirect<object> ();
+         var p_object_redirect = Parser.Redirect<object> ();
 
          var p_escape = CharParser
             .AnyOf ("\"\\/bfnrt")
@@ -92,7 +92,7 @@ namespace FunWithExpandos
                p_char ('"'),
                p_char ('"')
                )
-            .Map (cs => new string (cs) as dynamic);
+            .Map (cs => new string (cs) as object);
 
          var p_array = p_array_redirect.Parser;
          var p_object = p_object_redirect.Parser;
@@ -114,7 +114,7 @@ namespace FunWithExpandos
             p_char ('[').KeepLeft (p_spaces),
             p_char (']')
             )
-            .Map (objects => objects as dynamic);
+            .Map (objects => objects as object);
 
          var p_member = Parser.Group (
             p_string.KeepLeft (p_spaces),
@@ -134,7 +134,7 @@ namespace FunWithExpandos
                            IDictionary<string, object> exp = new ExpandoObject ();
                            foreach (var value in values)
                            {
-                              exp.Add (value.Item1, value.Item2);
+                              exp.Add (value.Item1.ToString(), value.Item2);
                            }
 
                            return exp as object;
