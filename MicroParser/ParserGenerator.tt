@@ -1,0 +1,91 @@
+﻿// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
+// ----------------------------------------------------------------------------------------------
+// This source code is subject to terms and conditions of the Microsoft Public License. A 
+// copy of the license can be found in the License.html file at the root of this distribution. 
+// If you cannot locate the  Microsoft Public License, please send an email to 
+// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+//  by the terms of the Microsoft Public License.
+// ----------------------------------------------------------------------------------------------
+// You must not remove this notice, or any other, from this software.
+// ----------------------------------------------------------------------------------------------
+using MicroParser.Internal;
+
+<#
+   const int MinCount = 2;
+   const int MaxCount = 3;
+#>
+
+namespace MicroParser
+{
+	partial class Parser
+	{
+<#
+   for (var iter = MinCount; iter <= MaxCount; ++iter)
+   {
+      var typeSpec = BuildTypeSpec (iter);
+#>
+      public static ParserFunction<Tuple<<#=typeSpec#>>> Group<<#=typeSpec#>> (
+            ParserFunction<TValue1> parser1
+<#
+      for (var inner = 1; inner < iter; ++inner)
+      {
+#>
+         ,  ParserFunction<TValue<#=inner + 1#>> parser<#=inner + 1#>
+<#
+      }
+#>
+         )
+      {
+         return state =>
+         {
+            var initialPosition = state.Position;
+
+<#
+      for (var inner = 0; inner < iter; ++inner)
+      {
+#>
+            var result<#=inner + 1#> = parser<#=inner + 1#> (state);
+
+            if (result<#=inner + 1#>.State.HasError())
+            {
+               return result<#=inner + 1#>.Failure<Tuple<<#=typeSpec#>>>().VerifyConsistency(initialPosition);
+            }
+<#
+      }
+#>
+            return result<#=iter#>.Success(
+               Tuple.Create(
+                     result1.Value
+<#
+      for (var inner = 1; inner < iter; ++inner)
+      {
+#>
+                  ,  result<#=inner + 1#>.Value
+<#
+      }
+#>
+                  ));
+         };
+      }
+<#
+   }
+#>
+
+
+   }
+}
+<#+
+   static string BuildTypeSpec (int iter)
+   {
+      var sb = new System.Text.StringBuilder ("TValue1");
+
+      for (var ita = 1; ita < iter; ++ita)
+      {
+         sb.Append (", TValue");
+         sb.Append (ita + 1);
+      }
+
+      return sb.ToString ();
+   }
+#>
