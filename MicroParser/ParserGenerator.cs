@@ -9,11 +9,12 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using MicroParser.Internal;
 
 
 namespace MicroParser
 {
+   using System;
+   using MicroParser.Internal;
 	partial class Parser
 	{
       public static ParserFunction<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
