@@ -134,7 +134,7 @@ namespace FunWithExpandos
                            IDictionary<string, object> exp = new ExpandoObject ();
                            foreach (var value in values)
                            {
-                              exp.Add (value.Item1.ToString(), value.Item2);
+                              exp.Add (value.Item1.ToString (), value.Item2);
                            }
 
                            return exp as object;

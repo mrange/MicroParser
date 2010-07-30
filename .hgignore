@@ -19,3 +19,5 @@ relre:^TestMicroParser/bin/
 relre:^TestMicroParser/obj/
 relre:^SilverlightDynamicJson/Bin/
 relre:^SilverlightDynamicJson/obj/
+relre:^SampleParsers/bin/
+relre:^SampleParsers/obj/
