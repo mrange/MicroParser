@@ -18,13 +18,13 @@ namespace SampleParsers
 {
    class Program
    {
-      static void Main(string[] args)
+      static void Main (string[] args)
       {
          // Int () is a builtin parser for ints
-         ParserFunction<int> p_int = CharParser.Int();
+         ParserFunction<int> p_int = CharParser.Int ();
 
          ParserFunction<SubString> p_identifier = CharParser
-            .ManyCharSatisfy2(                  // Creates a string parser
+            .ManyCharSatisfy2 (                  // Creates a string parser
                CharParser.SatisyLetter,         // A test function applied to the 
                                                 // first character
                CharParser.SatisyLetterOrDigit,  // A test function applied to the
@@ -36,13 +36,13 @@ namespace SampleParsers
          ParserFunction<Empty> p_spaces     = CharParser.SkipWhiteSpace ();
          ParserFunction<Empty> p_assignment = CharParser.SkipChar ('=');
 
-         ParserFunction<MicroParser.Tuple<SubString, int>> p_parser = Parser.Group(
-            p_identifier.KeepLeft(p_spaces),
-            p_assignment.KeepRight(p_spaces).KeepRight(p_int));
+         ParserFunction<MicroParser.Tuple<SubString, int>> p_parser = Parser.Group (
+            p_identifier.KeepLeft (p_spaces),
+            p_assignment.KeepRight (p_spaces).KeepRight (p_int));
 
          ParserResult<MicroParser.Tuple<SubString,int>> result = Parser.Parse (
             p_parser,
-            "AnIdentifier = 3");
+            "AnIdentifier @ 3");
 
          if (result.IsSuccessful)
          {
