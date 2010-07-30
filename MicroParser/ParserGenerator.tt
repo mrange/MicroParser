@@ -48,15 +48,15 @@ namespace MicroParser
 #>
             var result<#=inner + 1#> = parser<#=inner + 1#> (state);
 
-            if (result<#=inner + 1#>.State.HasError())
+            if (result<#=inner + 1#>.State.HasError ())
             {
-               return result<#=inner + 1#>.Failure<Tuple<<#=typeSpec#>>>().VerifyConsistency(initialPosition);
+               return result<#=inner + 1#>.Failure<Tuple<<#=typeSpec#>>>().VerifyConsistency (initialPosition);
             }
 <#
       }
 #>
-            return result<#=iter#>.Success(
-               Tuple.Create(
+            return result<#=iter#>.Success (
+               Tuple.Create (
                      result1.Value
 <#
       for (var inner = 1; inner < iter; ++inner)

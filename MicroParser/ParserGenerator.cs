@@ -28,18 +28,18 @@ namespace MicroParser
 
             var result1 = parser1 (state);
 
-            if (result1.State.HasError())
+            if (result1.State.HasError ())
             {
-               return result1.Failure<Tuple<TValue1, TValue2>>().VerifyConsistency(initialPosition);
+               return result1.Failure<Tuple<TValue1, TValue2>>().VerifyConsistency (initialPosition);
             }
             var result2 = parser2 (state);
 
-            if (result2.State.HasError())
+            if (result2.State.HasError ())
             {
-               return result2.Failure<Tuple<TValue1, TValue2>>().VerifyConsistency(initialPosition);
+               return result2.Failure<Tuple<TValue1, TValue2>>().VerifyConsistency (initialPosition);
             }
-            return result2.Success(
-               Tuple.Create(
+            return result2.Success (
+               Tuple.Create (
                      result1.Value
                   ,  result2.Value
                   ));
@@ -57,24 +57,24 @@ namespace MicroParser
 
             var result1 = parser1 (state);
 
-            if (result1.State.HasError())
+            if (result1.State.HasError ())
             {
-               return result1.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency(initialPosition);
+               return result1.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency (initialPosition);
             }
             var result2 = parser2 (state);
 
-            if (result2.State.HasError())
+            if (result2.State.HasError ())
             {
-               return result2.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency(initialPosition);
+               return result2.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency (initialPosition);
             }
             var result3 = parser3 (state);
 
-            if (result3.State.HasError())
+            if (result3.State.HasError ())
             {
-               return result3.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency(initialPosition);
+               return result3.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency (initialPosition);
             }
-            return result3.Success(
-               Tuple.Create(
+            return result3.Success (
+               Tuple.Create (
                      result1.Value
                   ,  result2.Value
                   ,  result3.Value
