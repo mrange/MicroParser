@@ -207,8 +207,8 @@ namespace MicroParser
 
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
-               ? satisfyFirst.Expected
-               : satisfyRest.Expected;
+               ? satisfyRest.Expected
+               : satisfyFirst.Expected;
 
             return Parser.ToParserReply (
                advanceResult,
@@ -1800,7 +1800,7 @@ namespace MicroParser
                          IsSuccessful,
                          Position = Unconsumed.Begin,
                          EndOfStream,
-                         Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
+                         Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
                       }.ToString ();
          }
@@ -1812,7 +1812,7 @@ namespace MicroParser
                IsSuccessful,
                Position = Unconsumed.Begin,
                EndOfStream,
-               Current = !EndOfStream ? new string (Text[Position], 1) : Strings.ParserErrorMessages.Eos,
+               Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
             }.ToString ();
          }
