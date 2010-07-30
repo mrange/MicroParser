@@ -49,6 +49,11 @@
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />
     <Compile Include="ParserFunction.cs" />
+    <Compile Include="ParserGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ParserGenerator.tt</DependentUpon>
+    </Compile>
     <Compile Include="ParserReply.cs" />
     <Compile Include="ParserResult.cs" />
     <Compile Include="ParserState.cs" />
@@ -62,6 +67,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ParserGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ParserGenerator.cs</LastGenOutput>
+    </None>
     <None Include="TupleGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TupleGenerator.cs</LastGenOutput>
