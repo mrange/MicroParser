@@ -204,8 +204,8 @@ namespace MicroParser
 
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
-               ? satisfyFirst.Expected
-               : satisfyRest.Expected;
+               ? satisfyRest.Expected
+               : satisfyFirst.Expected;
 
             return Parser.ToParserReply (
                advanceResult,
