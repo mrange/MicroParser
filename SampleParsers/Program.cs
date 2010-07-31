@@ -42,7 +42,8 @@ namespace SampleParsers
 
          ParserResult<MicroParser.Tuple<SubString,int>> result = Parser.Parse (
             p_parser,
-            "AnIdentifier @ 3");
+            "AnIdentifier = 3"
+            );
 
          if (result.IsSuccessful)
          {
