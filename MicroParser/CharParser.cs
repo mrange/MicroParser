@@ -75,7 +75,16 @@ namespace MicroParser
          return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
       }
 
-      public static ParserFunction<char> AnyOf (
+      public static ParserFunction<Empty> SkipNewLine (
+         )
+      {
+         return Parser.Group (
+            SkipChar ('\r').Opt (),
+            SkipChar ('\n')
+            ).Map (new Empty ());
+      }
+
+      public static ParserFunction<char> AnyOf(
          string match
          )
       {
@@ -375,6 +384,18 @@ namespace MicroParser
       public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
       public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
       public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));
+      public static readonly CharSatify SatisyLineBreak = new CharSatify(ParserErrorMessages.Expected_LineBreak, (c, i) =>
+         {
+            switch (c)
+            {
+               case '\r':
+               case '\n':
+                  return true;
+               default:
+                  return false;
+            }
+         });
+      public static readonly CharSatify SatisyLineBreakOrWhiteSpace = SatisyLineBreak.Or (SatisyWhiteSpace);
       public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
    }
 }
