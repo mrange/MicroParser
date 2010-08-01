@@ -49,6 +49,8 @@ namespace MicroParser
          public const string Digit = "digit";
          public const string Letter = "letter";
          public const string Any = "any";
+         public const string LineBreak = "linebreak";
+
          public const string Choice = "multiple choices";
          public const string Message = "message";
          public const string Group = "group";
