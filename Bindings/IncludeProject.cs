@@ -87,7 +87,7 @@ namespace MicroParser
             ).Map (new Empty ());
       }
 
-      public static ParserFunction<char> AnyOf(
+      public static ParserFunction<char> AnyOf (
          string match
          )
       {
@@ -387,7 +387,7 @@ namespace MicroParser
       public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
       public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
       public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));
-      public static readonly CharSatify SatisyLineBreak = new CharSatify(ParserErrorMessages.Expected_LineBreak, (c, i) =>
+      public static readonly CharSatify SatisyLineBreak = new CharSatify (ParserErrorMessages.Expected_LineBreak, (c, i) =>
          {
             switch (c)
             {
@@ -1426,7 +1426,7 @@ namespace MicroParser
       public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
       public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
       public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
-      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.LineBreak);
+      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
 
       public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
    }
@@ -1822,7 +1822,7 @@ namespace MicroParser
                          IsSuccessful,
                          Position = Unconsumed.Begin,
                          EndOfStream,
-                         Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
+                         Current = !EndOfStream ? new string (Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
                       }.ToString ();
          }
@@ -1834,7 +1834,7 @@ namespace MicroParser
                IsSuccessful,
                Position = Unconsumed.Begin,
                EndOfStream,
-               Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
+               Current = !EndOfStream ? new string (Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
             }.ToString ();
          }

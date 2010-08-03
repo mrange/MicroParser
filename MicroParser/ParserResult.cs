@@ -42,7 +42,7 @@ namespace MicroParser
                          IsSuccessful,
                          Position = Unconsumed.Begin,
                          EndOfStream,
-                         Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
+                         Current = !EndOfStream ? new string (Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                          Value = GetValue (),
                       }.ToString ();
          }
@@ -54,7 +54,7 @@ namespace MicroParser
                IsSuccessful,
                Position = Unconsumed.Begin,
                EndOfStream,
-               Current = !EndOfStream ? new string(Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
+               Current = !EndOfStream ? new string (Unconsumed[Unconsumed.Begin], 1) : Strings.ParserErrorMessages.Eos,
                ErrorMessage,
             }.ToString ();
          }
