@@ -116,6 +116,8 @@ namespace FunWithExpandos
             )
             .Map (objects => objects as object);
 
+         var p_spacesplus = CharParser.SkipSatisfy (CharParser.SatisyLineBreakOrWhiteSpace);
+
          var p_member = Parser.Group (
             p_string.KeepLeft (p_spaces),
             p_char (':').KeepLeft (p_spaces).KeepRight (p_value)

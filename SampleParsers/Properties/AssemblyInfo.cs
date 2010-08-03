@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Mårten Rånge")]
 [assembly: AssemblyProduct ("SampleParsers")]
-[assembly: AssemblyCopyright("Copyright © Mårten Rånge 2010")]
+[assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

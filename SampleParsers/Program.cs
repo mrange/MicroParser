@@ -10,21 +10,41 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 using MicroParser;
 
 // ReSharper disable InconsistentNaming
 
 namespace SampleParsers
 {
-   class Program
+   static class Program
    {
+      static readonly ParserFunction<MicroParser.Tuple<SubString, int>> s_parserSample1;
+
+      static readonly ParameterExpression s_parameterSample2;
+      static readonly ParserFunction<Expression> s_parserSample2;
+
       static void Main (string[] args)
       {
-         // Int () is a builtin parser for ints
-         ParserFunction<int> p_int = CharParser.Int ();
+         Sample1 ();
 
-         ParserFunction<SubString> p_identifier = CharParser
-            .ManyCharSatisfy2 (                  // Creates a string parser
+         Sample2 ();
+
+         Console.ReadKey ();
+      }
+
+      static Program ()
+      {
+         // Sample1
+
+         {
+            // Int () is a builtin parser for ints
+            var p_int = CharParser.Int ();
+
+            var p_identifier = CharParser
+               .ManyCharSatisfy2 (              // Creates a string parser
                CharParser.SatisyLetter,         // A test function applied to the 
                                                 // first character
                CharParser.SatisyLetterOrDigit,  // A test function applied to the
@@ -33,15 +53,73 @@ namespace SampleParsers
                                                 // at least 1 character long
                );
 
-         ParserFunction<Empty> p_spaces     = CharParser.SkipWhiteSpace ();
-         ParserFunction<Empty> p_assignment = CharParser.SkipChar ('=');
+            var p_spaces = CharParser.SkipWhiteSpace ();
+            var p_assignment = CharParser.SkipChar ('=');
 
-         ParserFunction<MicroParser.Tuple<SubString, int>> p_parser = Parser.Group (
-            p_identifier.KeepLeft (p_spaces),
-            p_assignment.KeepRight (p_spaces).KeepRight (p_int));
+            s_parserSample1 = Parser.Group (
+               p_identifier.KeepLeft (p_spaces),
+               p_assignment.KeepRight (p_spaces).KeepRight (p_int));
 
-         ParserResult<MicroParser.Tuple<SubString,int>> result = Parser.Parse (
-            p_parser,
+         }
+
+         // Sample2
+
+         {
+            var inputParameter = Expression.Parameter (
+               typeof (IDictionary<string, double>),
+               "input"
+               );
+
+            Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
+
+            var p_spaces = CharParser.SkipWhiteSpace ();
+            var p_value = CharParser.Double ().Map (d => (Expression) Expression.Constant (d));
+            var p_variable = CharParser
+               .ManyCharSatisfy2 (
+                  CharParser.SatisyLetter,
+                  CharParser.SatisyLetterOrDigit,
+                  minCount: 1
+               )
+               .Map (identifier => (Expression) Expression.Call (
+                  null,
+                  s_findVariableValue,
+                  inputParameter,
+                  Expression.Constant (identifier.ToString ()))
+               );
+
+            var p_astRedirect = Parser.Redirect<Expression> ();
+
+            var p_ast = p_astRedirect.Parser;
+
+            var p_term = Parser.Choice (
+               p_ast.Between (p_str ("(").KeepLeft (p_spaces), p_str (")")),
+               p_value,
+               p_variable
+               ).KeepLeft (p_spaces);
+
+            Func<ParserFunction<Expression>, string, ParserFunction<Expression>> p_level =
+               (parser, ops) => parser.Chain (
+                  CharParser.AnyOf (ops).KeepLeft (p_spaces),
+                  (left, op, right) => Expression.MakeBinary (OperatorToExpressionType (op), left, right)
+                  );
+
+            var p_lvl0 = p_level (p_term, "*/");
+            var p_lvl1 = p_level (p_lvl0, "+-");
+
+            p_astRedirect.ParserRedirect = p_lvl1;
+
+            s_parameterSample2 = inputParameter;
+            s_parserSample2 = p_ast;
+         }
+      }
+
+      // Sample1
+
+      static void Sample1 ()
+      {
+
+         var result = Parser.Parse (
+            s_parserSample1,
             "AnIdentifier = 3"
             );
 
@@ -59,8 +137,78 @@ namespace SampleParsers
                result.ErrorMessage 
                );
          }
-
-         Console.ReadKey ();
       }
+
+      static readonly MethodInfo s_findVariableValue = GetMethodInfo (() => FindVariableValue (null, null));
+
+      static MethodInfo GetMethodInfo (Expression<Action> expression)
+      {
+         return ((MethodCallExpression)expression.Body).Method;
+      }
+
+      // Sample2
+
+      static double FindVariableValue (IDictionary<string, double> input, string name)
+      {
+         double value;
+         return input.TryGetValue (name ?? "", out value) ? value : 0.0;
+      }
+
+
+      static ExpressionType OperatorToExpressionType (char op)
+      {
+         switch (op)
+         {
+            case '+':
+               return ExpressionType.Add;
+            case '-':
+               return ExpressionType.Subtract;
+            case '*':
+               return ExpressionType.Multiply;
+            case '/':
+               return ExpressionType.Divide;
+            default:
+               throw new ArgumentException ();
+         }
+      }
+
+      static void Sample2 ()
+      {
+
+         var input = new Dictionary<string, double>
+                        {
+                           {"x", 1.0},
+                           {"y", 2.0},
+                        };
+
+         var expression = "2*(x + 1) + y + 3";
+
+         var result = Parser.Parse (s_parserSample2, expression);
+
+         if (result.IsSuccessful)
+         {
+            var lambda = Expression.Lambda<Func<IDictionary<string, double>, double>> (
+               result.Value,
+               s_parameterSample2
+               );
+
+            var del = lambda.Compile ();
+
+            Console.WriteLine ("{0} = {1}", expression, del (input));
+            foreach (var kv in input)
+            {
+               Console.WriteLine ("{0} = {1}", kv.Key, kv.Value);
+            }
+         }
+         else
+         {
+            Console.WriteLine (
+               result.ErrorMessage
+               );
+         }
+
+
+      }
+
    }
 }

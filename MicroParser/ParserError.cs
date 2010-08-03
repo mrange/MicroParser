@@ -42,7 +42,7 @@ namespace MicroParser
       public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
       public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
       public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
-      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected(Strings.ParserErrorMessages.LineBreak);
+      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
 
       public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
    }
