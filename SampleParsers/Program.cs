@@ -21,11 +21,6 @@ namespace SampleParsers
 {
    static class Program
    {
-      static readonly ParserFunction<MicroParser.Tuple<SubString, int>> s_parserSample1;
-
-      static readonly ParameterExpression s_parameterSample2;
-      static readonly ParserFunction<Expression> s_parserSample2;
-
       static void Main (string[] args)
       {
          Sample1 ();
@@ -65,6 +60,8 @@ namespace SampleParsers
          // Sample2
 
          {
+            // Define a parameter expression that represent a dictionary, this dictionary
+            // will contain the variable values
             var inputParameter = Expression.Parameter (
                typeof (IDictionary<string, double>),
                "input"
@@ -73,6 +70,7 @@ namespace SampleParsers
             Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
 
             var p_spaces = CharParser.SkipWhiteSpace ();
+            // Parse a double and map it into a ConstantExpression
             var p_value = CharParser.Double ().Map (d => (Expression) Expression.Constant (d));
             var p_variable = CharParser
                .ManyCharSatisfy2 (
@@ -82,13 +80,14 @@ namespace SampleParsers
                )
                .Map (identifier => (Expression) Expression.Call (
                   null,
-                  s_findVariableValue,
+                  s_findVariableValueSample2,
                   inputParameter,
                   Expression.Constant (identifier.ToString ()))
                );
 
             var p_astRedirect = Parser.Redirect<Expression> ();
 
+            // p_ast is the complete parser (AST = Abstract Syntax Tree)
             var p_ast = p_astRedirect.Parser;
 
             var p_term = Parser.Choice (
@@ -97,15 +96,21 @@ namespace SampleParsers
                p_variable
                ).KeepLeft (p_spaces);
 
+            // p_level is a support parser generator
+            // it accepts a parser it will apply on the input separated by the operators
+            // in the ops parameter
             Func<ParserFunction<Expression>, string, ParserFunction<Expression>> p_level =
                (parser, ops) => parser.Chain (
                   CharParser.AnyOf (ops).KeepLeft (p_spaces),
-                  (left, op, right) => Expression.MakeBinary (OperatorToExpressionType (op), left, right)
+                  (left, op, right) => 
+                     Expression.MakeBinary (OperatorToExpressionType (op), left, right)
                   );
 
+            // By splitting */ and +- like this we ensure */ binds _harder_
             var p_lvl0 = p_level (p_term, "*/");
             var p_lvl1 = p_level (p_lvl0, "+-");
 
+            // This completes the parser
             p_astRedirect.ParserRedirect = p_lvl1;
 
             s_parameterSample2 = inputParameter;
@@ -114,6 +119,8 @@ namespace SampleParsers
       }
 
       // Sample1
+
+      static readonly ParserFunction<MicroParser.Tuple<SubString, int>> s_parserSample1;
 
       static void Sample1 ()
       {
@@ -139,14 +146,17 @@ namespace SampleParsers
          }
       }
 
-      static readonly MethodInfo s_findVariableValue = GetMethodInfo (() => FindVariableValue (null, null));
+
+      // Sample2
+
+      static readonly ParameterExpression s_parameterSample2;
+      static readonly ParserFunction<Expression> s_parserSample2;
+      static readonly MethodInfo s_findVariableValueSample2 = GetMethodInfo (() => FindVariableValue (null, null));
 
       static MethodInfo GetMethodInfo (Expression<Action> expression)
       {
          return ((MethodCallExpression)expression.Body).Method;
       }
-
-      // Sample2
 
       static double FindVariableValue (IDictionary<string, double> input, string name)
       {
@@ -181,7 +191,7 @@ namespace SampleParsers
                            {"y", 2.0},
                         };
 
-         var expression = "2*(x + 1) + y + 3";
+         var expression = "2*(x # 1) + y + 3";
 
          var result = Parser.Parse (s_parserSample2, expression);
 
