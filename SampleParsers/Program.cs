@@ -191,7 +191,7 @@ namespace SampleParsers
                            {"y", 2.0},
                         };
 
-         var expression = "2*(x # 1) + y + 3";
+         var expression = "2*(x + 1) + y + 3";
 
          var result = Parser.Parse (s_parserSample2, expression);
 
