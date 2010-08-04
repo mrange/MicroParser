@@ -51,6 +51,17 @@ namespace TestMicroParser
       }
 
       [TestMethod]
+      public void Test_HexParsing ()
+      {
+         var p_hex = CharParser.Hex (minCount: 4, maxCount: 4);
+         {
+            var pResult = Parser.Parse (p_hex.KeepLeft (Parser.EndOfStream ()), "98AB");
+            Assert.IsTrue (pResult.IsSuccessful);
+            Assert.AreEqual (0x98ABU, pResult.Value);
+         }
+      }
+
+      [TestMethod]
       public void Test_EscapedString ()
       {
          Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;

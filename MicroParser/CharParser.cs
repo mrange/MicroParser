@@ -231,7 +231,7 @@ namespace MicroParser
          public int ConsumedCharacters;
       }
 
-      static ParserFunction<UIntResult> UIntImpl(
+      static ParserFunction<UIntResult> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -275,9 +275,67 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<uint> UInt ()
+      static uint? CharToHex (char ch)
       {
-         var uintParser = UIntImpl ();
+         if ('0' <= ch && ch <= '9')
+         {
+            return (uint?) (ch - '0');
+         }
+         else if ('A' <= ch && ch <= 'F')
+         {
+            return (uint?) (ch - 'A' + 0xA);
+         }
+         else if ('a' <= ch && ch <= 'f')
+         {
+            return (uint?)(ch - 'a' + 0xA);            
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public static ParserFunction<uint> Hex (
+         int minCount = 1,
+         int maxCount = 10
+         )
+      {
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
+
+         CharSatisfyFunction satisfy = (c, i) => CharToHex (c) != null;
+
+         return state =>
+         {
+            var subString = new SubString ();
+
+            var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
+
+            return Parser.ToParserReply (
+               advanceResult,
+               state,
+               ParserErrorMessages.Expected_Digit,
+               () =>
+               {
+                  var accumulated = 0u;
+                  var length = subString.Length;
+                  for (var iter = 0; iter < length; ++iter)
+                  {
+                     var c = subString[iter];
+                     accumulated = accumulated * 0x10U + CharToHex (c).Value;
+                  }
+
+                  return accumulated;
+               }
+               );
+         };
+      }
+
+      public static ParserFunction<uint> UInt (
+         int minCount = 1,
+         int maxCount = 10
+         )
+      {
+         var uintParser = UIntImpl (minCount, maxCount);
 
          return state =>
          {

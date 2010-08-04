@@ -228,7 +228,13 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<Tuple<uint,int>> UIntImpl (
+      partial struct UIntResult
+      {
+         public uint Value;
+         public int ConsumedCharacters;
+      }
+
+      static ParserFunction<UIntResult> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -262,15 +268,77 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return Tuple.Create (accumulated, newPos.Position - oldPos.Position);
+                     return new UIntResult
+                               {
+                                  Value = accumulated,
+                                  ConsumedCharacters = newPos.Position - oldPos.Position,
+                               };
                   }
                );
          };
       }
 
-      public static ParserFunction<uint> UInt ()
+      static uint? CharToHex (char ch)
       {
-         var uintParser = UIntImpl ();
+         if ('0' <= ch && ch <= '9')
+         {
+            return (uint?) (ch - '0');
+         }
+         else if ('A' <= ch && ch <= 'F')
+         {
+            return (uint?) (ch - 'A' + 0xA);
+         }
+         else if ('a' <= ch && ch <= 'f')
+         {
+            return (uint?)(ch - 'a' + 0xA);            
+         }
+         else
+         {
+            return null;
+         }
+      }
+
+      public static ParserFunction<uint> Hex (
+         int minCount = 1,
+         int maxCount = 10
+         )
+      {
+         Parser.VerifyMinAndMaxCount (minCount, maxCount);
+
+         CharSatisfyFunction satisfy = (c, i) => CharToHex (c) != null;
+
+         return state =>
+         {
+            var subString = new SubString ();
+
+            var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
+
+            return Parser.ToParserReply (
+               advanceResult,
+               state,
+               ParserErrorMessages.Expected_Digit,
+               () =>
+               {
+                  var accumulated = 0u;
+                  var length = subString.Length;
+                  for (var iter = 0; iter < length; ++iter)
+                  {
+                     var c = subString[iter];
+                     accumulated = accumulated * 0x10U + CharToHex (c).Value;
+                  }
+
+                  return accumulated;
+               }
+               );
+         };
+      }
+
+      public static ParserFunction<uint> UInt (
+         int minCount = 1,
+         int maxCount = 10
+         )
+      {
+         var uintParser = UIntImpl (minCount, maxCount);
 
          return state =>
          {
@@ -281,7 +349,7 @@ namespace MicroParser
                return uintResult.Failure<uint> ();
             }
 
-            return uintResult.Success (uintResult.Value.Item1);
+            return uintResult.Success (uintResult.Value.Value);
          };
       }
 
@@ -337,11 +405,11 @@ namespace MicroParser
 
             if (value.Item2.HasValue)
             {
-               var tupleValue = value.Item2.Value;
+               var uIntResult = value.Item2.Value;
 
                var multiplier = intValue >= 0 ? 1 : -1;
 
-               doubleValue = intValue + multiplier * tupleValue.Item1 * (Math.Pow (0.1, tupleValue.Item2));
+               doubleValue = intValue + multiplier * uIntResult.Value * (Math.Pow (0.1, uIntResult.ConsumedCharacters));
             }
             else
             {
