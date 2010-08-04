@@ -49,18 +49,13 @@ namespace FunWithExpandos
          // ReSharper disable InconsistentNaming
          Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
          Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
-
          var p_spaces = CharParser.SkipWhiteSpace ();
 
          var p_null = p_str ("null").Map (null as object);
-
          var p_true = p_str ("true").Map (true as object);
          var p_false = p_str ("false").Map (false as object);
 
          var p_number = CharParser.Double ().Map (d => d as object);
-
-         var p_array_redirect = Parser.Redirect<object> ();
-         var p_object_redirect = Parser.Redirect<object> ();
 
          var p_escape = CharParser
             .AnyOf ("\"\\/bfnrt")
@@ -94,6 +89,9 @@ namespace FunWithExpandos
                )
             .Map (cs => new string (cs) as object);
 
+         var p_array_redirect = Parser.Redirect<object> ();
+         var p_object_redirect = Parser.Redirect<object> ();
+
          var p_array = p_array_redirect.Parser;
          var p_object = p_object_redirect.Parser;
 
@@ -115,8 +113,6 @@ namespace FunWithExpandos
             p_char (']')
             )
             .Map (objects => objects as object);
-
-         var p_spacesplus = CharParser.SkipSatisfy (CharParser.SatisyLineBreakOrWhiteSpace);
 
          var p_member = Parser.Group (
             p_string.KeepLeft (p_spaces),
