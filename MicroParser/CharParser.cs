@@ -225,7 +225,13 @@ namespace MicroParser
          };
       }
 
-      static ParserFunction<Tuple<uint,int>> UIntImpl (
+      partial struct UIntResult
+      {
+         public uint Value;
+         public int ConsumedCharacters;
+      }
+
+      static ParserFunction<UIntResult> UIntImpl(
          int minCount = 1,
          int maxCount = 10
          )
@@ -259,7 +265,11 @@ namespace MicroParser
                         accumulated = accumulated*10 + (c - c0);
                      }
 
-                     return Tuple.Create (accumulated, newPos.Position - oldPos.Position);
+                     return new UIntResult
+                               {
+                                  Value = accumulated,
+                                  ConsumedCharacters = newPos.Position - oldPos.Position,
+                               };
                   }
                );
          };
@@ -278,7 +288,7 @@ namespace MicroParser
                return uintResult.Failure<uint> ();
             }
 
-            return uintResult.Success (uintResult.Value.Item1);
+            return uintResult.Success (uintResult.Value.Value);
          };
       }
 
@@ -334,11 +344,11 @@ namespace MicroParser
 
             if (value.Item2.HasValue)
             {
-               var tupleValue = value.Item2.Value;
+               var uIntResult = value.Item2.Value;
 
                var multiplier = intValue >= 0 ? 1 : -1;
 
-               doubleValue = intValue + multiplier * tupleValue.Item1 * (Math.Pow (0.1, tupleValue.Item2));
+               doubleValue = intValue + multiplier * uIntResult.Value * (Math.Pow (0.1, uIntResult.ConsumedCharacters));
             }
             else
             {
