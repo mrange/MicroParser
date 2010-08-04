@@ -57,7 +57,7 @@ namespace FunWithExpandos
 
          var p_number = CharParser.Double ().Map (d => d as object);
 
-         var p_escape = CharParser
+         var p_simpleEscape = CharParser
             .AnyOf ("\"\\/bfnrt")
             .Map (ch =>
                {
@@ -77,6 +77,15 @@ namespace FunWithExpandos
                         return ch;
                   }
                });
+
+         var p_unicodeEscape = CharParser
+            .Hex (minCount:4, maxCount:4)
+            .Map (ui => (char)ui);
+
+         var p_escape = Parser.Choice (
+            p_simpleEscape,
+            p_unicodeEscape
+            );
 
          var p_string = Parser
             .Choice (

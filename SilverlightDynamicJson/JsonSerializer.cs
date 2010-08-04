@@ -58,7 +58,7 @@ namespace SilverlightDynamicJson
          var p_array_redirect = Parser.Redirect<object>();
          var p_object_redirect = Parser.Redirect<object>();
 
-         var p_escape = CharParser
+         var p_simpleEscape = CharParser
             .AnyOf ("\"\\/bfnrt")
             .Map (ch =>
             {
@@ -78,6 +78,15 @@ namespace SilverlightDynamicJson
                      return ch;
                }
             });
+
+         var p_unicodeEscape = CharParser
+            .Hex (minCount: 4, maxCount: 4)
+            .Map (ui => (char)ui);
+
+         var p_escape = Parser.Choice (
+            p_simpleEscape,
+            p_unicodeEscape
+            );
 
          var p_string = Parser
             .Choice (
