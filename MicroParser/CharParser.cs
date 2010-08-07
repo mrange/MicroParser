@@ -78,10 +78,8 @@ namespace MicroParser
       public static ParserFunction<Empty> SkipNewLine (
          )
       {
-         return Parser.Group (
-            SkipChar ('\r').Opt (),
-            SkipChar ('\n')
-            ).Map (new Empty ());
+         return SkipChar ('\r').Opt ()
+            .KeepRight (SkipChar ('\n'));
       }
 
       public static ParserFunction<char> AnyOf (

@@ -32,7 +32,7 @@ namespace TestFunWithExpandos
                Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""         ),
                Tuple.Create ("\"\\tNR\\r\\n\""  , "\tNR\r\n"   as object   , "\"\\tNR\\r\\n\""  ),
                Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""         ),
-               Tuple.Create ("\"\\0041\""       , "A"          as object   , "\"A\""                ),
+               Tuple.Create ("\"\\u0041\""      , "A"          as object   , "\"A\""            ),
 
                Tuple.Create ("3"                , 3.0          as object   , "3"                ),
                Tuple.Create ("3.14"             , 3.14         as object   , "3.14"             ),
