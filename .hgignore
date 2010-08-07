@@ -27,3 +27,7 @@ relre:^NanoParser/Release/
 relre:^NanoParser/Debug/
 relre:\.ipch$
 relre:\.pch$
+relre:^NanoParser/x64/
+relre:\.opensdf$
+relre:^Release/
+relre:^Debug/
