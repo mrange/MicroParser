@@ -50,11 +50,6 @@ namespace nano_parser
       {
       }
 
-      parser_char const *  input                         ;
-      std::size_t          input_size                    ;
-
-      std::size_t          position                      ;
-
       parser_input_range (parser_input_range && pir);
 
       std::size_t          get_size () const throw ()
@@ -75,11 +70,15 @@ namespace nano_parser
             ;
       }
 
+      parser_char const *  input                         ;
+      std::size_t          input_size                    ;
+
+      std::size_t          position                      ;
    };
    // -------------------------------------------------------------------------------------------
 
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   // parser_state_advance_state:
+   // parser_state:
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    namespace parser_state_advance_state
    {
@@ -93,11 +92,7 @@ namespace nano_parser
          error__satisfy_failed__position_changed   = 24  ,
       };
    }
-   // -------------------------------------------------------------------------------------------
 
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   // parser_state_advance_result:
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    struct parser_state_advance_result
    {
       parser_state_advance_result (
@@ -116,11 +111,9 @@ namespace nano_parser
       parser_state_advance_state::type    state ;
       parser_input_range                  value ;
    };
+
    // -------------------------------------------------------------------------------------------
 
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   // parser_state:
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    struct parser_state
    {
       parser_state (parser_input_range const & pir) throw ()
@@ -157,7 +150,7 @@ namespace nano_parser
 
          auto initial_position   = m_input.position                  ;
 
-         auto length = std::min (max_count, m_input.get_size ());
+         auto length             = std::min (max_count, m_input.get_size ());
 
          for (auto iter = 0u; iter < length; ++iter)
          {
@@ -213,14 +206,39 @@ namespace nano_parser
    struct parser_reply
    {
       parser_reply (parser_state & ps, TValue const & value)
+         :  m_state (ps)
+         ,  m_value (value)
       {
       }
 
       parser_reply (parser_state & ps, parser_string const & message)
+         :  m_state (ps)
+         ,  m_value (TValue ())
+         ,  m_message (message)
       {
       }
 
       parser_reply (parser_reply && pr);
+
+      parser_state get_state () const throw ()
+      {
+         return m_state;
+      }
+
+      TValue get_value () const
+      {
+         return m_value;
+      }
+
+      parser_string get_message () const
+      {
+         return m_message;
+      }
+
+   private:
+      parser_state   m_state  ;
+      TValue         m_value  ;
+      parser_string  m_message;
    };
 
    template<typename TValue, typename TValueCreator>
@@ -271,19 +289,25 @@ namespace nano_parser
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // parser combinators:
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   // p_return: creates a parser that successfully returns 'value'
    template<typename TValue>
    parser_functor<TValue> p_return (TValue const & value)
    {
       return [=] (parser_state & ps) {return parser_reply<TValue> (ps, value);};
    }
 
+   // p_fail: creates a parser that fails with 'message'
    template<typename TValue>
    parser_functor<TValue> p_fail (parser_string const & message)
    {
       return [=] (parser_state & ps) {return parser_reply<TValue> (ps, message);};
    }
 
-
+   // p_satisy_string: creates a parser that succeeds if all characters matches 
+   // 'satisfy' ([] (parser_char ch, std::size_t i) -> bool) and then returns 
+   // the range that matches the satisfy. 
+   // Otherwise fails with 'satisfy_failure_message'
    template<typename TSatisyFunction>
    parser_functor<parser_input_range> p_satisy_string (
       TSatisyFunction         satisfy                                         ,
