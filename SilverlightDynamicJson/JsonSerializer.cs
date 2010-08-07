@@ -79,9 +79,13 @@ namespace SilverlightDynamicJson
                }
             });
 
-         var p_unicodeEscape = CharParser
-            .Hex (minCount: 4, maxCount: 4)
-            .Map (ui => (char)ui);
+         var p_unicodeEscape =
+            CharParser.SkipChar ('u')
+            .KeepRight (
+               CharParser
+               .Hex (minCount: 4, maxCount: 4)
+               .Map (ui => (char)ui)
+               );
 
          var p_escape = Parser.Choice (
             p_simpleEscape,
