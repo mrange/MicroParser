@@ -21,3 +21,13 @@ relre:^SilverlightDynamicJson/Bin/
 relre:^SilverlightDynamicJson/obj/
 relre:^SampleParsers/bin/
 relre:^SampleParsers/obj/
+glob:MicroParser.pdf
+relre:\.sdf$
+relre:^NanoParser/Release/
+relre:^NanoParser/Debug/
+relre:\.ipch$
+relre:\.pch$
+relre:^NanoParser/x64/
+relre:\.opensdf$
+relre:^Release/
+relre:^Debug/
