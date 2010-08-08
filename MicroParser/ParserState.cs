@@ -37,6 +37,18 @@ namespace MicroParser
 
    sealed partial class ParserState
    {
+      // ReSharper disable InconsistentNaming
+      public enum AdvanceResult
+      {
+         Successful = 00,
+         Error = 10,
+         Error_EndOfStream = 11,
+         Error_SatisfyFailed = 12,
+         Error_EndOfStream_PostionChanged = 23,
+         Error_SatisfyFailed_PositionChanged = 24,
+      }
+      // ReSharper restore InconsistentNaming
+
       readonly string m_text;
       int m_position;
 
@@ -73,9 +85,9 @@ namespace MicroParser
          }
       }
 
-      public ParserState_AdvanceResult Advance (
+      public ParserState.AdvanceResult Advance (
          ref SubString subString,
-         CharSatisfyFunction satisfy,
+         CharSatisfy.Function satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )
@@ -89,7 +101,7 @@ namespace MicroParser
 
          if (m_position + minCount >= m_text.Length + 1)
          {
-            return ParserState_AdvanceResult.Error_EndOfStream;
+            return ParserState.AdvanceResult.Error_EndOfStream;
          }
 
          var length = Math.Min (maxCount, m_text.Length - m_position);
@@ -102,14 +114,14 @@ namespace MicroParser
                if (iter < minCount)
                {
                   return subString.Position == m_position
-                            ? ParserState_AdvanceResult.Error_SatisfyFailed
-                            : ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged
+                            ? ParserState.AdvanceResult.Error_SatisfyFailed
+                            : ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged
                      ;
                }
 
                subString.Length = m_position - subString.Position;
 
-               return ParserState_AdvanceResult.Successful;
+               return ParserState.AdvanceResult.Successful;
             }
 
             ++m_position;
@@ -117,11 +129,11 @@ namespace MicroParser
 
          subString.Length = m_position - subString.Position;
 
-         return ParserState_AdvanceResult.Successful;
+         return ParserState.AdvanceResult.Successful;
       }
 
-      public ParserState_AdvanceResult SkipAdvance (
-         CharSatisfyFunction satisfy,
+      public ParserState.AdvanceResult SkipAdvance (
+         CharSatisfy.Function satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )

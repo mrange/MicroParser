@@ -36,15 +36,15 @@ namespace SilverlightDynamicJson
 
    public static class JsonSerializer
    {
-      static readonly ParserFunction<object> s_parser;
+      static readonly Parser<object>.Function s_parser;
 
       static JsonSerializer ()
       {
          // Language spec at www.json.org
 
          // ReSharper disable InconsistentNaming
-         Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
-         Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
+         Func<char, Parser<Empty>.Function> p_char = CharParser.SkipChar;
+         Func<string, Parser<Empty>.Function> p_str = CharParser.SkipString;
 
          var p_spaces = CharParser.SkipWhiteSpace ();
 

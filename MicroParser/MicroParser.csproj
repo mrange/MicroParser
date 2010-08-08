@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CharParser.cs" />
-    <Compile Include="CharSatify.cs" />
+    <Compile Include="CharSatisfy.cs" />
     <Compile Include="Empty.cs" />
     <Compile Include="Internal\Extensions.cs" />
     <Compile Include="MakePublic.cs" />

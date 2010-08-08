@@ -17,9 +17,9 @@ namespace MicroParser
    using MicroParser.Internal;
 	partial class Parser
 	{
-      public static ParserFunction<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
-            ParserFunction<TValue1> parser1
-         ,  ParserFunction<TValue2> parser2
+      public static Parser<Tuple<TValue1, TValue2>>.Function Group<TValue1, TValue2> (
+            Parser<TValue1>.Function parser1
+         ,  Parser<TValue2>.Function parser2
          )
       {
          return state =>
@@ -45,10 +45,10 @@ namespace MicroParser
                   ));
          };
       }
-      public static ParserFunction<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3> (
-            ParserFunction<TValue1> parser1
-         ,  ParserFunction<TValue2> parser2
-         ,  ParserFunction<TValue3> parser3
+      public static Parser<Tuple<TValue1, TValue2, TValue3>>.Function Group<TValue1, TValue2, TValue3> (
+            Parser<TValue1>.Function parser1
+         ,  Parser<TValue2>.Function parser2
+         ,  Parser<TValue3>.Function parser3
          )
       {
          return state =>

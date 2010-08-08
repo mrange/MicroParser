@@ -18,32 +18,32 @@ namespace PerformanceTestFunWithExpandos
 {
    class Program
    {
-      static string GetStringResource(string resourceName)
+      static string GetStringResource (string resourceName)
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream (resourceName))
          {
             if (resourceStream == null)
             {
                return "";
             }
 
-            using (var streamReader = new StreamReader(resourceStream))
+            using (var streamReader = new StreamReader (resourceStream))
             {
-               return streamReader.ReadToEnd();
+               return streamReader.ReadToEnd ();
             }
          }
       }
 
-      static void Main(string[] args)
+      static void Main (string[] args)
       {
-         var json = GetStringResource("PerformanceTestFunWithExpandos.JSON.txt");
+         var json = GetStringResource ("PerformanceTestFunWithExpandos.JSON.txt");
 
          var dt = DateTime.Now;
          const int Count = 10000;
 
          for (var iter = 0; iter < Count; ++iter)
          {
-            var result = JsonSerializer.Unserialize(json);
+            var result = JsonSerializer.Unserialize (json);
          }
 
          var diff = DateTime.Now - dt;

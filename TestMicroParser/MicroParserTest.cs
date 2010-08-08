@@ -64,7 +64,7 @@ namespace TestMicroParser
       [TestMethod]
       public void Test_EscapedString ()
       {
-         Func<char, ParserFunction<Empty>> p_char = CharParser.SkipChar;
+         Func<char, Parser<Empty>.Function> p_char = CharParser.SkipChar;
 
          var p_escape = CharParser
             .AnyOf ("\"\\/bfnrt")
