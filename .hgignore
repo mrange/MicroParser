@@ -31,3 +31,5 @@ relre:^NanoParser/x64/
 relre:\.opensdf$
 relre:^Release/
 relre:^Debug/
+relre:^PerformanceTestFunWithExpandos/bin/
+relre:^PerformanceTestFunWithExpandos/obj/
