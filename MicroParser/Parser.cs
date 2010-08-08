@@ -20,11 +20,20 @@ namespace MicroParser
    {
       public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
       {
-         var parseResult = parserFunction (ParserState.Create (text ?? Strings.Empty));
+         var parseResult = parserFunction (
+            ParserState.Create (
+               text ?? Strings.Empty,
+               suppressParserErrorMessageOperations:true
+               ));
 
          if (!parseResult.State.IsSuccessful ())
          {
-            var errorResult = parseResult
+            var parseResultWithErrorInfo = parserFunction (
+               ParserState.Create (
+                  text ?? Strings.Empty
+                  ));
+
+            var errorResult = parseResultWithErrorInfo
                .ParserErrorMessage
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
@@ -37,7 +46,7 @@ namespace MicroParser
 
             var subString = new SubString ( 
                      text,
-                     parseResult.ParserState.InternalPosition
+                     parseResultWithErrorInfo.ParserState.InternalPosition
                   );
 
             var completeErrorResult =
@@ -404,7 +413,11 @@ namespace MicroParser
 
                       if (!firstResult.State.HasConsistentState ())
                       {
-                         return ParserReply<TValue>.Failure (ParserReply_State.Error_StateIsRestored, clone, firstResult.ParserErrorMessage);
+                         return ParserReply<TValue>.Failure (
+                            ParserReply_State.Error_StateIsRestored, 
+                            clone, 
+                            firstResult.ParserErrorMessage
+                            );
                       }
 
                       return firstResult;
@@ -489,56 +502,6 @@ namespace MicroParser
 
                       return parser (state);
                    };
-      }
-
-      internal static ParserReply<TValue> ToParserReply<TValue> (
-         ParserState_AdvanceResult advanceResult,
-         ParserState state,
-         IParserErrorMessage parserErrorMessage,
-         TValue defaultValue
-         )
-      {
-         switch (advanceResult)
-         {
-            case ParserState_AdvanceResult.Successful:
-               return ParserReply<TValue>.Success (state, defaultValue);
-            case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error:
-            default:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
-         }
-      }
-
-      internal static ParserReply<TValue> ToParserReply<TValue> (
-         ParserState_AdvanceResult advanceResult,
-         ParserState state,
-         IParserErrorMessage parserErrorMessage,
-         Func<TValue> valueCreator
-         )
-      {
-         switch (advanceResult)
-         {
-            case ParserState_AdvanceResult.Successful:
-               return ParserReply<TValue>.Success (state, valueCreator ());
-            case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error:
-            default:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
-         }
       }
 
       internal static void VerifyMinAndMaxCount (int minCount, int maxCount)

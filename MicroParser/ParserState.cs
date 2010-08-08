@@ -38,16 +38,15 @@ namespace MicroParser
    sealed partial class ParserState
    {
       readonly string m_text;
-
       int m_position;
 
       public readonly bool SuppressParserErrorMessageOperations;
 
-      ParserState (int position, string text, bool suppressParserErrorMessageOperations = false)
+      ParserState (int position, string text, bool suppressParserErrorMessageOperations)
       {
          m_position = position;
          m_text = text;
-         SuppressParserErrorMessageOperations= suppressParserErrorMessageOperations;
+         SuppressParserErrorMessageOperations = suppressParserErrorMessageOperations;
       }
 
       internal int InternalPosition
@@ -137,20 +136,33 @@ namespace MicroParser
          return new
                    {
                       Position = m_position,
+                      SuppressParserErrorMessageOperations,
                       EndOfStream,
                       Current = !EndOfStream ? new string (m_text[m_position], 1) : Strings.ParserErrorMessages.Eos,
                    }.ToString ();
       }
 #endif
 
-      public static ParserState Create (string text, int position = 0)
+      public static ParserState Create (
+         string text, 
+         int position = 0, 
+         bool suppressParserErrorMessageOperations = false
+         )
       {
-         return new ParserState (Math.Max (position, 0), text ?? Strings.Empty);
+         return new ParserState (
+            Math.Max (position, 0), 
+            text ?? Strings.Empty,
+            suppressParserErrorMessageOperations
+            );
       }
 
       public static ParserState Clone (ParserState parserState)
       {
-         return new ParserState (parserState.m_position, parserState.m_text);
+         return new ParserState (
+            parserState.m_position, 
+            parserState.m_text, 
+            parserState.SuppressParserErrorMessageOperations
+            );
       }
 
    }
