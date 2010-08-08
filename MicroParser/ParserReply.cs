@@ -16,6 +16,53 @@ namespace MicroParser
    using System;
    using System.Diagnostics;
 
+   static partial class ParserReply
+   {
+      static ParserReply<TValue> CreateParserReplyFailure<TValue>(ParserState_AdvanceResult advanceResult, ParserState state, IParserErrorMessage parserErrorMessage)
+      {
+         switch (advanceResult)
+         {
+            case ParserState_AdvanceResult.Error_EndOfStream:
+               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+            case ParserState_AdvanceResult.Error_SatisfyFailed:
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
+            case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+            case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
+               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
+            case ParserState_AdvanceResult.Error:
+            default:
+               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
+         }
+      }
+
+      public static ParserReply<TValue> Create<TValue>(
+         ParserState_AdvanceResult advanceResult,
+         ParserState state,
+         IParserErrorMessage parserErrorMessage,
+         TValue value
+         )
+      {
+         return advanceResult == ParserState_AdvanceResult.Successful 
+            ?  ParserReply<TValue>.Success (state, value) 
+            :  CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
+            ;
+      }
+
+      public static ParserReply<TValue> Create<TValue>(
+         ParserState_AdvanceResult advanceResult,
+         ParserState state,
+         IParserErrorMessage parserErrorMessage,
+         Func<TValue> valueCreator
+         )
+      {
+         return advanceResult == ParserState_AdvanceResult.Successful
+            ? ParserReply<TValue>.Success (state, valueCreator ())
+            : CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
+            ;
+      }      
+   }
+
    partial struct ParserReply<TValue>
    {
       public readonly ParserReply_State State;
@@ -37,7 +84,7 @@ namespace MicroParser
          TValue value
          )
       {
-         return new ParserReply<TValue> (
+         return new ParserReply<TValue>(
             ParserReply_State.Successful, 
             parserState, 
             value, 
@@ -54,7 +101,7 @@ namespace MicroParser
          Debug.Assert (!state.IsSuccessful ());
          Debug.Assert (parserErrorMessage != null);
 
-         return new ParserReply<TValue> (
+         return new ParserReply<TValue>(
             state.IsSuccessful () ? ParserReply_State.Error : state, 
             parserState, 
             default (TValue), 
@@ -93,7 +140,7 @@ namespace MicroParser
             && ParserState.InternalPosition - initialPosition.Position > 1
             )
          {
-            return new ParserReply<TValue> (
+            return new ParserReply<TValue>(
                ParserReply_State.FatalError_StateIsNotRestored | State,
                ParserState,
                default (TValue),
@@ -128,5 +175,6 @@ namespace MicroParser
          }
       }      
 #endif
+
    }
 }

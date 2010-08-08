@@ -103,6 +103,11 @@ namespace MicroParser
 
    }
 
+   public static partial class ParserReply
+   {
+
+   }
+
    public partial struct ParserReply<TValue>
    {
 

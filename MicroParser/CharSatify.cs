@@ -15,7 +15,7 @@ namespace MicroParser
 
    sealed partial class CharSatify
    {
-      public readonly IParserErrorMessage Expected;
+      public readonly IParserErrorMessage ErrorMessage;
       public readonly CharSatisfyFunction Satisfy;
 
       public static implicit operator CharSatify (char ch)
@@ -26,9 +26,9 @@ namespace MicroParser
             );
       }
 
-      public CharSatify (IParserErrorMessage expected, CharSatisfyFunction satisfy)
+      public CharSatify (IParserErrorMessage errorMessage, CharSatisfyFunction satisfy)
       {
-         Expected = expected;
+         ErrorMessage = errorMessage;
          Satisfy = satisfy;
       }
 

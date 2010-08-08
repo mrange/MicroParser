@@ -63,7 +63,7 @@ namespace MicroParser
          return state =>
          {
             var advanceResult = state.SkipAdvance (charSatify.Satisfy, minCount, maxCount);
-            return Parser.ToParserReply (advanceResult, state, charSatify.Expected, Empty.Value);
+            return ParserReply.Create (advanceResult, state, charSatify.ErrorMessage, Empty.Value);
          };
       }
 
@@ -158,10 +158,10 @@ namespace MicroParser
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy.Satisfy, 1, 1);
 
-            return Parser.ToParserReply (
+            return ParserReply.Create (
                advanceResult,
                state,
-               satisfy.Expected,
+               satisfy.ErrorMessage,
                subString[0]
                );
          };
@@ -180,10 +180,10 @@ namespace MicroParser
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy.Satisfy, minCount, maxCount);
 
-            return Parser.ToParserReply (
+            return ParserReply.Create (
                advanceResult,
                state,
-               satisfy.Expected,
+               satisfy.ErrorMessage,
                subString
                );
          };
@@ -211,10 +211,10 @@ namespace MicroParser
 
             var expected =
                (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
-               ? satisfyRest.Expected
-               : satisfyFirst.Expected;
+               ? satisfyRest.ErrorMessage
+               : satisfyFirst.ErrorMessage;
 
-            return Parser.ToParserReply (
+            return ParserReply.Create (
                advanceResult,
                state,
                expected,
@@ -248,7 +248,7 @@ namespace MicroParser
 
             var newPos = state.Position;
 
-            return Parser.ToParserReply (
+            return ParserReply.Create (
                advanceResult,
                state,
                ParserErrorMessages.Expected_Digit,
@@ -308,7 +308,7 @@ namespace MicroParser
 
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
 
-            return Parser.ToParserReply (
+            return ParserReply.Create (
                advanceResult,
                state,
                ParserErrorMessages.Expected_Digit,
@@ -433,24 +433,35 @@ namespace MicroParser
       public static CharSatify Or (this CharSatify first, CharSatify second)
       {
          return new CharSatify (
-            first.Expected.Append (second.Expected),
+            first.ErrorMessage.Append (second.ErrorMessage),
             (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
             );
+      }
+
+      static IParserErrorMessage ExpectedToUnexpected (
+         IParserErrorMessage parserErrorMessage
+         )
+      {
+         var parserErrorMessageExpected = parserErrorMessage as ParserErrorMessage_Expected;
+         return parserErrorMessageExpected != null 
+            ?  new ParserErrorMessage_Unexpected (parserErrorMessageExpected.Expected) 
+            :  parserErrorMessage
+            ;
       }
 
       public static CharSatify Except (this CharSatify first, CharSatify second)
       {
          return new CharSatify (
-            first.Expected.Append (second.Expected), // TODO: Change expected into unexpected
+            first.ErrorMessage.Append (ExpectedToUnexpected (second.ErrorMessage)), 
             (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
 
-      public static readonly CharSatify SatisyAnyChar = new CharSatify (ParserErrorMessages.Expected_Any, (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace, (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatify SatisyDigit = new CharSatify (ParserErrorMessages.Expected_Digit, (c, i) => char.IsDigit (c));
-      public static readonly CharSatify SatisyLetter = new CharSatify (ParserErrorMessages.Expected_Letter, (c, i) => char.IsLetter (c));
-      public static readonly CharSatify SatisyLineBreak = new CharSatify (ParserErrorMessages.Expected_LineBreak, (c, i) =>
+      public static readonly CharSatify SatisyAnyChar    = new CharSatify (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatify SatisyDigit      = new CharSatify (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
+      public static readonly CharSatify SatisyLetter     = new CharSatify (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
+      public static readonly CharSatify SatisyLineBreak  = new CharSatify (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
          {
             switch (c)
             {
@@ -461,7 +472,8 @@ namespace MicroParser
                   return false;
             }
          });
-      public static readonly CharSatify SatisyLineBreakOrWhiteSpace = SatisyLineBreak.Or (SatisyWhiteSpace);
-      public static readonly CharSatify SatisyLetterOrDigit = SatisyLetter.Or (SatisyDigit);
+
+      public static readonly CharSatify SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
+      public static readonly CharSatify SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
    }
 }
