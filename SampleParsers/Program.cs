@@ -67,7 +67,7 @@ namespace SampleParsers
                "input"
                );
 
-            Func<string, ParserFunction<Empty>> p_str = CharParser.SkipString;
+            Func<string, Parser<Empty>.Function> p_str = CharParser.SkipString;
 
             var p_spaces = CharParser.SkipWhiteSpace ();
             // Parse a double and map it into a ConstantExpression
@@ -99,7 +99,7 @@ namespace SampleParsers
             // p_level is a support parser generator
             // it accepts a parser it will apply on the input separated by the operators
             // in the ops parameter
-            Func<ParserFunction<Expression>, string, ParserFunction<Expression>> p_level =
+            Func<Parser<Expression>.Function, string, Parser<Expression>.Function> p_level =
                (parser, ops) => parser.Chain (
                   CharParser.AnyOf (ops).KeepLeft (p_spaces),
                   (left, op, right) => 
@@ -120,7 +120,7 @@ namespace SampleParsers
 
       // Sample1
 
-      static readonly ParserFunction<MicroParser.Tuple<SubString, int>> s_parserSample1;
+      static readonly Parser<MicroParser.Tuple<SubString, int>>.Function s_parserSample1;
 
       static void Sample1 ()
       {
@@ -150,7 +150,7 @@ namespace SampleParsers
       // Sample2
 
       static readonly ParameterExpression s_parameterSample2;
-      static readonly ParserFunction<Expression> s_parserSample2;
+      static readonly Parser<Expression>.Function s_parserSample2;
       static readonly MethodInfo s_findVariableValueSample2 = GetMethodInfo (() => FindVariableValue (null, null));
 
       static MethodInfo GetMethodInfo (Expression<Action> expression)

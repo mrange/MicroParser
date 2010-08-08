@@ -13,20 +13,22 @@ namespace MicroParser
 {
    using Internal;
 
-   sealed partial class CharSatify
+   sealed partial class CharSatisfy
    {
-      public readonly IParserErrorMessage ErrorMessage;
-      public readonly CharSatisfyFunction Satisfy;
+      public delegate bool Function (char ch, int index);
 
-      public static implicit operator CharSatify (char ch)
+      public readonly IParserErrorMessage ErrorMessage;
+      public readonly Function Satisfy;
+
+      public static implicit operator CharSatisfy (char ch)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (ch)), 
             (c, i) => ch == c
             );
       }
 
-      public CharSatify (IParserErrorMessage errorMessage, CharSatisfyFunction satisfy)
+      public CharSatisfy (IParserErrorMessage errorMessage, Function satisfy)
       {
          ErrorMessage = errorMessage;
          Satisfy = satisfy;

@@ -16,9 +16,14 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
+   static partial class Parser<TValue>
+   {
+      public delegate ParserReply<TValue> Function (ParserState state);      
+   }
+
    static partial class Parser
    {
-      public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
+      public static ParserResult<TValue> Parse<TValue> (Parser<TValue>.Function parserFunction, string text)
       {
          var parseResult = parserFunction (
             ParserState.Create (
@@ -80,30 +85,30 @@ namespace MicroParser
          return new ParserFunctionRedirect<TValue> ();
       }
 
-      public static ParserFunction<TValue> Return<TValue> (TValue value)
+      public static Parser<TValue>.Function Return<TValue> (TValue value)
       {
          return state => ParserReply<TValue>.Success (state, value);
       }
 
-      public static ParserFunction<TValue> Fail<TValue> (string message)
+      public static Parser<TValue>.Function Fail<TValue> (string message)
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
-         return state => ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageMessage);
+         return state => ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessageMessage);
       }
 
-      public static ParserFunction<Empty> EndOfStream ()
+      public static Parser<Empty>.Function EndOfStream ()
       {
          return state =>
                 state.EndOfStream
                    ? ParserReply<Empty>.Success (state, Empty.Value)
                    : ParserReply<Empty>.Failure (
-                      ParserReply_State.Error_Expected,
+                      ParserReply.State.Error_Expected,
                       state,
                       ParserErrorMessages.Expected_EndOfStream
                       );
       }
 
-      public static ParserFunction<TValue2> Combine<TValue, TValue2> (this ParserFunction<TValue> firstParser, Func<TValue, ParserFunction<TValue2>> second)
+      public static Parser<TValue2>.Function Combine<TValue, TValue2>(this Parser<TValue>.Function firstParser, Func<TValue, Parser<TValue2>.Function> second)
       {
          return state =>
                    {
@@ -119,7 +124,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue2> Map<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, Func<TValue1, TValue2> mapper)
+      public static Parser<TValue2>.Function Map<TValue1, TValue2> (this Parser<TValue1>.Function firstParser, Func<TValue1, TValue2> mapper)
       {
          return state =>
          {
@@ -134,14 +139,14 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue2> Map<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, TValue2 value2)
+      public static Parser<TValue2>.Function Map<TValue1, TValue2> (this Parser<TValue1>.Function firstParser, TValue2 value2)
       {
          return firstParser.Map (ignore => value2);
       }
 
-      public static ParserFunction<TValue1> Chain<TValue1, TValue2>(
-         this ParserFunction<TValue1> parser,
-         ParserFunction<TValue2> separator,
+      public static Parser<TValue1>.Function Chain<TValue1, TValue2>(
+         this Parser<TValue1>.Function parser,
+         Parser<TValue2>.Function separator,
          Func<TValue1, TValue2, TValue1, TValue1> combiner
          )
       {
@@ -178,9 +183,9 @@ namespace MicroParser
             };
       }
 
-      public static ParserFunction<TValue[]> Array<TValue> (
-         this ParserFunction<TValue> parser,
-         ParserFunction<Empty> separator,
+      public static Parser<TValue[]>.Function Array<TValue> (
+         this Parser<TValue>.Function parser,
+         Parser<Empty>.Function separator,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -254,8 +259,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue[]> Many<TValue> (
-         this ParserFunction<TValue> parser, 
+      public static Parser<TValue[]>.Function Many<TValue> (
+         this Parser<TValue>.Function parser, 
          int minCount = 0, 
          int maxCount = int.MaxValue
          )
@@ -304,8 +309,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue> Choice<TValue> (
-         params ParserFunction<TValue>[] parserFunctions
+      public static Parser<TValue>.Function Choice<TValue> (
+         params Parser<TValue>.Function[] parserFunctions
          )
       {
          if (parserFunctions == null)
@@ -349,16 +354,16 @@ namespace MicroParser
                       if (!suppressParserErrorMessageOperations)
                       {
                          var topGroup = new ParserErrorMessage_Group (potentialErrors.ToArray ());
-                         return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
+                         return ParserReply<TValue>.Failure (ParserReply.State.Error_Group, state, topGroup);
                       }
 
-                      return ParserReply<TValue>.Failure (ParserReply_State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
+                      return ParserReply<TValue>.Failure (ParserReply.State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
                    };
       }
 
-      public static ParserFunction<TValue1> KeepLeft<TValue1, TValue2> (
-         this ParserFunction<TValue1> firstParser, 
-         ParserFunction<TValue2> secondParser
+      public static Parser<TValue1>.Function KeepLeft<TValue1, TValue2> (
+         this Parser<TValue1>.Function firstParser, 
+         Parser<TValue2>.Function secondParser
          )
       {
          return state =>
@@ -383,9 +388,9 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue2> KeepRight<TValue1, TValue2> (
-         this ParserFunction<TValue1> firstParser, 
-         ParserFunction<TValue2> secondParser
+      public static Parser<TValue2>.Function KeepRight<TValue1, TValue2> (
+         this Parser<TValue1>.Function firstParser, 
+         Parser<TValue2>.Function secondParser
          )
       {
          return state =>
@@ -401,8 +406,8 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue> Attempt<TValue> (
-         this ParserFunction<TValue> firstParser
+      public static Parser<TValue>.Function Attempt<TValue> (
+         this Parser<TValue>.Function firstParser
          )
       {
          return state =>
@@ -414,7 +419,7 @@ namespace MicroParser
                       if (!firstResult.State.HasConsistentState ())
                       {
                          return ParserReply<TValue>.Failure (
-                            ParserReply_State.Error_StateIsRestored, 
+                            ParserReply.State.Error_StateIsRestored, 
                             clone, 
                             firstResult.ParserErrorMessage
                             );
@@ -424,8 +429,8 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Optional<TValue>> Opt<TValue> (
-         this ParserFunction<TValue> firstParser
+      public static Parser<Optional<TValue>>.Function Opt<TValue> (
+         this Parser<TValue>.Function firstParser
          )
       {
          return state =>
@@ -446,10 +451,10 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue> Between<TValue> (
-         this ParserFunction<TValue> middleParser,
-         ParserFunction<Empty> preludeParser,
-         ParserFunction<Empty> epilogueParser
+      public static Parser<TValue>.Function Between<TValue> (
+         this Parser<TValue>.Function middleParser,
+         Parser<Empty>.Function preludeParser,
+         Parser<Empty>.Function epilogueParser
          )
       {
          return state =>
@@ -478,9 +483,9 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue> Except<TValue> (
-         this ParserFunction<TValue> parser,
-         ParserFunction<Empty> exceptParser
+      public static Parser<TValue>.Function Except<TValue> (
+         this Parser<TValue>.Function parser,
+         Parser<Empty>.Function exceptParser
          )
       {
          return state =>
@@ -490,7 +495,7 @@ namespace MicroParser
                       if (exceptResult.State.IsSuccessful ())
                       {
                          return ParserReply<TValue>.Failure (
-                            ParserReply_State.Error_Unexpected, 
+                            ParserReply.State.Error_Unexpected, 
                             exceptResult.ParserState, 
                             ParserErrorMessages.Message_TODO
                             );

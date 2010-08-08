@@ -20,24 +20,24 @@ namespace MicroParser
 
    static partial class CharParser
    {
-      public static ParserFunction<Empty> SkipChar (char toSkip)
+      public static Parser<Empty>.Function SkipChar (char toSkip)
       {
          return SkipString (new string (toSkip, 1));
       }
 
-      public static ParserFunction<Empty> SkipString (string toSkip)
+      public static Parser<Empty>.Function SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
          var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
-         CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
+         CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
-            new CharSatify (parserErrorMessage, satisfy),
+            new CharSatisfy (parserErrorMessage, satisfy),
             toSkipNotNull.Length,
             toSkipNotNull.Length);
       }
 
-      public static ParserFunction<Empty> SkipAnyOf (string skipAnyOfThese)
+      public static Parser<Empty>.Function SkipAnyOf (string skipAnyOfThese)
       {
          var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
          return SkipSatisfy (
@@ -46,7 +46,7 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<Empty> SkipNoneOf (string skipNoneOfThese)
+      public static Parser<Empty>.Function SkipNoneOf (string skipNoneOfThese)
       {
          var sat = CreateSatisfyForNoneOf (skipNoneOfThese);
          return SkipSatisfy (
@@ -55,8 +55,8 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<Empty> SkipSatisfy (
-         CharSatify charSatify,
+      public static Parser<Empty>.Function SkipSatisfy (
+         CharSatisfy charSatisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -65,12 +65,12 @@ namespace MicroParser
 
          return state =>
          {
-            var advanceResult = state.SkipAdvance (charSatify.Satisfy, minCount, maxCount);
-            return ParserReply.Create (advanceResult, state, charSatify.ErrorMessage, Empty.Value);
+            var advanceResult = state.SkipAdvance (charSatisfy.Satisfy, minCount, maxCount);
+            return ParserReply.Create (advanceResult, state, charSatisfy.ErrorMessage, Empty.Value);
          };
       }
 
-      public static ParserFunction<Empty> SkipWhiteSpace (
+      public static Parser<Empty>.Function SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -78,14 +78,14 @@ namespace MicroParser
          return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
       }
 
-      public static ParserFunction<Empty> SkipNewLine (
+      public static Parser<Empty>.Function SkipNewLine (
          )
       {
          return SkipChar ('\r').Opt ()
             .KeepRight (SkipChar ('\n'));
       }
 
-      public static ParserFunction<char> AnyOf (
+      public static Parser<char>.Function AnyOf (
          string match
          )
       {
@@ -94,7 +94,7 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      public static ParserFunction<char> NoneOf (
+      public static Parser<char>.Function NoneOf (
          string match
          )
       {
@@ -103,7 +103,7 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      static CharSatify CreateSatisfyForAnyOfOrNoneOf (
+      static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
          bool matchResult)
@@ -117,7 +117,7 @@ namespace MicroParser
 
          var group = new ParserErrorMessage_Group (expected);
 
-         return new CharSatify (
+         return new CharSatisfy (
             group,
             (c, i) =>
             {
@@ -134,7 +134,7 @@ namespace MicroParser
             );
       }
 
-      static CharSatify CreateSatisfyForAnyOf (string match)
+      static CharSatisfy CreateSatisfyForAnyOf (string match)
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
@@ -143,7 +143,7 @@ namespace MicroParser
             );
       }
 
-      static CharSatify CreateSatisfyForNoneOf (string match)
+      static CharSatisfy CreateSatisfyForNoneOf (string match)
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
@@ -152,8 +152,8 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<char> CharSatisfy (
-         CharSatify satisfy
+      public static Parser<char>.Function CharSatisfy (
+         CharSatisfy satisfy
          )
       {
          return state =>
@@ -170,8 +170,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<SubString> ManyCharSatisfy (
-         CharSatify satisfy,
+      public static Parser<SubString>.Function ManyCharSatisfy (
+         CharSatisfy satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -192,9 +192,9 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<SubString> ManyCharSatisfy2 (
-         CharSatify satisfyFirst,
-         CharSatify satisfyRest,
+      public static Parser<SubString>.Function ManyCharSatisfy2 (
+         CharSatisfy satisfyFirst,
+         CharSatisfy satisfyRest,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -204,7 +204,7 @@ namespace MicroParser
          var first = satisfyFirst.Satisfy;
          var rest = satisfyRest.Satisfy;
 
-         CharSatisfyFunction satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
+         CharSatisfy.Function satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
 
          return state =>
          {
@@ -213,7 +213,7 @@ namespace MicroParser
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
 
             var expected =
-               (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
+               (advanceResult == ParserState.AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged)
                ? satisfyRest.ErrorMessage
                : satisfyFirst.ErrorMessage;
 
@@ -232,14 +232,14 @@ namespace MicroParser
          public int ConsumedCharacters;
       }
 
-      static ParserFunction<UIntResult> UIntImpl (
+      static Parser<UIntResult>.Function UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         CharSatisfyFunction satisfy = (c, i) => char.IsDigit (c);
+         CharSatisfy.Function satisfy = (c, i) => char.IsDigit (c);
 
          return state =>
          {
@@ -296,14 +296,14 @@ namespace MicroParser
          }
       }
 
-      public static ParserFunction<uint> Hex (
+      public static Parser<uint>.Function Hex (
          int minCount = 1,
          int maxCount = 10
          )
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         CharSatisfyFunction satisfy = (c, i) => CharToHex (c) != null;
+         CharSatisfy.Function satisfy = (c, i) => CharToHex (c) != null;
 
          return state =>
          {
@@ -331,7 +331,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<uint> UInt (
+      public static Parser<uint>.Function UInt (
          int minCount = 1,
          int maxCount = 10
          )
@@ -351,7 +351,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<int> Int (
+      public static Parser<int>.Function Int (
          )
       {
          var intParser = Parser.Group (
@@ -374,7 +374,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<double> Double ()
+      public static Parser<double>.Function Double ()
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
@@ -433,9 +433,9 @@ namespace MicroParser
 
       // CharSatisfy
 
-      public static CharSatify Or (this CharSatify first, CharSatify second)
+      public static CharSatisfy Or (this CharSatisfy first, CharSatisfy second)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             first.ErrorMessage.Append (second.ErrorMessage),
             (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
             );
@@ -452,19 +452,19 @@ namespace MicroParser
             ;
       }
 
-      public static CharSatify Except (this CharSatify first, CharSatify second)
+      public static CharSatisfy Except (this CharSatisfy first, CharSatisfy second)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             first.ErrorMessage.Append (ExpectedToUnexpected (second.ErrorMessage)), 
             (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
 
-      public static readonly CharSatify SatisyAnyChar    = new CharSatify (ParserErrorMessages.Expected_Any          , (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatify SatisyDigit      = new CharSatify (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
-      public static readonly CharSatify SatisyLetter     = new CharSatify (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
-      public static readonly CharSatify SatisyLineBreak  = new CharSatify (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
+      public static readonly CharSatisfy SatisyAnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      public static readonly CharSatisfy SatisyWhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatisfy SatisyDigit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
+      public static readonly CharSatisfy SatisyLetter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
+      public static readonly CharSatisfy SatisyLineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
          {
             switch (c)
             {
@@ -476,8 +476,8 @@ namespace MicroParser
             }
          });
 
-      public static readonly CharSatify SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
-      public static readonly CharSatify SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
+      public static readonly CharSatisfy SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
+      public static readonly CharSatisfy SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
    }
 }
 // ----------------------------------------------------------------------------------------------
@@ -495,20 +495,22 @@ namespace MicroParser
 {
    using Internal;
 
-   sealed partial class CharSatify
+   sealed partial class CharSatisfy
    {
-      public readonly IParserErrorMessage ErrorMessage;
-      public readonly CharSatisfyFunction Satisfy;
+      public delegate bool Function (char ch, int index);
 
-      public static implicit operator CharSatify (char ch)
+      public readonly IParserErrorMessage ErrorMessage;
+      public readonly Function Satisfy;
+
+      public static implicit operator CharSatisfy (char ch)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (ch)), 
             (c, i) => ch == c
             );
       }
 
-      public CharSatify (IParserErrorMessage errorMessage, CharSatisfyFunction satisfy)
+      public CharSatisfy (IParserErrorMessage errorMessage, Function satisfy)
       {
          ErrorMessage = errorMessage;
          Satisfy = satisfy;
@@ -615,33 +617,33 @@ namespace MicroParser.Internal
          return sb.ToString ();
       }
 
-      // ParserReply_State
+      // ParserReply.State
 
-      public static bool IsSuccessful (this ParserReply_State state)
+      public static bool IsSuccessful (this ParserReply.State state)
       {
-         return state == ParserReply_State.Successful;
+         return state == ParserReply.State.Successful;
       }
 
-      public static bool HasConsistentState (this ParserReply_State state)
+      public static bool HasConsistentState (this ParserReply.State state)
       {
          return
-            (state & ParserReply_State.FatalError_StateIsNotRestored)
+            (state & ParserReply.State.FatalError_StateIsNotRestored)
                == 0;
       }
 
-      public static bool HasFatalError (this ParserReply_State state)
+      public static bool HasFatalError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.FatalError;
+         return state >= ParserReply.State.FatalError;
       }
 
-      public static bool HasError (this ParserReply_State state)
+      public static bool HasError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.Error;
+         return state >= ParserReply.State.Error;
       }
 
-      public static bool HasNonFatalError (this ParserReply_State state)
+      public static bool HasNonFatalError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
+         return state >= ParserReply.State.Error && state < ParserReply.State.FatalError;
       }
 
       // IParserErrorMessage
@@ -701,48 +703,13 @@ namespace MicroParser.Internal
 
 namespace MicroParser
 {
-   using System;
 #if MICRO_PARSER_MAKE_PUBLIC
-   public delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   public delegate bool CharSatisfyFunction (char ch, int index);
-
-   // ReSharper disable InconsistentNaming
-   [Flags]
-   public enum ParserReply_State
-   {
-      Successful                       = 00,
-      Error                            = 10,
-      Error_Message                    = 11,
-      Error_Expected                   = 12,
-      Error_Unexpected                 = 13,
-      Error_Group                      = 14,
-      Error_StateIsRestored            = 15,
-      FatalError                       = 0x00010000,
-      FatalError_Mask                  = 0x7FFF0000,
-      FatalError_Terminate             = 0x00010000,
-      FatalError_StateIsNotRestored    = 0x00020000,
-   }
-   // ReSharper restore InconsistentNaming
-
-
-   // ReSharper disable InconsistentNaming
-   public enum ParserState_AdvanceResult
-   {
-      Successful                             = 00,
-      Error                                  = 10,
-      Error_EndOfStream                      = 11,
-      Error_SatisfyFailed                    = 12,
-      Error_EndOfStream_PostionChanged       = 23,
-      Error_SatisfyFailed_PositionChanged    = 24,
-   }
-   // ReSharper restore InconsistentNaming
-
    public partial class CharParser
    {
 
    }
 
-   public partial class CharSatify
+   public partial class CharSatisfy
    {
 
    }
@@ -780,6 +747,11 @@ namespace MicroParser
    public partial struct Optional<TValue>
    {
       
+   }
+
+   public partial class Parser<TValue>
+   {
+
    }
 
    public partial class Parser
@@ -826,41 +798,6 @@ namespace MicroParser
    {
 
    }
-
-#else
-   delegate ParserReply<TValue> ParserFunction<TValue>(ParserState state);
-   delegate bool CharSatisfyFunction (char ch, int index);
-
-   // ReSharper disable InconsistentNaming
-   [Flags]
-   enum ParserReply_State
-   {
-      Successful = 00,
-      Error = 10,
-      Error_Message = 11,
-      Error_Expected = 12,
-      Error_Unexpected = 13,
-      Error_Group = 14,
-      Error_StateIsRestored = 15,
-      FatalError = 0x00010000,
-      FatalError_Mask = 0x7FFF0000,
-      FatalError_Terminate = 0x00010000,
-      FatalError_StateIsNotRestored = 0x00020000,
-   }
-   // ReSharper restore InconsistentNaming
-
-
-   // ReSharper disable InconsistentNaming
-   enum ParserState_AdvanceResult
-   {
-      Successful = 00,
-      Error = 10,
-      Error_EndOfStream = 11,
-      Error_SatisfyFailed = 12,
-      Error_EndOfStream_PostionChanged = 23,
-      Error_SatisfyFailed_PositionChanged = 24,
-   }
-   // ReSharper restore InconsistentNaming
 #endif
 }
 
@@ -931,9 +868,14 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
+   static partial class Parser<TValue>
+   {
+      public delegate ParserReply<TValue> Function (ParserState state);      
+   }
+
    static partial class Parser
    {
-      public static ParserResult<TValue> Parse<TValue> (ParserFunction<TValue> parserFunction, string text)
+      public static ParserResult<TValue> Parse<TValue> (Parser<TValue>.Function parserFunction, string text)
       {
          var parseResult = parserFunction (
             ParserState.Create (
@@ -995,30 +937,30 @@ namespace MicroParser
          return new ParserFunctionRedirect<TValue> ();
       }
 
-      public static ParserFunction<TValue> Return<TValue> (TValue value)
+      public static Parser<TValue>.Function Return<TValue> (TValue value)
       {
          return state => ParserReply<TValue>.Success (state, value);
       }
 
-      public static ParserFunction<TValue> Fail<TValue> (string message)
+      public static Parser<TValue>.Function Fail<TValue> (string message)
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
-         return state => ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessageMessage);
+         return state => ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessageMessage);
       }
 
-      public static ParserFunction<Empty> EndOfStream ()
+      public static Parser<Empty>.Function EndOfStream ()
       {
          return state =>
                 state.EndOfStream
                    ? ParserReply<Empty>.Success (state, Empty.Value)
                    : ParserReply<Empty>.Failure (
-                      ParserReply_State.Error_Expected,
+                      ParserReply.State.Error_Expected,
                       state,
                       ParserErrorMessages.Expected_EndOfStream
                       );
       }
 
-      public static ParserFunction<TValue2> Combine<TValue, TValue2> (this ParserFunction<TValue> firstParser, Func<TValue, ParserFunction<TValue2>> second)
+      public static Parser<TValue2>.Function Combine<TValue, TValue2>(this Parser<TValue>.Function firstParser, Func<TValue, Parser<TValue2>.Function> second)
       {
          return state =>
                    {
@@ -1034,7 +976,7 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue2> Map<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, Func<TValue1, TValue2> mapper)
+      public static Parser<TValue2>.Function Map<TValue1, TValue2> (this Parser<TValue1>.Function firstParser, Func<TValue1, TValue2> mapper)
       {
          return state =>
          {
@@ -1049,14 +991,14 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue2> Map<TValue1, TValue2> (this ParserFunction<TValue1> firstParser, TValue2 value2)
+      public static Parser<TValue2>.Function Map<TValue1, TValue2> (this Parser<TValue1>.Function firstParser, TValue2 value2)
       {
          return firstParser.Map (ignore => value2);
       }
 
-      public static ParserFunction<TValue1> Chain<TValue1, TValue2>(
-         this ParserFunction<TValue1> parser,
-         ParserFunction<TValue2> separator,
+      public static Parser<TValue1>.Function Chain<TValue1, TValue2>(
+         this Parser<TValue1>.Function parser,
+         Parser<TValue2>.Function separator,
          Func<TValue1, TValue2, TValue1, TValue1> combiner
          )
       {
@@ -1093,9 +1035,9 @@ namespace MicroParser
             };
       }
 
-      public static ParserFunction<TValue[]> Array<TValue> (
-         this ParserFunction<TValue> parser,
-         ParserFunction<Empty> separator,
+      public static Parser<TValue[]>.Function Array<TValue> (
+         this Parser<TValue>.Function parser,
+         Parser<Empty>.Function separator,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -1169,8 +1111,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue[]> Many<TValue> (
-         this ParserFunction<TValue> parser, 
+      public static Parser<TValue[]>.Function Many<TValue> (
+         this Parser<TValue>.Function parser, 
          int minCount = 0, 
          int maxCount = int.MaxValue
          )
@@ -1219,8 +1161,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue> Choice<TValue> (
-         params ParserFunction<TValue>[] parserFunctions
+      public static Parser<TValue>.Function Choice<TValue> (
+         params Parser<TValue>.Function[] parserFunctions
          )
       {
          if (parserFunctions == null)
@@ -1264,16 +1206,16 @@ namespace MicroParser
                       if (!suppressParserErrorMessageOperations)
                       {
                          var topGroup = new ParserErrorMessage_Group (potentialErrors.ToArray ());
-                         return ParserReply<TValue>.Failure (ParserReply_State.Error_Group, state, topGroup);
+                         return ParserReply<TValue>.Failure (ParserReply.State.Error_Group, state, topGroup);
                       }
 
-                      return ParserReply<TValue>.Failure (ParserReply_State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
+                      return ParserReply<TValue>.Failure (ParserReply.State.Error_Expected, state, ParserErrorMessages.Expected_Choice);
                    };
       }
 
-      public static ParserFunction<TValue1> KeepLeft<TValue1, TValue2> (
-         this ParserFunction<TValue1> firstParser, 
-         ParserFunction<TValue2> secondParser
+      public static Parser<TValue1>.Function KeepLeft<TValue1, TValue2> (
+         this Parser<TValue1>.Function firstParser, 
+         Parser<TValue2>.Function secondParser
          )
       {
          return state =>
@@ -1298,9 +1240,9 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue2> KeepRight<TValue1, TValue2> (
-         this ParserFunction<TValue1> firstParser, 
-         ParserFunction<TValue2> secondParser
+      public static Parser<TValue2>.Function KeepRight<TValue1, TValue2> (
+         this Parser<TValue1>.Function firstParser, 
+         Parser<TValue2>.Function secondParser
          )
       {
          return state =>
@@ -1316,8 +1258,8 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue> Attempt<TValue> (
-         this ParserFunction<TValue> firstParser
+      public static Parser<TValue>.Function Attempt<TValue> (
+         this Parser<TValue>.Function firstParser
          )
       {
          return state =>
@@ -1329,7 +1271,7 @@ namespace MicroParser
                       if (!firstResult.State.HasConsistentState ())
                       {
                          return ParserReply<TValue>.Failure (
-                            ParserReply_State.Error_StateIsRestored, 
+                            ParserReply.State.Error_StateIsRestored, 
                             clone, 
                             firstResult.ParserErrorMessage
                             );
@@ -1339,8 +1281,8 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<Optional<TValue>> Opt<TValue> (
-         this ParserFunction<TValue> firstParser
+      public static Parser<Optional<TValue>>.Function Opt<TValue> (
+         this Parser<TValue>.Function firstParser
          )
       {
          return state =>
@@ -1361,10 +1303,10 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<TValue> Between<TValue> (
-         this ParserFunction<TValue> middleParser,
-         ParserFunction<Empty> preludeParser,
-         ParserFunction<Empty> epilogueParser
+      public static Parser<TValue>.Function Between<TValue> (
+         this Parser<TValue>.Function middleParser,
+         Parser<Empty>.Function preludeParser,
+         Parser<Empty>.Function epilogueParser
          )
       {
          return state =>
@@ -1393,9 +1335,9 @@ namespace MicroParser
                    };
       }
 
-      public static ParserFunction<TValue> Except<TValue> (
-         this ParserFunction<TValue> parser,
-         ParserFunction<Empty> exceptParser
+      public static Parser<TValue>.Function Except<TValue> (
+         this Parser<TValue>.Function parser,
+         Parser<Empty>.Function exceptParser
          )
       {
          return state =>
@@ -1405,7 +1347,7 @@ namespace MicroParser
                       if (exceptResult.State.IsSuccessful ())
                       {
                          return ParserReply<TValue>.Failure (
-                            ParserReply_State.Error_Unexpected, 
+                            ParserReply.State.Error_Unexpected, 
                             exceptResult.ParserState, 
                             ParserErrorMessages.Message_TODO
                             );
@@ -1594,8 +1536,8 @@ namespace MicroParser
 
    sealed partial class ParserFunctionRedirect<TValue>
    {
-      public readonly ParserFunction<TValue> Parser;
-      public ParserFunction<TValue> ParserRedirect;
+      public readonly Parser<TValue>.Function Parser;
+      public Parser<TValue>.Function ParserRedirect;
 
       public ParserFunctionRedirect ()
       {
@@ -1623,9 +1565,9 @@ namespace MicroParser
    using MicroParser.Internal;
 	partial class Parser
 	{
-      public static ParserFunction<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
-            ParserFunction<TValue1> parser1
-         ,  ParserFunction<TValue2> parser2
+      public static Parser<Tuple<TValue1, TValue2>>.Function Group<TValue1, TValue2> (
+            Parser<TValue1>.Function parser1
+         ,  Parser<TValue2>.Function parser2
          )
       {
          return state =>
@@ -1651,10 +1593,10 @@ namespace MicroParser
                   ));
          };
       }
-      public static ParserFunction<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3> (
-            ParserFunction<TValue1> parser1
-         ,  ParserFunction<TValue2> parser2
-         ,  ParserFunction<TValue3> parser3
+      public static Parser<Tuple<TValue1, TValue2, TValue3>>.Function Group<TValue1, TValue2, TValue3> (
+            Parser<TValue1>.Function parser1
+         ,  Parser<TValue2>.Function parser2
+         ,  Parser<TValue3>.Function parser3
          )
       {
          return state =>
@@ -1712,45 +1654,63 @@ namespace MicroParser
 
    static partial class ParserReply
    {
-      static ParserReply<TValue> CreateParserReplyFailure<TValue>(ParserState_AdvanceResult advanceResult, ParserState state, IParserErrorMessage parserErrorMessage)
+      // ReSharper disable InconsistentNaming
+      [Flags]
+      public enum State
+      {
+         Successful = 00,
+         Error = 10,
+         Error_Message = 11,
+         Error_Expected = 12,
+         Error_Unexpected = 13,
+         Error_Group = 14,
+         Error_StateIsRestored = 15,
+         FatalError = 0x00010000,
+         FatalError_Mask = 0x7FFF0000,
+         FatalError_Terminate = 0x00010000,
+         FatalError_StateIsNotRestored = 0x00020000,
+      }
+      // ReSharper restore InconsistentNaming
+
+      static ParserReply<TValue> CreateParserReplyFailure<TValue>(ParserState.AdvanceResult advanceResult, ParserState state, IParserErrorMessage parserErrorMessage)
       {
          switch (advanceResult)
          {
-            case ParserState_AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
-            case ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply_State.FatalError_StateIsNotRestored | ParserReply_State.Error, state, parserErrorMessage);
-            case ParserState_AdvanceResult.Error:
+            case ParserState.AdvanceResult.Error_EndOfStream:
+               return ParserReply<TValue>.Failure (ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+            case ParserState.AdvanceResult.Error_SatisfyFailed:
+               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessage);
+            case ParserState.AdvanceResult.Error_EndOfStream_PostionChanged:
+               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+            case ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged:
+               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error, state, parserErrorMessage);
+            case ParserState.AdvanceResult.Error:
             default:
-               return ParserReply<TValue>.Failure (ParserReply_State.Error, state, ParserErrorMessages.Message_Unknown);
+               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, ParserErrorMessages.Message_Unknown);
          }
       }
 
       public static ParserReply<TValue> Create<TValue>(
-         ParserState_AdvanceResult advanceResult,
+         ParserState.AdvanceResult advanceResult,
          ParserState state,
          IParserErrorMessage parserErrorMessage,
          TValue value
          )
       {
-         return advanceResult == ParserState_AdvanceResult.Successful 
+         return advanceResult == ParserState.AdvanceResult.Successful 
             ?  ParserReply<TValue>.Success (state, value) 
             :  CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
             ;
       }
 
       public static ParserReply<TValue> Create<TValue>(
-         ParserState_AdvanceResult advanceResult,
+         ParserState.AdvanceResult advanceResult,
          ParserState state,
          IParserErrorMessage parserErrorMessage,
          Func<TValue> valueCreator
          )
       {
-         return advanceResult == ParserState_AdvanceResult.Successful
+         return advanceResult == ParserState.AdvanceResult.Successful
             ? ParserReply<TValue>.Success (state, valueCreator ())
             : CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
             ;
@@ -1759,13 +1719,13 @@ namespace MicroParser
 
    partial struct ParserReply<TValue>
    {
-      public readonly ParserReply_State State;
+      public readonly ParserReply.State State;
       public readonly ParserState ParserState;
       public readonly IParserErrorMessage ParserErrorMessage;
 
       public readonly TValue Value;
 
-      ParserReply (ParserReply_State state, ParserState parserState, TValue value, IParserErrorMessage parserErrorMessage)
+      ParserReply (ParserReply.State state, ParserState parserState, TValue value, IParserErrorMessage parserErrorMessage)
       {
          State = state;
          ParserState = parserState;
@@ -1779,7 +1739,7 @@ namespace MicroParser
          )
       {
          return new ParserReply<TValue>(
-            ParserReply_State.Successful, 
+            ParserReply.State.Successful, 
             parserState, 
             value, 
             null
@@ -1787,7 +1747,7 @@ namespace MicroParser
       }
 
       public static ParserReply<TValue> Failure (
-         ParserReply_State state, 
+         ParserReply.State state, 
          ParserState parserState, 
          IParserErrorMessage parserErrorMessage
          )
@@ -1796,7 +1756,7 @@ namespace MicroParser
          Debug.Assert (parserErrorMessage != null);
 
          return new ParserReply<TValue>(
-            state.IsSuccessful () ? ParserReply_State.Error : state, 
+            state.IsSuccessful () ? ParserReply.State.Error : state, 
             parserState, 
             default (TValue), 
             parserErrorMessage
@@ -1835,7 +1795,7 @@ namespace MicroParser
             )
          {
             return new ParserReply<TValue>(
-               ParserReply_State.FatalError_StateIsNotRestored | State,
+               ParserReply.State.FatalError_StateIsNotRestored | State,
                ParserState,
                default (TValue),
                ParserErrorMessage
@@ -1848,7 +1808,7 @@ namespace MicroParser
 #if !MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
       public override string ToString ()
       {
-         if (State == ParserReply_State.Successful)
+         if (State == ParserReply.State.Successful)
          {
             return new
             {
@@ -1993,6 +1953,18 @@ namespace MicroParser
 
    sealed partial class ParserState
    {
+      // ReSharper disable InconsistentNaming
+      public enum AdvanceResult
+      {
+         Successful = 00,
+         Error = 10,
+         Error_EndOfStream = 11,
+         Error_SatisfyFailed = 12,
+         Error_EndOfStream_PostionChanged = 23,
+         Error_SatisfyFailed_PositionChanged = 24,
+      }
+      // ReSharper restore InconsistentNaming
+
       readonly string m_text;
       int m_position;
 
@@ -2029,9 +2001,9 @@ namespace MicroParser
          }
       }
 
-      public ParserState_AdvanceResult Advance (
+      public ParserState.AdvanceResult Advance (
          ref SubString subString,
-         CharSatisfyFunction satisfy,
+         CharSatisfy.Function satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )
@@ -2045,7 +2017,7 @@ namespace MicroParser
 
          if (m_position + minCount >= m_text.Length + 1)
          {
-            return ParserState_AdvanceResult.Error_EndOfStream;
+            return ParserState.AdvanceResult.Error_EndOfStream;
          }
 
          var length = Math.Min (maxCount, m_text.Length - m_position);
@@ -2058,14 +2030,14 @@ namespace MicroParser
                if (iter < minCount)
                {
                   return subString.Position == m_position
-                            ? ParserState_AdvanceResult.Error_SatisfyFailed
-                            : ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged
+                            ? ParserState.AdvanceResult.Error_SatisfyFailed
+                            : ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged
                      ;
                }
 
                subString.Length = m_position - subString.Position;
 
-               return ParserState_AdvanceResult.Successful;
+               return ParserState.AdvanceResult.Successful;
             }
 
             ++m_position;
@@ -2073,11 +2045,11 @@ namespace MicroParser
 
          subString.Length = m_position - subString.Position;
 
-         return ParserState_AdvanceResult.Successful;
+         return ParserState.AdvanceResult.Successful;
       }
 
-      public ParserState_AdvanceResult SkipAdvance (
-         CharSatisfyFunction satisfy,
+      public ParserState.AdvanceResult SkipAdvance (
+         CharSatisfy.Function satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
          )

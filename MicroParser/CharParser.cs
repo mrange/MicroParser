@@ -17,24 +17,24 @@ namespace MicroParser
 
    static partial class CharParser
    {
-      public static ParserFunction<Empty> SkipChar (char toSkip)
+      public static Parser<Empty>.Function SkipChar (char toSkip)
       {
          return SkipString (new string (toSkip, 1));
       }
 
-      public static ParserFunction<Empty> SkipString (string toSkip)
+      public static Parser<Empty>.Function SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
          var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
-         CharSatisfyFunction satisfy = (c, i) => toSkipNotNull[i] == c;
+         CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
-            new CharSatify (parserErrorMessage, satisfy),
+            new CharSatisfy (parserErrorMessage, satisfy),
             toSkipNotNull.Length,
             toSkipNotNull.Length);
       }
 
-      public static ParserFunction<Empty> SkipAnyOf (string skipAnyOfThese)
+      public static Parser<Empty>.Function SkipAnyOf (string skipAnyOfThese)
       {
          var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
          return SkipSatisfy (
@@ -43,7 +43,7 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<Empty> SkipNoneOf (string skipNoneOfThese)
+      public static Parser<Empty>.Function SkipNoneOf (string skipNoneOfThese)
       {
          var sat = CreateSatisfyForNoneOf (skipNoneOfThese);
          return SkipSatisfy (
@@ -52,8 +52,8 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<Empty> SkipSatisfy (
-         CharSatify charSatify,
+      public static Parser<Empty>.Function SkipSatisfy (
+         CharSatisfy charSatisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -62,12 +62,12 @@ namespace MicroParser
 
          return state =>
          {
-            var advanceResult = state.SkipAdvance (charSatify.Satisfy, minCount, maxCount);
-            return ParserReply.Create (advanceResult, state, charSatify.ErrorMessage, Empty.Value);
+            var advanceResult = state.SkipAdvance (charSatisfy.Satisfy, minCount, maxCount);
+            return ParserReply.Create (advanceResult, state, charSatisfy.ErrorMessage, Empty.Value);
          };
       }
 
-      public static ParserFunction<Empty> SkipWhiteSpace (
+      public static Parser<Empty>.Function SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -75,14 +75,14 @@ namespace MicroParser
          return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
       }
 
-      public static ParserFunction<Empty> SkipNewLine (
+      public static Parser<Empty>.Function SkipNewLine (
          )
       {
          return SkipChar ('\r').Opt ()
             .KeepRight (SkipChar ('\n'));
       }
 
-      public static ParserFunction<char> AnyOf (
+      public static Parser<char>.Function AnyOf (
          string match
          )
       {
@@ -91,7 +91,7 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      public static ParserFunction<char> NoneOf (
+      public static Parser<char>.Function NoneOf (
          string match
          )
       {
@@ -100,7 +100,7 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      static CharSatify CreateSatisfyForAnyOfOrNoneOf (
+      static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
          bool matchResult)
@@ -114,7 +114,7 @@ namespace MicroParser
 
          var group = new ParserErrorMessage_Group (expected);
 
-         return new CharSatify (
+         return new CharSatisfy (
             group,
             (c, i) =>
             {
@@ -131,7 +131,7 @@ namespace MicroParser
             );
       }
 
-      static CharSatify CreateSatisfyForAnyOf (string match)
+      static CharSatisfy CreateSatisfyForAnyOf (string match)
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
@@ -140,7 +140,7 @@ namespace MicroParser
             );
       }
 
-      static CharSatify CreateSatisfyForNoneOf (string match)
+      static CharSatisfy CreateSatisfyForNoneOf (string match)
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
@@ -149,8 +149,8 @@ namespace MicroParser
             );
       }
 
-      public static ParserFunction<char> CharSatisfy (
-         CharSatify satisfy
+      public static Parser<char>.Function CharSatisfy (
+         CharSatisfy satisfy
          )
       {
          return state =>
@@ -167,8 +167,8 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<SubString> ManyCharSatisfy (
-         CharSatify satisfy,
+      public static Parser<SubString>.Function ManyCharSatisfy (
+         CharSatisfy satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -189,9 +189,9 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<SubString> ManyCharSatisfy2 (
-         CharSatify satisfyFirst,
-         CharSatify satisfyRest,
+      public static Parser<SubString>.Function ManyCharSatisfy2 (
+         CharSatisfy satisfyFirst,
+         CharSatisfy satisfyRest,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -201,7 +201,7 @@ namespace MicroParser
          var first = satisfyFirst.Satisfy;
          var rest = satisfyRest.Satisfy;
 
-         CharSatisfyFunction satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
+         CharSatisfy.Function satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
 
          return state =>
          {
@@ -210,7 +210,7 @@ namespace MicroParser
             var advanceResult = state.Advance (ref subString, satisfy, minCount, maxCount);
 
             var expected =
-               (advanceResult == ParserState_AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState_AdvanceResult.Error_SatisfyFailed_PositionChanged)
+               (advanceResult == ParserState.AdvanceResult.Error_EndOfStream_PostionChanged || advanceResult == ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged)
                ? satisfyRest.ErrorMessage
                : satisfyFirst.ErrorMessage;
 
@@ -229,14 +229,14 @@ namespace MicroParser
          public int ConsumedCharacters;
       }
 
-      static ParserFunction<UIntResult> UIntImpl (
+      static Parser<UIntResult>.Function UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         CharSatisfyFunction satisfy = (c, i) => char.IsDigit (c);
+         CharSatisfy.Function satisfy = (c, i) => char.IsDigit (c);
 
          return state =>
          {
@@ -293,14 +293,14 @@ namespace MicroParser
          }
       }
 
-      public static ParserFunction<uint> Hex (
+      public static Parser<uint>.Function Hex (
          int minCount = 1,
          int maxCount = 10
          )
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         CharSatisfyFunction satisfy = (c, i) => CharToHex (c) != null;
+         CharSatisfy.Function satisfy = (c, i) => CharToHex (c) != null;
 
          return state =>
          {
@@ -328,7 +328,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<uint> UInt (
+      public static Parser<uint>.Function UInt (
          int minCount = 1,
          int maxCount = 10
          )
@@ -348,7 +348,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<int> Int (
+      public static Parser<int>.Function Int (
          )
       {
          var intParser = Parser.Group (
@@ -371,7 +371,7 @@ namespace MicroParser
          };
       }
 
-      public static ParserFunction<double> Double ()
+      public static Parser<double>.Function Double ()
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
@@ -430,9 +430,9 @@ namespace MicroParser
 
       // CharSatisfy
 
-      public static CharSatify Or (this CharSatify first, CharSatify second)
+      public static CharSatisfy Or (this CharSatisfy first, CharSatisfy second)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             first.ErrorMessage.Append (second.ErrorMessage),
             (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
             );
@@ -449,19 +449,19 @@ namespace MicroParser
             ;
       }
 
-      public static CharSatify Except (this CharSatify first, CharSatify second)
+      public static CharSatisfy Except (this CharSatisfy first, CharSatisfy second)
       {
-         return new CharSatify (
+         return new CharSatisfy (
             first.ErrorMessage.Append (ExpectedToUnexpected (second.ErrorMessage)), 
             (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
 
-      public static readonly CharSatify SatisyAnyChar    = new CharSatify (ParserErrorMessages.Expected_Any          , (c, i) => true);
-      public static readonly CharSatify SatisyWhiteSpace = new CharSatify (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatify SatisyDigit      = new CharSatify (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
-      public static readonly CharSatify SatisyLetter     = new CharSatify (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
-      public static readonly CharSatify SatisyLineBreak  = new CharSatify (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
+      public static readonly CharSatisfy SatisyAnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      public static readonly CharSatisfy SatisyWhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
+      public static readonly CharSatisfy SatisyDigit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
+      public static readonly CharSatisfy SatisyLetter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
+      public static readonly CharSatisfy SatisyLineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
          {
             switch (c)
             {
@@ -473,7 +473,7 @@ namespace MicroParser
             }
          });
 
-      public static readonly CharSatify SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
-      public static readonly CharSatify SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
+      public static readonly CharSatisfy SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
+      public static readonly CharSatisfy SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
    }
 }

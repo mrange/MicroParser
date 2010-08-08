@@ -25,7 +25,7 @@ namespace Bindings
 
    public sealed class ExpressionBinding : MarkupExtension
    {
-      static readonly ParserFunction<IAst> s_parser;
+      static readonly Parser<IAst>.Function s_parser;
 
       static readonly IDictionary<string, Func<IServiceProvider, object>> s_expressionCache = 
          new Dictionary<string, Func<IServiceProvider, object>> ();
@@ -39,7 +39,7 @@ namespace Bindings
 
          var p_spaces = CharParser.SkipWhiteSpace ();
 
-         Func<string, ParserFunction<Empty>> p_token = token => CharParser.SkipString (token).KeepLeft (p_spaces);
+         Func<string, Parser<Empty>.Function> p_token = token => CharParser.SkipString (token).KeepLeft (p_spaces);
 
          var p_value = CharParser
             .Double ()

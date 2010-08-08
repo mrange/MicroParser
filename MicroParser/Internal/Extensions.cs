@@ -64,33 +64,33 @@ namespace MicroParser.Internal
          return sb.ToString ();
       }
 
-      // ParserReply_State
+      // ParserReply.State
 
-      public static bool IsSuccessful (this ParserReply_State state)
+      public static bool IsSuccessful (this ParserReply.State state)
       {
-         return state == ParserReply_State.Successful;
+         return state == ParserReply.State.Successful;
       }
 
-      public static bool HasConsistentState (this ParserReply_State state)
+      public static bool HasConsistentState (this ParserReply.State state)
       {
          return
-            (state & ParserReply_State.FatalError_StateIsNotRestored)
+            (state & ParserReply.State.FatalError_StateIsNotRestored)
                == 0;
       }
 
-      public static bool HasFatalError (this ParserReply_State state)
+      public static bool HasFatalError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.FatalError;
+         return state >= ParserReply.State.FatalError;
       }
 
-      public static bool HasError (this ParserReply_State state)
+      public static bool HasError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.Error;
+         return state >= ParserReply.State.Error;
       }
 
-      public static bool HasNonFatalError (this ParserReply_State state)
+      public static bool HasNonFatalError (this ParserReply.State state)
       {
-         return state >= ParserReply_State.Error && state < ParserReply_State.FatalError;
+         return state >= ParserReply.State.Error && state < ParserReply.State.FatalError;
       }
 
       // IParserErrorMessage
