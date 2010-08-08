@@ -8,7 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. Solution Items", "9. Sol
 		Local.testsettings = Local.testsettings
 		MicroParser.vsmdi = MicroParser.vsmdi
 		MicroParser1.vsmdi = MicroParser1.vsmdi
-		TestParser.psess = TestParser.psess
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
@@ -38,6 +37,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Sample Parsers", "4. Sample Parsers", "{DBEA7BEF-83D7-419C-AB17-C5CAF0EF84E6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleParsers", "SampleParsers\SampleParsers.csproj", "{F7D93930-5ECE-4ABE-A3D4-B308D3F3FBED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestFunWithExpandos", "PerformanceTestFunWithExpandos\PerformanceTestFunWithExpandos.csproj", "{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -135,6 +136,17 @@ Global
 		{F7D93930-5ECE-4ABE-A3D4-B308D3F3FBED}.Release|Mixed Platforms.Build.0 = Release|x86
 		{F7D93930-5ECE-4ABE-A3D4-B308D3F3FBED}.Release|x86.ActiveCfg = Release|x86
 		{F7D93930-5ECE-4ABE-A3D4-B308D3F3FBED}.Release|x86.Build.0 = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Debug|x86.ActiveCfg = Debug|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Debug|x86.Build.0 = Debug|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|Any CPU.ActiveCfg = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|Any CPU.Build.0 = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|Mixed Platforms.Build.0 = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|x86.ActiveCfg = Release|x86
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,6 +158,7 @@ Global
 		{06DA2CF9-A357-48E9-B290-0723340E7CC2} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
 		{23ADA443-D3D3-4E02-B949-B939324E6E29} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}
 		{F08E0068-E1EE-45A6-8DE6-0CE8578B6EA7} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}
+		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}
 		{F8F54B1D-2988-4EBF-BF80-893BC6953DC4} = {93F0D1AB-D2BD-4765-827D-FF0A0BD04D80}
 		{F7D93930-5ECE-4ABE-A3D4-B308D3F3FBED} = {DBEA7BEF-83D7-419C-AB17-C5CAF0EF84E6}
 	EndGlobalSection

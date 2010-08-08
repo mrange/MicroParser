@@ -1,3 +1,2 @@
-﻿// ----------------------------------------------------------------------------
-1. JSON standard supports escaped strings. So that I should support as well
-// ----------------------------------------------------------------------------
+﻿1. Is there any way to reduce the number of dynamic allocations during parsing?
+2. Locate performance bottlenecks
