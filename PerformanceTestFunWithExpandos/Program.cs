@@ -10,8 +10,10 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 using System;
+using System.Dynamic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using FunWithExpandos;
 
 namespace PerformanceTestFunWithExpandos
@@ -36,19 +38,56 @@ namespace PerformanceTestFunWithExpandos
 
       static void Main (string[] args)
       {
-         var json = GetStringResource ("PerformanceTestFunWithExpandos.JSON.txt");
-
-         var dt = DateTime.Now;
-         const int Count = 10000;
-
-         for (var iter = 0; iter < Count; ++iter)
+         if (true)
          {
-            var result = JsonSerializer.Unserialize (json);
+            // cold run
+            var json = GetStringResource ("PerformanceTestFunWithExpandos.JSON.txt");
+            JsonSerializer.Unserialize (json);            
          }
 
-         var diff = DateTime.Now - dt;
+         if (true)
+         {
+            var json = GetStringResource ("PerformanceTestFunWithExpandos.JSON.txt");
 
-         Console.WriteLine ("{0} took {1:0.00} secs", Count, diff.TotalSeconds);
+            const int Count = 10000;
+
+            var dt = DateTime.Now;
+
+
+            for (var iter = 0; iter < Count; ++iter)
+            {
+               var result = JsonSerializer.Unserialize (json);
+            }
+
+            var diff = DateTime.Now - dt;
+
+            Console.WriteLine ("Complex Json {0} times took {1:0.00} secs", Count, diff.TotalSeconds);
+         }
+
+         if (true)
+         {
+            var bigStringBuilder = new StringBuilder ();
+            for (var iter = 0; iter < 1000; ++iter)
+            {
+               bigStringBuilder.AppendLine ("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ");
+            }
+            var bigString = bigStringBuilder.ToString ();
+            dynamic bigObject = new ExpandoObject ();
+            bigObject.BigOne = bigString;
+            var json = JsonSerializer.Serialize (bigObject);
+            const int Count = 20;
+
+            var dt = DateTime.Now;
+
+            for (var iter = 0; iter < Count; ++iter)
+            {
+               var result = JsonSerializer.Unserialize (json);
+            }
+
+            var diff = DateTime.Now - dt;
+
+            Console.WriteLine ("Big Json {0} times took {1:0.00} secs", Count, diff.TotalSeconds);
+         }
       }
    }
 }

@@ -18,10 +18,13 @@ namespace MicroParser
 
    partial class Parser<TValue>
    {
+      // ParserState is basically a string with a position
+      // ParserReply contains the updated state and the result of the parser
+      // operation depending on if the operation was successful
+      public delegate ParserReply<TValue> Function (ParserState state);
+
       public readonly Function Execute;
 
-      public delegate ParserReply<TValue> Function (ParserState state);
-      
       public Parser (Function function)
       {
          if (function == null)
