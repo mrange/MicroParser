@@ -11,6 +11,9 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
+   using System;
+   using System.Linq;
+
    using Internal;
 
    sealed partial class CharSatisfy
@@ -39,9 +42,78 @@ namespace MicroParser
       {
          return new
                    {
-                      Expected,
+                      ErrorMessage,
                    }.ToString ();
       }
 #endif
+
+      public static readonly CharSatisfy AnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      public static readonly CharSatisfy WhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => Char.IsWhiteSpace (c));
+      public static readonly CharSatisfy Digit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => Char.IsDigit (c));
+      public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
+
+      public static readonly CharSatisfy LineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
+                                                                                                                            {
+                                                                                                                               switch (c)
+                                                                                                                               {
+                                                                                                                                  case '\r':
+                                                                                                                                  case '\n':
+                                                                                                                                     return true;
+                                                                                                                                  default:
+                                                                                                                                     return false;
+                                                                                                                               }
+                                                                                                                            });
+
+      public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
+      public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
+
+      static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
+         string match,
+         Func<char, IParserErrorMessage> action,
+         bool matchResult)
+      {
+         var matchArray = (match ?? Strings.Empty).ToArray ();
+
+         var expected = matchArray
+            .Select (action)
+            .ToArray ()
+            ;
+
+         var group = new ParserErrorMessage_Group (expected);
+
+         return new CharSatisfy (
+            group,
+            (c, i) =>
+               {
+                  foreach (var ch in matchArray)
+                  {
+                     if (ch == c)
+                     {
+                        return matchResult;
+                     }
+                  }
+
+                  return !matchResult;
+               }
+            );
+      }
+
+      public static CharSatisfy CreateSatisfyForAnyOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            true
+            );
+      }
+
+      public static CharSatisfy CreateSatisfyForNoneOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            false
+            );
+      }
    }
 }

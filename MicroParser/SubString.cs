@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-
 namespace MicroParser
 {
    using System;
    using System.Diagnostics;
+   using System.Text;
 
    partial struct SubString : IEquatable<SubString>
    {
@@ -141,6 +141,35 @@ namespace MicroParser
          }
 
          return result;
+      }
+
+      public static string Combine (params SubString[] subStrings)
+      {
+         var accLength = 0;
+
+         foreach (var subString in subStrings)
+         {
+            accLength += subString.EffectiveLength;
+         }
+
+         var charArray = new char[accLength];
+
+         var index = 0;
+
+         foreach (var subString in subStrings)
+         {
+            var begin = subString.Begin;
+            var end = subString.End;
+            var value = subString.SafeValue;
+
+            for (var iter = subString.Begin; iter < end; ++iter)
+            {
+               charArray[index] = value[iter];
+               ++index;
+            }
+         }
+
+         return new string (charArray);
       }
    }
 }
