@@ -48,14 +48,14 @@ namespace Bindings
 
          var p_identifier = CharParser
             .ManyCharSatisfy2 (
-               CharParser.SatisyLetter,
-               CharParser.SatisyLetterOrDigit,
+               CharSatisfy.Letter,
+               CharSatisfy.LetterOrDigit,
                1);
 
-         Func<char, VariableModifier> charToModifier =
+         Func<SubString, VariableModifier> charToModifier =
             ch =>
                {
-                  switch (ch)
+                  switch (ch[0])
                   {
                      case '#':
                         return VariableModifier.ElementName;
@@ -66,7 +66,9 @@ namespace Bindings
                   }
                };
 
-         var p_modifier = CharParser.AnyOf ("#^").Map (charToModifier);
+         Func<string, Parser<SubString>> p_op = ops => CharParser.AnyOf (ops, minCount: 1, maxCount: 1);
+
+         var p_modifier = p_op ("#^").Map (charToModifier);
 
          var p_variable =
             Parser.Group (
@@ -76,10 +78,10 @@ namespace Bindings
                .KeepLeft (p_spaces)
                .Map (tuple => new Ast_Variable (tuple.Item1, tuple.Item2, tuple.Item3) as IAst);
 
-         Func<char, BinaryOp> charToBinOp =
+         Func<SubString, BinaryOp> charToBinOp =
             ch =>
                {
-                  switch (ch)
+                  switch (ch[0])
                   {
                      case '+':
                         return BinaryOp.Add;
@@ -98,9 +100,9 @@ namespace Bindings
                   }
                };
 
-         var p_addOp = CharParser.AnyOf ("+-").KeepLeft (p_spaces).Map (charToBinOp);
-         var p_mulOp = CharParser.AnyOf ("*/").KeepLeft (p_spaces).Map (charToBinOp);
-         var p_maxOp = CharParser.AnyOf ("!?").KeepLeft (p_spaces).Map (charToBinOp);
+         var p_addOp = p_op ("+-").KeepLeft (p_spaces).Map (charToBinOp);
+         var p_mulOp = p_op ("*/").KeepLeft (p_spaces).Map (charToBinOp);
+         var p_maxOp = p_op ("!?").KeepLeft (p_spaces).Map (charToBinOp);
 
          var p_ast_redirect = Parser.Redirect<IAst> ();
 

@@ -66,37 +66,36 @@ namespace TestMicroParser
       {
          Func<char, Parser<Empty>> p_char = CharParser.SkipChar;
 
-         var p_escape = CharParser
-            .AnyOf ("\"\\/bfnrt")
-            .Map (ch =>
-            {
-               switch (ch)
-               {
-                  case 'b':
-                     return '\b';
-                  case 'f':
-                     return '\f';
-                  case 'n':
-                     return '\n';
-                  case 'r':
-                     return '\r';
-                  case 't':
-                     return '\t';
-                  default:
-                     return ch;
-               }
-            });
+         const string simpleEscape = "\"\\/bfnrt";
+         const string simpleEscapeMap = "\"\\/\b\f\n\r\t";
+
+         var p_simpleEscape = CharParser
+            .AnyOf (simpleEscape, minCount: 1, maxCount: 1)
+            .Map (ch => new SubString (simpleEscapeMap, simpleEscape.IndexOf (ch[0]), 1));
+
+         var p_unicodeEscape =
+            CharParser.SkipChar ('u')
+            .KeepRight (
+               CharParser
+               .Hex (minCount: 4, maxCount: 4)
+               .Map (ui => new SubString (new string ((char)ui, 1)))
+               );
+
+         var p_escape = Parser.Choice (
+            p_simpleEscape,
+            p_unicodeEscape
+            );
 
          var p_string = Parser
             .Choice (
-               CharParser.NoneOf ("\\\""),
+               CharParser.NoneOf ("\\\"", minCount: 1),
                CharParser.SkipChar ('\\').KeepRight (p_escape))
             .Many ()
             .Between (
                p_char ('"'),
                p_char ('"')
                )
-            .Map (cs => new string (cs));
+            .Map (subStrings => SubString.Combine (subStrings) as object);
 
          {
             var parserResult = Parser.Parse (p_string, "\"\"");

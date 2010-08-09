@@ -40,9 +40,9 @@ namespace SampleParsers
 
             var p_identifier = CharParser
                .ManyCharSatisfy2 (              // Creates a string parser
-               CharParser.SatisyLetter,         // A test function applied to the 
+               CharSatisfy.Letter,              // A test function applied to the 
                                                 // first character
-               CharParser.SatisyLetterOrDigit,  // A test function applied to the
+               CharSatisfy.LetterOrDigit,       // A test function applied to the
                                                 // rest of the characters
                minCount: 1                      // We require the identifier to be 
                                                 // at least 1 character long
@@ -74,8 +74,8 @@ namespace SampleParsers
             var p_value = CharParser.Double ().Map (d => (Expression) Expression.Constant (d));
             var p_variable = CharParser
                .ManyCharSatisfy2 (
-                  CharParser.SatisyLetter,
-                  CharParser.SatisyLetterOrDigit,
+                  CharSatisfy.Letter,
+                  CharSatisfy.LetterOrDigit,
                   minCount: 1
                )
                .Map (identifier => (Expression) Expression.Call (
@@ -101,7 +101,7 @@ namespace SampleParsers
             // in the ops parameter
             Func<Parser<Expression>, string, Parser<Expression>> p_level =
                (parser, ops) => parser.Chain (
-                  CharParser.AnyOf (ops).KeepLeft (p_spaces),
+                  CharParser.AnyOf (ops, minCount:1, maxCount:1).KeepLeft (p_spaces),
                   (left, op, right) => 
                      Expression.MakeBinary (OperatorToExpressionType (op), left, right)
                   );
@@ -165,9 +165,9 @@ namespace SampleParsers
       }
 
 
-      static ExpressionType OperatorToExpressionType (char op)
+      static ExpressionType OperatorToExpressionType (SubString op)
       {
-         switch (op)
+         switch (op[0])
          {
             case '+':
                return ExpressionType.Add;

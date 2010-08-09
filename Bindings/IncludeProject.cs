@@ -39,7 +39,7 @@ namespace MicroParser
 
       public static Parser<Empty> SkipAnyOf (string skipAnyOfThese)
       {
-         var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
+         var sat = CharSatisfy.CreateSatisfyForAnyOf (skipAnyOfThese);
          return SkipSatisfy (
             sat,
             maxCount:1
@@ -48,7 +48,7 @@ namespace MicroParser
 
       public static Parser<Empty> SkipNoneOf (string skipNoneOfThese)
       {
-         var sat = CreateSatisfyForNoneOf (skipNoneOfThese);
+         var sat = CharSatisfy.CreateSatisfyForNoneOf (skipNoneOfThese);
          return SkipSatisfy (
             sat,
             maxCount: 1
@@ -76,7 +76,7 @@ namespace MicroParser
          int maxCount = int.MaxValue
          )
       {
-         return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
+         return SkipSatisfy (CharSatisfy.WhiteSpace, minCount, maxCount);
       }
 
       public static Parser<Empty> SkipNewLine (
@@ -86,91 +86,28 @@ namespace MicroParser
             .KeepRight (SkipChar ('\n'));
       }
 
-      public static Parser<char> AnyOf (
-         string match
-         )
-      {
-         var satisfy = CreateSatisfyForAnyOf (match);
-
-         return CharSatisfy (satisfy);
-      }
-
-      public static Parser<char> NoneOf (
-         string match
-         )
-      {
-         var satisfy = CreateSatisfyForNoneOf (match);
-
-         return CharSatisfy (satisfy);
-      }
-
-      static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
+      public static Parser<SubString> AnyOf (
          string match,
-         Func<char, IParserErrorMessage> action,
-         bool matchResult)
-      {
-         var matchArray = (match ?? Strings.Empty).ToArray ();
-
-         var expected = matchArray
-            .Select (action)
-            .ToArray ()
-            ;
-
-         var group = new ParserErrorMessage_Group (expected);
-
-         return new CharSatisfy (
-            group,
-            (c, i) =>
-            {
-               foreach (var ch in matchArray)
-               {
-                  if (ch == c)
-                  {
-                     return matchResult;
-                  }
-               }
-
-               return !matchResult;
-            }
-            );
-      }
-
-      static CharSatisfy CreateSatisfyForAnyOf (string match)
-      {
-         return CreateSatisfyForAnyOfOrNoneOf (
-            match,
-            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (x)),
-            true
-            );
-      }
-
-      static CharSatisfy CreateSatisfyForNoneOf (string match)
-      {
-         return CreateSatisfyForAnyOfOrNoneOf (
-            match,
-            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.Form (x)),
-            false
-            );
-      }
-
-      public static Parser<char> CharSatisfy (
-         CharSatisfy satisfy
+         int minCount = 0,
+         int maxCount = int.MaxValue
          )
       {
-         Parser<char>.Function function = state =>
-         {
-            var subString = new SubString ();
-            var advanceResult = state.Advance (ref subString, satisfy.Satisfy, 1, 1);
+         var satisfy = CharSatisfy.CreateSatisfyForAnyOf (match);
 
-            return ParserReply.Create (
-               advanceResult,
-               state,
-               satisfy.ErrorMessage,
-               subString[0]
-               );
-         };
-         return function;
+         return ManyCharSatisfy (satisfy, minCount, maxCount);
       }
+
+      public static Parser<SubString> NoneOf (
+         string match,
+         int minCount = 0,
+         int maxCount = int.MaxValue
+         )
+      {
+         var satisfy = CharSatisfy.CreateSatisfyForNoneOf (match);
+
+         return ManyCharSatisfy (satisfy, minCount, maxCount);
+      }
+
 
       public static Parser<SubString> ManyCharSatisfy (
          CharSatisfy satisfy,
@@ -386,7 +323,7 @@ namespace MicroParser
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
-         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Group (AnyOf ("+-").Opt (), UInt ()));
+         var expParser = SkipAnyOf ("eE").KeepRight (Parser.Group (AnyOf ("+-", maxCount:1), UInt ()));
 
          var doubleParser = Parser.Group (
             intParser,
@@ -427,7 +364,7 @@ namespace MicroParser
                var modifier = value.Item3.Value.Item1;
 
                var multiplier = 
-                  modifier.HasValue && modifier.Value == '-'
+                  modifier[0] == '-'
                   ?  -1.0
                   :  1.0
                   ;
@@ -468,25 +405,6 @@ namespace MicroParser
             (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
             );
       }
-
-      public static readonly CharSatisfy SatisyAnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
-      public static readonly CharSatisfy SatisyWhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => char.IsWhiteSpace (c));
-      public static readonly CharSatisfy SatisyDigit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => char.IsDigit (c));
-      public static readonly CharSatisfy SatisyLetter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => char.IsLetter (c));
-      public static readonly CharSatisfy SatisyLineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
-         {
-            switch (c)
-            {
-               case '\r':
-               case '\n':
-                  return true;
-               default:
-                  return false;
-            }
-         });
-
-      public static readonly CharSatisfy SatisyLineBreakOrWhiteSpace  = SatisyLineBreak.Or (SatisyWhiteSpace);
-      public static readonly CharSatisfy SatisyLetterOrDigit          = SatisyLetter.Or (SatisyDigit);
    }
 }
 // ----------------------------------------------------------------------------------------------
@@ -502,6 +420,9 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
+   using System;
+   using System.Linq;
+
    using Internal;
 
    sealed partial class CharSatisfy
@@ -530,10 +451,79 @@ namespace MicroParser
       {
          return new
                    {
-                      Expected,
+                      ErrorMessage,
                    }.ToString ();
       }
 #endif
+
+      public static readonly CharSatisfy AnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      public static readonly CharSatisfy WhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => Char.IsWhiteSpace (c));
+      public static readonly CharSatisfy Digit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => Char.IsDigit (c));
+      public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
+
+      public static readonly CharSatisfy LineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
+                                                                                                                            {
+                                                                                                                               switch (c)
+                                                                                                                               {
+                                                                                                                                  case '\r':
+                                                                                                                                  case '\n':
+                                                                                                                                     return true;
+                                                                                                                                  default:
+                                                                                                                                     return false;
+                                                                                                                               }
+                                                                                                                            });
+
+      public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
+      public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
+
+      static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
+         string match,
+         Func<char, IParserErrorMessage> action,
+         bool matchResult)
+      {
+         var matchArray = (match ?? Strings.Empty).ToArray ();
+
+         var expected = matchArray
+            .Select (action)
+            .ToArray ()
+            ;
+
+         var group = new ParserErrorMessage_Group (expected);
+
+         return new CharSatisfy (
+            group,
+            (c, i) =>
+               {
+                  foreach (var ch in matchArray)
+                  {
+                     if (ch == c)
+                     {
+                        return matchResult;
+                     }
+                  }
+
+                  return !matchResult;
+               }
+            );
+      }
+
+      public static CharSatisfy CreateSatisfyForAnyOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            true
+            );
+      }
+
+      public static CharSatisfy CreateSatisfyForNoneOf (string match)
+      {
+         return CreateSatisfyForAnyOfOrNoneOf (
+            match,
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            false
+            );
+      }
    }
 }
 // ----------------------------------------------------------------------------------------------
@@ -879,10 +869,13 @@ namespace MicroParser
 
    partial class Parser<TValue>
    {
+      // ParserState is basically a string with a position
+      // ParserReply contains the updated state and the result of the parser
+      // operation depending on if the operation was successful
+      public delegate ParserReply<TValue> Function (ParserState state);
+
       public readonly Function Execute;
 
-      public delegate ParserReply<TValue> Function (ParserState state);
-      
       public Parser (Function function)
       {
          if (function == null)
@@ -2054,7 +2047,7 @@ namespace MicroParser
       {
          Debug.Assert (minCount <= maxCount);
 
-         var localSatisfy = satisfy ?? CharParser.SatisyAnyChar.Satisfy;
+         var localSatisfy = satisfy ?? CharSatisfy.AnyChar.Satisfy;
 
          subString.Value = m_text;
          subString.Position = m_position;
@@ -2213,11 +2206,11 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-
 namespace MicroParser
 {
    using System;
    using System.Diagnostics;
+   using System.Text;
 
    partial struct SubString : IEquatable<SubString>
    {
@@ -2345,6 +2338,35 @@ namespace MicroParser
          }
 
          return result;
+      }
+
+      public static string Combine (params SubString[] subStrings)
+      {
+         var accLength = 0;
+
+         foreach (var subString in subStrings)
+         {
+            accLength += subString.EffectiveLength;
+         }
+
+         var charArray = new char[accLength];
+
+         var index = 0;
+
+         foreach (var subString in subStrings)
+         {
+            var begin = subString.Begin;
+            var end = subString.End;
+            var value = subString.SafeValue;
+
+            for (var iter = subString.Begin; iter < end; ++iter)
+            {
+               charArray[index] = value[iter];
+               ++index;
+            }
+         }
+
+         return new string (charArray);
       }
    }
 }

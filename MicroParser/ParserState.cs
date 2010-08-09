@@ -94,7 +94,7 @@ namespace MicroParser
       {
          Debug.Assert (minCount <= maxCount);
 
-         var localSatisfy = satisfy ?? CharParser.SatisyAnyChar.Satisfy;
+         var localSatisfy = satisfy ?? CharSatisfy.AnyChar.Satisfy;
 
          subString.Value = m_text;
          subString.Position = m_position;
