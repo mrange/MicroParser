@@ -18,7 +18,7 @@ namespace MicroParser
 
    partial class Parser<TValue>
    {
-      readonly Function m_function;
+      public readonly Function Execute;
 
       public delegate ParserReply<TValue> Function (ParserState state);
       
@@ -29,17 +29,12 @@ namespace MicroParser
             throw new ArgumentNullException ("function");
          }
 
-         m_function = function;
+         Execute = function;
       }
 
       public static implicit operator Parser<TValue> (Function function)
       {
          return new Parser<TValue> (function);
-      }
-
-      public ParserReply<TValue> Execute (ParserState parserState)
-      {
-         return m_function (parserState);
       }
    }
 
