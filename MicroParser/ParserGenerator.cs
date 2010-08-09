@@ -17,22 +17,22 @@ namespace MicroParser
    using MicroParser.Internal;
 	partial class Parser
 	{
-      public static Parser<Tuple<TValue1, TValue2>>.Function Group<TValue1, TValue2> (
-            Parser<TValue1>.Function parser1
-         ,  Parser<TValue2>.Function parser2
+      public static Parser<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
+            Parser<TValue1> parser1
+         ,  Parser<TValue2> parser2
          )
       {
-         return state =>
+         Parser<Tuple<TValue1, TValue2>>.Function function = state =>
          {
             var initialPosition = state.Position;
 
-            var result1 = parser1 (state);
+            var result1 = parser1.Execute (state);
 
             if (result1.State.HasError ())
             {
                return result1.Failure<Tuple<TValue1, TValue2>>().VerifyConsistency (initialPosition);
             }
-            var result2 = parser2 (state);
+            var result2 = parser2.Execute (state);
 
             if (result2.State.HasError ())
             {
@@ -44,30 +44,31 @@ namespace MicroParser
                   ,  result2.Value
                   ));
          };
+         return function;
       }
-      public static Parser<Tuple<TValue1, TValue2, TValue3>>.Function Group<TValue1, TValue2, TValue3> (
-            Parser<TValue1>.Function parser1
-         ,  Parser<TValue2>.Function parser2
-         ,  Parser<TValue3>.Function parser3
+      public static Parser<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3> (
+            Parser<TValue1> parser1
+         ,  Parser<TValue2> parser2
+         ,  Parser<TValue3> parser3
          )
       {
-         return state =>
+         Parser<Tuple<TValue1, TValue2, TValue3>>.Function function = state =>
          {
             var initialPosition = state.Position;
 
-            var result1 = parser1 (state);
+            var result1 = parser1.Execute (state);
 
             if (result1.State.HasError ())
             {
                return result1.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency (initialPosition);
             }
-            var result2 = parser2 (state);
+            var result2 = parser2.Execute (state);
 
             if (result2.State.HasError ())
             {
                return result2.Failure<Tuple<TValue1, TValue2, TValue3>>().VerifyConsistency (initialPosition);
             }
-            var result3 = parser3 (state);
+            var result3 = parser3.Execute (state);
 
             if (result3.State.HasError ())
             {
@@ -80,6 +81,7 @@ namespace MicroParser
                   ,  result3.Value
                   ));
          };
+         return function;
       }
 
 

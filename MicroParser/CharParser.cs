@@ -17,12 +17,12 @@ namespace MicroParser
 
    static partial class CharParser
    {
-      public static Parser<Empty>.Function SkipChar (char toSkip)
+      public static Parser<Empty> SkipChar (char toSkip)
       {
          return SkipString (new string (toSkip, 1));
       }
 
-      public static Parser<Empty>.Function SkipString (string toSkip)
+      public static Parser<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
          var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
@@ -34,7 +34,7 @@ namespace MicroParser
             toSkipNotNull.Length);
       }
 
-      public static Parser<Empty>.Function SkipAnyOf (string skipAnyOfThese)
+      public static Parser<Empty> SkipAnyOf (string skipAnyOfThese)
       {
          var sat = CreateSatisfyForAnyOf (skipAnyOfThese);
          return SkipSatisfy (
@@ -43,7 +43,7 @@ namespace MicroParser
             );
       }
 
-      public static Parser<Empty>.Function SkipNoneOf (string skipNoneOfThese)
+      public static Parser<Empty> SkipNoneOf (string skipNoneOfThese)
       {
          var sat = CreateSatisfyForNoneOf (skipNoneOfThese);
          return SkipSatisfy (
@@ -52,7 +52,7 @@ namespace MicroParser
             );
       }
 
-      public static Parser<Empty>.Function SkipSatisfy (
+      public static Parser<Empty> SkipSatisfy (
          CharSatisfy charSatisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -60,14 +60,15 @@ namespace MicroParser
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         return state =>
+         Parser<Empty>.Function function = state =>
          {
             var advanceResult = state.SkipAdvance (charSatisfy.Satisfy, minCount, maxCount);
             return ParserReply.Create (advanceResult, state, charSatisfy.ErrorMessage, Empty.Value);
          };
+         return function;
       }
 
-      public static Parser<Empty>.Function SkipWhiteSpace (
+      public static Parser<Empty> SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -75,14 +76,14 @@ namespace MicroParser
          return SkipSatisfy (SatisyWhiteSpace, minCount, maxCount);
       }
 
-      public static Parser<Empty>.Function SkipNewLine (
+      public static Parser<Empty> SkipNewLine (
          )
       {
          return SkipChar ('\r').Opt ()
             .KeepRight (SkipChar ('\n'));
       }
 
-      public static Parser<char>.Function AnyOf (
+      public static Parser<char> AnyOf (
          string match
          )
       {
@@ -91,7 +92,7 @@ namespace MicroParser
          return CharSatisfy (satisfy);
       }
 
-      public static Parser<char>.Function NoneOf (
+      public static Parser<char> NoneOf (
          string match
          )
       {
@@ -149,11 +150,11 @@ namespace MicroParser
             );
       }
 
-      public static Parser<char>.Function CharSatisfy (
+      public static Parser<char> CharSatisfy (
          CharSatisfy satisfy
          )
       {
-         return state =>
+         Parser<char>.Function function = state =>
          {
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy.Satisfy, 1, 1);
@@ -165,9 +166,10 @@ namespace MicroParser
                subString[0]
                );
          };
+         return function;
       }
 
-      public static Parser<SubString>.Function ManyCharSatisfy (
+      public static Parser<SubString> ManyCharSatisfy (
          CharSatisfy satisfy,
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -175,7 +177,7 @@ namespace MicroParser
       {
          Parser.VerifyMinAndMaxCount (minCount, maxCount);
 
-         return state =>
+         Parser<SubString>.Function function = state =>
          {
             var subString = new SubString ();
             var advanceResult = state.Advance (ref subString, satisfy.Satisfy, minCount, maxCount);
@@ -187,9 +189,10 @@ namespace MicroParser
                subString
                );
          };
+         return function;
       }
 
-      public static Parser<SubString>.Function ManyCharSatisfy2 (
+      public static Parser<SubString> ManyCharSatisfy2 (
          CharSatisfy satisfyFirst,
          CharSatisfy satisfyRest,
          int minCount = 0,
@@ -203,7 +206,7 @@ namespace MicroParser
 
          CharSatisfy.Function satisfy = (c, i) => i == 0 ? first (c, i) : rest (c, i);
 
-         return state =>
+         Parser<SubString>.Function function = state =>
          {
             var subString = new SubString ();
 
@@ -221,6 +224,7 @@ namespace MicroParser
                subString
                );
          };
+         return function;
       }
 
       partial struct UIntResult
@@ -229,7 +233,7 @@ namespace MicroParser
          public int ConsumedCharacters;
       }
 
-      static Parser<UIntResult>.Function UIntImpl (
+      static Parser<UIntResult> UIntImpl (
          int minCount = 1,
          int maxCount = 10
          )
@@ -238,7 +242,7 @@ namespace MicroParser
 
          CharSatisfy.Function satisfy = (c, i) => char.IsDigit (c);
 
-         return state =>
+         Parser<UIntResult>.Function function = state =>
          {
             var subString = new SubString ();
 
@@ -271,6 +275,7 @@ namespace MicroParser
                   }
                );
          };
+         return function;
       }
 
       static uint? CharToHex (char ch)
@@ -293,7 +298,7 @@ namespace MicroParser
          }
       }
 
-      public static Parser<uint>.Function Hex (
+      public static Parser<uint> Hex (
          int minCount = 1,
          int maxCount = 10
          )
@@ -302,7 +307,7 @@ namespace MicroParser
 
          CharSatisfy.Function satisfy = (c, i) => CharToHex (c) != null;
 
-         return state =>
+         Parser<uint>.Function function = state =>
          {
             var subString = new SubString ();
 
@@ -326,18 +331,19 @@ namespace MicroParser
                }
                );
          };
+         return function;
       }
 
-      public static Parser<uint>.Function UInt (
+      public static Parser<uint> UInt (
          int minCount = 1,
          int maxCount = 10
          )
       {
          var uintParser = UIntImpl (minCount, maxCount);
 
-         return state =>
+         Parser<uint>.Function function = state =>
          {
-            var uintResult = uintParser (state);
+            var uintResult = uintParser.Execute (state);
 
             if (uintResult.State.HasError ())
             {
@@ -346,9 +352,10 @@ namespace MicroParser
 
             return uintResult.Success (uintResult.Value.Value);
          };
+         return function;
       }
 
-      public static Parser<int>.Function Int (
+      public static Parser<int> Int (
          )
       {
          var intParser = Parser.Group (
@@ -356,9 +363,9 @@ namespace MicroParser
             UInt ()
             );
 
-         return state =>
+         Parser<int>.Function function = state =>
          {
-            var intResult = intParser (state);
+            var intResult = intParser.Execute (state);
 
             if (intResult.State.HasError ())
             {
@@ -369,9 +376,10 @@ namespace MicroParser
 
             return intResult.Success (intResult.Value.Item1.HasValue ? -intValue : intValue);
          };
+         return function;
       }
 
-      public static Parser<double>.Function Double ()
+      public static Parser<double> Double ()
       {
          var intParser = Int ();
          var fracParser = SkipChar ('.').KeepRight (UIntImpl ());
@@ -383,9 +391,9 @@ namespace MicroParser
             expParser.Opt ()
             );
 
-         return state =>
+         Parser<double>.Function function = state =>
          {
-            var doubleResult = doubleParser (state);
+            var doubleResult = doubleParser.Execute (state);
 
             if (doubleResult.State.HasError ())
             {
@@ -426,6 +434,7 @@ namespace MicroParser
 
             return doubleResult.Success (doubleValue);
          };
+         return function;
       }
 
       // CharSatisfy

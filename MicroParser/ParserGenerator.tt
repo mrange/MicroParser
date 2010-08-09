@@ -26,19 +26,19 @@ namespace MicroParser
    {
       var typeSpec = BuildTypeSpec (iter);
 #>
-      public static Parser<Tuple<<#=typeSpec#>>>.Function Group<<#=typeSpec#>> (
-            Parser<TValue1>.Function parser1
+      public static Parser<Tuple<<#=typeSpec#>>> Group<<#=typeSpec#>> (
+            Parser<TValue1> parser1
 <#
       for (var inner = 1; inner < iter; ++inner)
       {
 #>
-         ,  Parser<TValue<#=inner + 1#>>.Function parser<#=inner + 1#>
+         ,  Parser<TValue<#=inner + 1#>> parser<#=inner + 1#>
 <#
       }
 #>
          )
       {
-         return state =>
+         Parser<Tuple<<#=typeSpec#>>>.Function function = state =>
          {
             var initialPosition = state.Position;
 
@@ -46,7 +46,7 @@ namespace MicroParser
       for (var inner = 0; inner < iter; ++inner)
       {
 #>
-            var result<#=inner + 1#> = parser<#=inner + 1#> (state);
+            var result<#=inner + 1#> = parser<#=inner + 1#>.Execute (state);
 
             if (result<#=inner + 1#>.State.HasError ())
             {
@@ -68,6 +68,7 @@ namespace MicroParser
 #>
                   ));
          };
+         return function;
       }
 <#
    }
