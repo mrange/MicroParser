@@ -178,6 +178,11 @@ namespace MicroParser
 
       public static ParserState Clone (ParserState parserState)
       {
+         if (parserState == null)
+         {
+            return null;
+         }
+
          return new ParserState (
             parserState.m_position, 
             parserState.m_text, 

@@ -235,6 +235,7 @@ namespace MicroParser
          }
       }
 
+      [CLSCompliant (false)]
       public static Parser<uint> Hex (
          int minCount = 1,
          int maxCount = 10
@@ -271,7 +272,8 @@ namespace MicroParser
          return function;
       }
 
-      public static Parser<uint> UInt (
+      [CLSCompliant(false)]
+      public static Parser<uint> UInt(
          int minCount = 1,
          int maxCount = 10
          )
