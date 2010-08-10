@@ -17,11 +17,14 @@ namespace MicroParser
 
    static partial class CharParser
    {
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_CHAR
       public static Parser<Empty> SkipChar (char toSkip)
       {
          return SkipString (new string (toSkip, 1));
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_STRING
       public static Parser<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
@@ -33,7 +36,9 @@ namespace MicroParser
             toSkipNotNull.Length,
             toSkipNotNull.Length);
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_ANY_OF
       public static Parser<Empty> SkipAnyOf (string skipAnyOfThese)
       {
          var sat = CharSatisfy.CreateSatisfyForAnyOf (skipAnyOfThese);
@@ -42,7 +47,9 @@ namespace MicroParser
             maxCount:1
             );
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NONE_OF
       public static Parser<Empty> SkipNoneOf (string skipNoneOfThese)
       {
          var sat = CharSatisfy.CreateSatisfyForNoneOf (skipNoneOfThese);
@@ -51,7 +58,9 @@ namespace MicroParser
             maxCount: 1
             );
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_SATISFY
       public static Parser<Empty> SkipSatisfy (
          CharSatisfy charSatisfy,
          int minCount = 0,
@@ -67,7 +76,9 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_WHITE_SPACE
       public static Parser<Empty> SkipWhiteSpace (
          int minCount = 0,
          int maxCount = int.MaxValue
@@ -75,14 +86,18 @@ namespace MicroParser
       {
          return SkipSatisfy (CharSatisfy.WhiteSpace, minCount, maxCount);
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
       public static Parser<Empty> SkipNewLine (
          )
       {
          return SkipChar ('\r').Opt ()
             .KeepRight (SkipChar ('\n'));
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_ANY_OF
       public static Parser<SubString> AnyOf (
          string match,
          int minCount = 0,
@@ -93,7 +108,9 @@ namespace MicroParser
 
          return ManyCharSatisfy (satisfy, minCount, maxCount);
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_NONE_OF
       public static Parser<SubString> NoneOf (
          string match,
          int minCount = 0,
@@ -104,8 +121,9 @@ namespace MicroParser
 
          return ManyCharSatisfy (satisfy, minCount, maxCount);
       }
+#endif
 
-
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY
       public static Parser<SubString> ManyCharSatisfy (
          CharSatisfy satisfy,
          int minCount = 0,
@@ -128,7 +146,9 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
       public static Parser<SubString> ManyCharSatisfy2 (
          CharSatisfy satisfyFirst,
          CharSatisfy satisfyRest,
@@ -163,6 +183,7 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
       partial struct UIntResult
       {
@@ -215,6 +236,7 @@ namespace MicroParser
          return function;
       }
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_HEX
       static uint? CharToHex (char ch)
       {
          if ('0' <= ch && ch <= '9')
@@ -271,9 +293,11 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
-      [CLSCompliant(false)]
-      public static Parser<uint> UInt(
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_UINT
+      [CLSCompliant (false)]
+      public static Parser<uint> UInt (
          int minCount = 1,
          int maxCount = 10
          )
@@ -293,7 +317,9 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_INT
       public static Parser<int> Int (
          )
       {
@@ -317,7 +343,9 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_DOUBLE
       public static Parser<double> Double ()
       {
          var intParser = Int ();
@@ -375,34 +403,6 @@ namespace MicroParser
          };
          return function;
       }
-
-      // CharSatisfy
-
-      public static CharSatisfy Or (this CharSatisfy first, CharSatisfy second)
-      {
-         return new CharSatisfy (
-            first.ErrorMessage.Append (second.ErrorMessage),
-            (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
-            );
-      }
-
-      static IParserErrorMessage ExpectedToUnexpected (
-         IParserErrorMessage parserErrorMessage
-         )
-      {
-         var parserErrorMessageExpected = parserErrorMessage as ParserErrorMessage_Expected;
-         return parserErrorMessageExpected != null 
-            ?  new ParserErrorMessage_Unexpected (parserErrorMessageExpected.Expected) 
-            :  parserErrorMessage
-            ;
-      }
-
-      public static CharSatisfy Except (this CharSatisfy first, CharSatisfy second)
-      {
-         return new CharSatisfy (
-            first.ErrorMessage.Append (ExpectedToUnexpected (second.ErrorMessage)), 
-            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
-            );
-      }
+#endif
    }
 }

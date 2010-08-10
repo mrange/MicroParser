@@ -9,7 +9,6 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-
 <#
    const int MinCount = 2;
    const int MaxCount = 3;
@@ -26,6 +25,7 @@ namespace MicroParser
    {
       var typeSpec = BuildTypeSpec (iter);
 #>
+#if !MICRO_PARSER_SUPPRESS_PARSER_GROUP_<#=iter#>
       public static Parser<Tuple<<#=typeSpec#>>> Group<<#=typeSpec#>> (
             Parser<TValue1> parser1
 <#
@@ -70,6 +70,7 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 <#
    }
 #>

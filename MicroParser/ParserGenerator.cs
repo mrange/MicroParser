@@ -10,13 +10,13 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
-
 namespace MicroParser
 {
    using System;
    using MicroParser.Internal;
 	partial class Parser
 	{
+#if !MICRO_PARSER_SUPPRESS_PARSER_GROUP_2
       public static Parser<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
             Parser<TValue1> parser1
          ,  Parser<TValue2> parser2
@@ -46,6 +46,8 @@ namespace MicroParser
          };
          return function;
       }
+#endif
+#if !MICRO_PARSER_SUPPRESS_PARSER_GROUP_3
       public static Parser<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3> (
             Parser<TValue1> parser1
          ,  Parser<TValue2> parser2
@@ -83,6 +85,7 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
 
    }
