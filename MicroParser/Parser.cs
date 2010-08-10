@@ -16,7 +16,7 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-   partial class Parser<TValue>
+   sealed partial class Parser<TValue>
    {
       // ParserState is basically a string with a position
       // ParserReply contains the updated state and the result of the parser

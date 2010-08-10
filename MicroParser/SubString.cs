@@ -28,14 +28,8 @@ namespace MicroParser
          Length = length;
       }
 
-      public SubString (string value, int position)
+      public SubString (string value, int position = 0)
          :  this (value, position, (value ?? Strings.Empty).Length - position)
-      {
-
-      }
-
-      public SubString (string value)
-         : this (value, 0, (value ?? Strings.Empty).Length)
       {
 
       }
