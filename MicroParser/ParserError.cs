@@ -1,5 +1,5 @@
-ï»¿// ----------------------------------------------------------------------------------------------
-// Copyright (c) MÃ¥rten RÃ¥nge.
+// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
 // ----------------------------------------------------------------------------------------------
 // This source code is subject to terms and conditions of the Microsoft Public License. A 
 // copy of the license can be found in the License.html file at the root of this distribution. 
@@ -59,7 +59,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Message_1.Form (Message);
+         return Strings.ParserErrorMessages.Message_1.FormatString (Message);
       }
 
       public override string Description
@@ -84,7 +84,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Expected_1.Form (Expected);
+         return Strings.ParserErrorMessages.Expected_1.FormatString (Expected);
       }
 
       public override string Description
@@ -109,7 +109,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Unexpected_1.Form (Unexpected);
+         return Strings.ParserErrorMessages.Unexpected_1.FormatString (Unexpected);
       }
 
       public override string Description
@@ -134,7 +134,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Group_1.Form (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
+         return Strings.ParserErrorMessages.Group_1.FormatString (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description
