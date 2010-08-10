@@ -33,7 +33,12 @@ namespace MicroParser
       
    }
 
-   public static partial class Tuple
+   public partial class Extensions
+   {
+      
+   }
+
+   public partial class Tuple
    {
       
    }
@@ -48,7 +53,7 @@ namespace MicroParser
 
    }
 
-   public static partial class Optional
+   public partial class Optional
    {
 
    }
@@ -73,7 +78,7 @@ namespace MicroParser
 
    }
 
-   public static partial class ParserReply
+   public partial class ParserReply
    {
 
    }
