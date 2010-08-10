@@ -43,6 +43,7 @@
     <Compile Include="CharParser.cs" />
     <Compile Include="CharSatisfy.cs" />
     <Compile Include="Empty.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Internal\Extensions.cs" />
     <Compile Include="MakePublic.cs" />
     <Compile Include="Optional.cs" />

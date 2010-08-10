@@ -69,6 +69,14 @@ namespace MicroParser
          }
       }
 
+      public string Text
+      {
+         get
+         {
+            return m_text;
+         }
+      }
+
       public ParserStatePosition Position
       {
          get
