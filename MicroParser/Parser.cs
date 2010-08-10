@@ -63,7 +63,7 @@ namespace MicroParser
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
                .Select (messages =>
-                        Strings.Parser.ErrorMessage_2.Form (
+                        Strings.Parser.ErrorMessage_2.FormatString (
                            messages.Key,
                            messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
                            ))
@@ -75,7 +75,7 @@ namespace MicroParser
                   );
 
             var completeErrorResult =
-               "Pos: {0} ('{1}') - {2}".Form (
+               "Pos: {0} ('{1}') - {2}".FormatString (
                   subString.Position,
                   subString[0],
                   errorResult

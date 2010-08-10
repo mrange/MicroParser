@@ -21,7 +21,7 @@ namespace MicroParser.Internal
 
       // System.String
 
-      public static string Form (this string format, params object[] args)
+      public static string FormatString (this string format, params object[] args)
       {
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }

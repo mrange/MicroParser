@@ -51,7 +51,7 @@ namespace MicroParser
       public static Parser<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
          CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
@@ -457,7 +457,7 @@ namespace MicroParser
       public static implicit operator CharSatisfy (char ch)
       {
          return new CharSatisfy (
-            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (ch)), 
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch)), 
             (c, i) => ch == c
             );
       }
@@ -535,7 +535,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
             true
             );
       }
@@ -544,7 +544,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.Form (x)),
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
             false
             );
       }
@@ -719,7 +719,7 @@ namespace MicroParser.Internal
 
       // System.String
 
-      public static string Form (this string format, params object[] args)
+      public static string FormatString (this string format, params object[] args)
       {
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
@@ -988,7 +988,7 @@ namespace MicroParser
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
                .Select (messages =>
-                        Strings.Parser.ErrorMessage_2.Form (
+                        Strings.Parser.ErrorMessage_2.FormatString (
                            messages.Key,
                            messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
                            ))
@@ -1000,7 +1000,7 @@ namespace MicroParser
                   );
 
             var completeErrorResult =
-               "Pos: {0} ('{1}') - {2}".Form (
+               "Pos: {0} ('{1}') - {2}".FormatString (
                   subString.Position,
                   subString[0],
                   errorResult
@@ -1513,7 +1513,7 @@ namespace MicroParser
    }
 }
 // ----------------------------------------------------------------------------------------------
-// Copyright (c) Mårten Rånge.
+// Copyright (c) M�rten R�nge.
 // ----------------------------------------------------------------------------------------------
 // This source code is subject to terms and conditions of the Microsoft Public License. A 
 // copy of the license can be found in the License.html file at the root of this distribution. 
@@ -1573,7 +1573,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Message_1.Form (Message);
+         return Strings.ParserErrorMessages.Message_1.FormatString (Message);
       }
 
       public override string Description
@@ -1598,7 +1598,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Expected_1.Form (Expected);
+         return Strings.ParserErrorMessages.Expected_1.FormatString (Expected);
       }
 
       public override string Description
@@ -1623,7 +1623,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Unexpected_1.Form (Unexpected);
+         return Strings.ParserErrorMessages.Unexpected_1.FormatString (Unexpected);
       }
 
       public override string Description
@@ -1648,7 +1648,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Group_1.Form (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
+         return Strings.ParserErrorMessages.Group_1.FormatString (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description
@@ -1707,6 +1707,7 @@ namespace MicroParser
    using MicroParser.Internal;
 	partial class Parser
 	{
+#if !MICRO_PARSER_SUPPRESS_PARSER_GROUP_2
       public static Parser<Tuple<TValue1, TValue2>> Group<TValue1, TValue2> (
             Parser<TValue1> parser1
          ,  Parser<TValue2> parser2
@@ -1736,6 +1737,8 @@ namespace MicroParser
          };
          return function;
       }
+#endif
+#if !MICRO_PARSER_SUPPRESS_PARSER_GROUP_3
       public static Parser<Tuple<TValue1, TValue2, TValue3>> Group<TValue1, TValue2, TValue3> (
             Parser<TValue1> parser1
          ,  Parser<TValue2> parser2
@@ -1773,6 +1776,7 @@ namespace MicroParser
          };
          return function;
       }
+#endif
 
 
    }

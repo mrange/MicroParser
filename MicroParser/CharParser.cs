@@ -28,7 +28,7 @@ namespace MicroParser
       public static Parser<Empty> SkipString (string toSkip)
       {
          var toSkipNotNull = toSkip ?? string.Empty;
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.Form (toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
          CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
