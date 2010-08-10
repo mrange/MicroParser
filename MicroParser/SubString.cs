@@ -29,13 +29,13 @@ namespace MicroParser
       }
 
       public SubString (string value, int position)
-         :  this (value, position, (value ?? "").Length - position)
+         :  this (value, position, (value ?? Strings.Empty).Length - position)
       {
 
       }
 
       public SubString (string value)
-         : this (value, 0, (value ?? "").Length)
+         : this (value, 0, (value ?? Strings.Empty).Length)
       {
 
       }
@@ -68,7 +68,7 @@ namespace MicroParser
       {
          get
          {
-            return Value ?? "";
+            return Value ?? Strings.Empty;
          }
       }
 
@@ -120,6 +120,16 @@ namespace MicroParser
                :  ' '
                ;
          }
+      }
+
+      public static bool operator == (SubString left, SubString right)
+      {
+         return left.Equals (right);
+      }
+
+      public static bool operator != (SubString left, SubString right)
+      {
+         return !left.Equals (right);
       }
 
       public override bool Equals (object obj)

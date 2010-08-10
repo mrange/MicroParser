@@ -75,8 +75,8 @@ namespace MicroParser
          )
       {
          return advanceResult == ParserState.AdvanceResult.Successful
-            ? ParserReply<TValue>.Success (state, valueCreator ())
-            : CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
+            ?  ParserReply<TValue>.Success (state, valueCreator ())
+            :  CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
             ;
       }      
    }

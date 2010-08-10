@@ -238,6 +238,7 @@ namespace MicroParser
          }
       }
 
+      [CLSCompliant (false)]
       public static Parser<uint> Hex (
          int minCount = 1,
          int maxCount = 10
@@ -274,7 +275,8 @@ namespace MicroParser
          return function;
       }
 
-      public static Parser<uint> UInt (
+      [CLSCompliant(false)]
+      public static Parser<uint> UInt(
          int minCount = 1,
          int maxCount = 10
          )
@@ -741,7 +743,12 @@ namespace MicroParser
       
    }
 
-   public static partial class Tuple
+   public partial class Extensions
+   {
+      
+   }
+
+   public partial class Tuple
    {
       
    }
@@ -756,7 +763,7 @@ namespace MicroParser
 
    }
 
-   public static partial class Optional
+   public partial class Optional
    {
 
    }
@@ -781,7 +788,7 @@ namespace MicroParser
 
    }
 
-   public static partial class ParserReply
+   public partial class ParserReply
    {
 
    }
@@ -1766,8 +1773,8 @@ namespace MicroParser
          )
       {
          return advanceResult == ParserState.AdvanceResult.Successful
-            ? ParserReply<TValue>.Success (state, valueCreator ())
-            : CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
+            ?  ParserReply<TValue>.Success (state, valueCreator ())
+            :  CreateParserReplyFailure<TValue>(advanceResult, state, parserErrorMessage)
             ;
       }      
    }
@@ -2149,6 +2156,11 @@ namespace MicroParser
 
       public static ParserState Clone (ParserState parserState)
       {
+         if (parserState == null)
+         {
+            return null;
+         }
+
          return new ParserState (
             parserState.m_position, 
             parserState.m_text, 
@@ -2252,13 +2264,13 @@ namespace MicroParser
       }
 
       public SubString (string value, int position)
-         :  this (value, position, (value ?? "").Length - position)
+         :  this (value, position, (value ?? Strings.Empty).Length - position)
       {
 
       }
 
       public SubString (string value)
-         : this (value, 0, (value ?? "").Length)
+         : this (value, 0, (value ?? Strings.Empty).Length)
       {
 
       }
@@ -2291,7 +2303,7 @@ namespace MicroParser
       {
          get
          {
-            return Value ?? "";
+            return Value ?? Strings.Empty;
          }
       }
 
@@ -2343,6 +2355,16 @@ namespace MicroParser
                :  ' '
                ;
          }
+      }
+
+      public static bool operator == (SubString left, SubString right)
+      {
+         return left.Equals (right);
+      }
+
+      public static bool operator != (SubString left, SubString right)
+      {
+         return !left.Equals (right);
       }
 
       public override bool Equals (object obj)
