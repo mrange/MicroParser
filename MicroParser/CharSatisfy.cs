@@ -64,8 +64,10 @@ namespace MicroParser
                                                                                                                                }
                                                                                                                             });
 
+#if !MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
       public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
+#endif
 
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,

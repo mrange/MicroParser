@@ -86,5 +86,37 @@ namespace MicroParser
             );
       }
 
+      // CharSatisfy
+
+#if !MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
+      public static CharSatisfy Or (this CharSatisfy first, CharSatisfy second)
+      {
+         return new CharSatisfy (
+            first.ErrorMessage.Append (second.ErrorMessage),
+            (c, i) => first.Satisfy (c, i) || second.Satisfy (c, i)
+            );
+      }
+#endif
+
+#if !MICRO_PARSER_SUPPRESS_EXTENSIONS_EXCEPT
+      static IParserErrorMessage ExpectedToUnexpected (
+         IParserErrorMessage parserErrorMessage
+         )
+      {
+         var parserErrorMessageExpected = parserErrorMessage as ParserErrorMessage_Expected;
+         return parserErrorMessageExpected != null
+            ? new ParserErrorMessage_Unexpected (parserErrorMessageExpected.Expected)
+            : parserErrorMessage
+            ;
+      }
+
+      public static CharSatisfy Except (this CharSatisfy first, CharSatisfy second)
+      {
+         return new CharSatisfy (
+            first.ErrorMessage.Append (ExpectedToUnexpected (second.ErrorMessage)),
+            (c, i) => first.Satisfy (c, i) && !second.Satisfy (c, i)
+            );
+      }
+#endif
    }
 }
