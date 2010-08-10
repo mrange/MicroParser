@@ -670,11 +670,6 @@ namespace MicroParser.Internal
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
 
-      public static bool IsNullOrEmpty (this string str)
-      {
-         return string.IsNullOrEmpty (str);
-      }
-
       // IEnumerable<string>
 
       public static string Concatenate (
@@ -892,7 +887,7 @@ namespace MicroParser
    using System.Linq;
    using Internal;
 
-   partial class Parser<TValue>
+   sealed partial class Parser<TValue>
    {
       // ParserState is basically a string with a position
       // ParserReply contains the updated state and the result of the parser
@@ -2263,14 +2258,8 @@ namespace MicroParser
          Length = length;
       }
 
-      public SubString (string value, int position)
+      public SubString (string value, int position = 0)
          :  this (value, position, (value ?? Strings.Empty).Length - position)
-      {
-
-      }
-
-      public SubString (string value)
-         : this (value, 0, (value ?? Strings.Empty).Length)
       {
 
       }
