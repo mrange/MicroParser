@@ -443,12 +443,14 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+
 namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
    using System.Linq;
    using System.Linq.Expressions;
+   using System.Reflection.Emit;
 
    using Internal;
 
@@ -505,81 +507,51 @@ namespace MicroParser
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
 #endif
 
-// Only enable compiled expression in .NET 4 as the performance
-// in .NET 3.5 isn't on par with ordinary code
-#if MICRO_PARSER_NET4
       static Function CreateSatisfyFromString (
-         IEnumerable<char> s,
+         string str,
          bool matchResult
          )
       {
-         var parameter0 = Expression.Parameter (typeof (char), "ch");
-         var parameter1 = Expression.Parameter (typeof (int), "index");
-
-         Func<char, Expression> compareCreator;
-         Func<Expression, Expression, Expression> aggregator;
-         if (matchResult)
-         {
-            compareCreator = c => Expression.Equal (Expression.Constant (c), parameter0);
-            aggregator = (accu, value) => Expression.OrElse (value, accu);
-         }
-         else
-         {
-            compareCreator = c => Expression.NotEqual (Expression.Constant (c), parameter0);
-            aggregator = (accu, value) => Expression.AndAlso (value, accu);            
-         }
-         var comparisons = s
-            .Select (compareCreator)
-            .ToArray ();
-
-         var body = comparisons
-            .Skip (1)
-            .Aggregate (
-               comparisons[0],
-               aggregator
-               );
-
-         var lambda = Expression.Lambda<Function> (
-            body,
-            parameter0,
-            parameter1
+         var dm = new DynamicMethod (
+            "Dynamic_MicroParser_Satisfy_{0}_{1}_{2}".FormatString (matchResult, str, Guid.NewGuid ()),
+            typeof (bool),
+            new[] {typeof (char), typeof (int)}
             );
+         var ig = dm.GetILGenerator ();
 
-         return lambda.Compile ();
-      }
-#else
-      static Function CreateSatisfyFromString (
-         IEnumerable<char> s,
-         bool matchResult
-         )
-      {
-         var matchArray = s.ToArray ();
-         return (c, i) =>
+         for (var iter = 0; iter < str.Length; ++iter)
+         {
+            var ch = str[iter];
+
+            ig.Emit (OpCodes.Ldarg_0);
+            ig.Emit (OpCodes.Ldc_I4, ch);
+            ig.Emit (OpCodes.Ceq);
+
+            if (iter != 0)
             {
-               foreach (var matchChar in matchArray)
-               {
-                  if (matchChar == c)
-                  {
-                     return matchResult;
-                  }
-               }
+               ig.Emit (OpCodes.Or);
+            }
+         }
 
-               return !matchResult;
-            };
+         if (!matchResult)
+         {
+            ig.Emit (OpCodes.Ldc_I4_0);
+            ig.Emit (OpCodes.Ceq);
+         }
+
+         ig.Emit (OpCodes.Ret);
+         return (Function) dm.CreateDelegate (typeof (Function));
       }
-#endif
 
       static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
          string match,
          bool matchResult
          )
       {
-#if MICRO_PARSER_NET4
          if (match.Length < 4)
          {
             return CreateSatisfyFromString (match, matchResult);
          }
-#endif
          if (!match.Any (ch => ch > 255))
          {
             var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
@@ -1173,7 +1145,7 @@ namespace MicroParser
       }
 #endif
 
-#if !MICRO_PARSER_SUPPRESS_PARSER_MAP_1
+#if !MICRO_PARSER_SUPPRESS_PARSER_MAP
       public static Parser<TValue2> Map<TValue1, TValue2> (this Parser<TValue1> firstParser, Func<TValue1, TValue2> mapper)
       {
          Parser<TValue2>.Function function = state =>
@@ -1189,9 +1161,7 @@ namespace MicroParser
          };
          return function;
       }
-#endif
 
-#if !MICRO_PARSER_SUPPRESS_PARSER_MAP_2
       public static Parser<TValue2> Map<TValue1, TValue2> (this Parser<TValue1> firstParser, TValue2 value2)
       {
          return firstParser.Map (ignore => value2);
