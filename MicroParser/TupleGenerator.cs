@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-#if !MICRO_PARSER_USE_NET4_TUPLE
+#if !MICRO_PARSER_NET4
    static partial class Tuple
    {
       public static Tuple<TValue1, TValue2> Create<TValue1, TValue2> (
