@@ -358,7 +358,15 @@ namespace MicroParser
 #endif
 
 #if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
-      public static Parser<TValue> Switch<TValue> (       
+
+      public enum SwitchCharacterBehavior
+      {
+         Consume,
+         Leave,
+      }
+
+      public static Parser<TValue> Switch<TValue> (
+         SwitchCharacterBehavior switchCharacterBehavior,
          params Tuple<string, Parser<TValue>>[] parserFunctions
          )
       {
@@ -407,6 +415,13 @@ namespace MicroParser
                            state,
                            errorMessage
                            );                        
+                     }
+
+                     if (switchCharacterBehavior == SwitchCharacterBehavior.Consume)
+                     {
+                        // Intentionally ignores result as SkipAdvance can't fail 
+                        // in this situation (we know ParserState has at least one character left)
+                        state.SkipAdvance (1);
                      }
 
                      return parserFunctions[index].Item2.Execute (

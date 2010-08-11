@@ -55,16 +55,16 @@ namespace MicroParser
       public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
 
       public static readonly CharSatisfy LineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
-                                                                                                                            {
-                                                                                                                               switch (c)
-                                                                                                                               {
-                                                                                                                                  case '\r':
-                                                                                                                                  case '\n':
-                                                                                                                                     return true;
-                                                                                                                                  default:
-                                                                                                                                     return false;
-                                                                                                                               }
-                                                                                                                            });
+         {
+            switch (c)
+            {
+               case '\r':
+               case '\n':
+                  return true;
+               default:
+                  return false;
+            }
+         });
 
 #if !MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
       public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
@@ -111,6 +111,36 @@ namespace MicroParser
          return lambda.Compile ();
       }
 
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
+         string match,
+         bool matchResult
+         )
+      {
+         if (match.Length < 4)
+         {
+            return CreateSatisfyFromString (match, matchResult);
+         }
+         else if (!match.Any (ch => ch > 255))
+         {
+            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
+            foreach (var c in match)
+            {
+               boolMap[c] = matchResult;
+            }
+
+            return (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF];
+         }
+         else if (match.Length < 16)
+         {
+            return CreateSatisfyFromString (match, matchResult);
+         }
+         else
+         {
+            var hashSet = new HashSet<char>(match);
+            return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
+         }
+      }
+
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
@@ -127,44 +157,10 @@ namespace MicroParser
             .ToArray ()
             ;
 
-         var group = new ParserErrorMessage_Group (errorMessages);
-
-         if (match.Length < 4)
-         {
-            return new CharSatisfy (
-               group,
-               CreateSatisfyFromString (match, matchResult)
-               );
-         }
-         else if (!match.Any (ch => ch > 255))
-         {
-            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
-            foreach (var c in match)
-            {
-               boolMap[c] = matchResult;
-            }
-
-            return new CharSatisfy (
-               group,
-               (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF]
-               );
-         }
-         else if (match.Length < 16)
-         {
-            return new CharSatisfy (
-               group,
-               CreateSatisfyFromString (match, matchResult)
-               );
-         }
-         else
-         {
-            var hashSet = new HashSet<char>(match);
-            return new CharSatisfy (
-               group,
-               (c, i) => hashSet.Contains (c) ? matchResult : !matchResult
-               );            
-         }
-
+         return new CharSatisfy (
+            new ParserErrorMessage_Group (errorMessages),
+            CreateSatisfyFunctionForAnyOfOrNoneOf (match, matchResult)
+            );
       }
 
       public static CharSatisfy CreateSatisfyForAnyOf (string match)
