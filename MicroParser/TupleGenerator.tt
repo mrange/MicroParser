@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-#if !MICRO_PARSER_USE_NET4_TUPLE
+#if !MICRO_PARSER_NET4
 <#
    const int MinCount = 2;
    const int MaxCount = 3;

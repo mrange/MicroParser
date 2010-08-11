@@ -1,6 +1,6 @@
 ﻿
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
-#define MICRO_PARSER_USE_NET4_TUPLE
+#define MICRO_PARSER_NET4
 
 #define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
 #define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
@@ -505,6 +505,9 @@ namespace MicroParser
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
 #endif
 
+// Only enable compiled expression in .NET 4 as the performance
+// in .NET 3.5 isn't on par with ordinary code
+#if MICRO_PARSER_NET4
       static Function CreateSatisfyFromString (
          IEnumerable<char> s,
          bool matchResult
@@ -544,17 +547,40 @@ namespace MicroParser
 
          return lambda.Compile ();
       }
+#else
+      static Function CreateSatisfyFromString (
+         IEnumerable<char> s,
+         bool matchResult
+         )
+      {
+         var matchArray = s.ToArray ();
+         return (c, i) =>
+            {
+               foreach (var matchChar in matchArray)
+               {
+                  if (matchChar == c)
+                  {
+                     return matchResult;
+                  }
+               }
+
+               return !matchResult;
+            };
+      }
+#endif
 
       static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
          string match,
          bool matchResult
          )
       {
+#if MICRO_PARSER_NET4
          if (match.Length < 4)
          {
             return CreateSatisfyFromString (match, matchResult);
          }
-         else if (!match.Any (ch => ch > 255))
+#endif
+         if (!match.Any (ch => ch > 255))
          {
             var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
             foreach (var c in match)
@@ -564,15 +590,13 @@ namespace MicroParser
 
             return (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF];
          }
-         else if (match.Length < 16)
+         if (match.Length < 16)
          {
             return CreateSatisfyFromString (match, matchResult);
          }
-         else
-         {
-            var hashSet = new HashSet<char>(match);
-            return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
-         }
+
+         var hashSet = new HashSet<char>(match);
+         return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
       }
 
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
@@ -2651,7 +2675,7 @@ namespace MicroParser
 // ----------------------------------------------------------------------------------------------
 namespace MicroParser
 {
-#if !MICRO_PARSER_USE_NET4_TUPLE
+#if !MICRO_PARSER_NET4
    static partial class Tuple
    {
       public static Tuple<TValue1, TValue2> Create<TValue1, TValue2> (
