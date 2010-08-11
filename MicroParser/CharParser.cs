@@ -27,14 +27,18 @@ namespace MicroParser
 #if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_STRING
       public static Parser<Empty> SkipString (string toSkip)
       {
-         var toSkipNotNull = toSkip ?? string.Empty;
+         if (string.IsNullOrEmpty (toSkip))
+         {
+            throw new ArgumentNullException ("toSkip");
+         }
+
+         CharSatisfy.Function satisfy = (c, i) => c == toSkip[i];
          var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
-         CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
             new CharSatisfy (parserErrorMessage, satisfy),
-            toSkipNotNull.Length,
-            toSkipNotNull.Length);
+            toSkip.Length,
+            toSkip.Length);
       }
 #endif
 

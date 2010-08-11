@@ -50,14 +50,18 @@ namespace MicroParser
 #if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_STRING
       public static Parser<Empty> SkipString (string toSkip)
       {
-         var toSkipNotNull = toSkip ?? string.Empty;
+         if (string.IsNullOrEmpty (toSkip))
+         {
+            throw new ArgumentNullException ("toSkip");
+         }
+
+         CharSatisfy.Function satisfy = (c, i) => c == toSkip[i];
          var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
-         CharSatisfy.Function satisfy = (c, i) => toSkipNotNull[i] == c;
 
          return SkipSatisfy (
             new CharSatisfy (parserErrorMessage, satisfy),
-            toSkipNotNull.Length,
-            toSkipNotNull.Length);
+            toSkip.Length,
+            toSkip.Length);
       }
 #endif
 
@@ -443,7 +447,9 @@ namespace MicroParser
 namespace MicroParser
 {
    using System;
+   using System.Collections.Generic;
    using System.Linq;
+   using System.Linq.Expressions;
 
    using Internal;
 
@@ -500,35 +506,100 @@ namespace MicroParser
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
 #endif
 
+      static Function CreateSatisfyFromString (
+         IEnumerable<char> s,
+         bool matchResult
+         )
+      {
+         var parameter0 = Expression.Parameter (typeof (char), "ch");
+         var parameter1 = Expression.Parameter (typeof (int), "index");
+
+         Func<char, Expression> compareCreator;
+         Func<Expression, Expression, Expression> aggregator;
+         if (matchResult)
+         {
+            compareCreator = c => Expression.Equal (Expression.Constant (c), parameter0);
+            aggregator = (accu, value) => Expression.OrElse (value, accu);
+         }
+         else
+         {
+            compareCreator = c => Expression.NotEqual (Expression.Constant (c), parameter0);
+            aggregator = (accu, value) => Expression.AndAlso (value, accu);            
+         }
+         var comparisons = s
+            .Select (compareCreator)
+            .ToArray ();
+
+         var body = comparisons
+            .Skip (1)
+            .Aggregate (
+               comparisons[0],
+               aggregator
+               );
+
+         var lambda = Expression.Lambda<Function> (
+            body,
+            parameter0,
+            parameter1
+            );
+
+         return lambda.Compile ();
+      }
+
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
-         bool matchResult)
+         bool matchResult
+         )
       {
-         var matchArray = (match ?? Strings.Empty).ToArray ();
+         if (string.IsNullOrEmpty (match))
+         {
+            throw new ArgumentNullException ("match");
+         }
 
-         var expected = matchArray
+         var errorMessages = match
             .Select (action)
             .ToArray ()
             ;
 
-         var group = new ParserErrorMessage_Group (expected);
+         var group = new ParserErrorMessage_Group (errorMessages);
 
-         return new CharSatisfy (
-            group,
-            (c, i) =>
-               {
-                  foreach (var ch in matchArray)
-                  {
-                     if (ch == c)
-                     {
-                        return matchResult;
-                     }
-                  }
+         if (match.Length < 4)
+         {
+            return new CharSatisfy (
+               group,
+               CreateSatisfyFromString (match, matchResult)
+               );
+         }
+         else if (!match.Any (ch => ch > 255))
+         {
+            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
+            foreach (var c in match)
+            {
+               boolMap[c] = matchResult;
+            }
 
-                  return !matchResult;
-               }
-            );
+            return new CharSatisfy (
+               group,
+               (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF]
+               );
+         }
+         else if (match.Length < 16)
+         {
+            return new CharSatisfy (
+               group,
+               CreateSatisfyFromString (match, matchResult)
+               );
+         }
+         else
+         {
+            var hashSet = new HashSet<char>(match);
+            return new CharSatisfy (
+               group,
+               (c, i) => hashSet.Contains (c) ? matchResult : !matchResult
+               );            
+         }
+
       }
 
       public static CharSatisfy CreateSatisfyForAnyOf (string match)
@@ -1282,6 +1353,67 @@ namespace MicroParser
       }
 #endif
 
+#if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
+      public static Parser<TValue> Switch<TValue> (       
+         params Tuple<string, Parser<TValue>>[] parserFunctions
+         )
+      {
+         if (parserFunctions == null)
+         {
+            throw new ArgumentNullException ("parserFunctions");
+         }
+
+         if (parserFunctions.Length == 0)
+         {
+            throw new ArgumentOutOfRangeException ("parserFunctions", Strings.Parser.Verify_AtLeastOneParserFunctions);
+         }
+
+         var dictionary = parserFunctions
+            .SelectMany ((tuple, i) => tuple.Item1.Select (c => Tuple.Create (c, i)))
+            .ToDictionary (kv => kv.Item1, kv => kv.Item2);
+
+         var errorMessages = dictionary
+            .Select (ch => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch.Key)))
+            .ToArray ();
+
+         var errorMessage = new ParserErrorMessage_Group (
+            errorMessages
+            );
+
+         Parser<TValue>.Function function = state =>
+                  {
+                     var peeked = state.PeekChar ();
+
+                     if (peeked == null)
+                     {
+                        return ParserReply<TValue>.Failure (
+                           ParserReply.State.Error_Unexpected,
+                           state,
+                           ParserErrorMessages.Unexpected_Eos
+                           );
+                     }
+
+                     var peekedValue = peeked.Value;
+
+                     int index;
+                     if (!dictionary.TryGetValue (peekedValue, out index))
+                     {
+                        return ParserReply<TValue>.Failure (
+                           ParserReply.State.Error_Expected,
+                           state,
+                           errorMessage
+                           );                        
+                     }
+
+                     return parserFunctions[index].Item2.Execute (
+                        state
+                        );
+                  };
+
+         return function;
+      }
+#endif
+
 #if !MICRO_PARSER_SUPPRESS_PARSER_CHOICE
       public static Parser<TValue> Choice<TValue> (
          params Parser<TValue>[] parserFunctions
@@ -1825,16 +1957,16 @@ namespace MicroParser
          switch (advanceResult)
          {
             case ParserState.AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+               return ParserReply<TValue>.Failure (State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState.AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessage);
+               return ParserReply<TValue>.Failure (State.Error, state, parserErrorMessage);
             case ParserState.AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+               return ParserReply<TValue>.Failure (State.FatalError_StateIsNotRestored | State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error, state, parserErrorMessage);
+               return ParserReply<TValue>.Failure (State.FatalError_StateIsNotRestored | State.Error, state, parserErrorMessage);
             case ParserState.AdvanceResult.Error:
             default:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, ParserErrorMessages.Message_Unknown);
+               return ParserReply<TValue>.Failure (State.Error, state, ParserErrorMessages.Message_Unknown);
          }
       }
 
@@ -2120,8 +2252,8 @@ namespace MicroParser
 
       ParserState (int position, string text, bool suppressParserErrorMessageOperations)
       {
-         m_position = position;
-         m_text = text;
+         m_position = Math.Max (position, 0);
+         m_text = text ?? String.Empty;
          SuppressParserErrorMessageOperations = suppressParserErrorMessageOperations;
       }
 
@@ -2157,7 +2289,17 @@ namespace MicroParser
          }
       }
 
-      public ParserState.AdvanceResult Advance (
+      public char? PeekChar ()
+      {
+         if (EndOfStream)
+         {
+            return null;
+         }
+
+         return m_text[m_position];
+      }
+
+      public AdvanceResult Advance (
          ref SubString subString,
          CharSatisfy.Function satisfy,
          int minCount = 1,
@@ -2173,7 +2315,7 @@ namespace MicroParser
 
          if (m_position + minCount >= m_text.Length + 1)
          {
-            return ParserState.AdvanceResult.Error_EndOfStream;
+            return AdvanceResult.Error_EndOfStream;
          }
 
          var length = Math.Min (maxCount, m_text.Length - m_position);
@@ -2186,14 +2328,14 @@ namespace MicroParser
                if (iter < minCount)
                {
                   return subString.Position == m_position
-                            ? ParserState.AdvanceResult.Error_SatisfyFailed
-                            : ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged
+                            ? AdvanceResult.Error_SatisfyFailed
+                            : AdvanceResult.Error_SatisfyFailed_PositionChanged
                      ;
                }
 
                subString.Length = m_position - subString.Position;
 
-               return ParserState.AdvanceResult.Successful;
+               return AdvanceResult.Successful;
             }
 
             ++m_position;
@@ -2201,10 +2343,10 @@ namespace MicroParser
 
          subString.Length = m_position - subString.Position;
 
-         return ParserState.AdvanceResult.Successful;
+         return AdvanceResult.Successful;
       }
 
-      public ParserState.AdvanceResult SkipAdvance (
+      public AdvanceResult SkipAdvance (
          CharSatisfy.Function satisfy,
          int minCount = 1,
          int maxCount = int.MaxValue
@@ -2342,6 +2484,11 @@ namespace MicroParser
       public int Position;
       public int Length;
 
+      public static implicit operator SubString (string s)
+      {
+         return new SubString (s);
+      }
+
       public SubString (string value, int position, int length)
       {
          Value = value;
@@ -2444,7 +2591,7 @@ namespace MicroParser
 
       public static bool operator != (SubString left, SubString right)
       {
-         return !left.Equals (right);
+         return !(left == right);
       }
 
       public override bool Equals (object obj)

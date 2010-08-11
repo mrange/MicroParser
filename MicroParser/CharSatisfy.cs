@@ -12,7 +12,9 @@
 namespace MicroParser
 {
    using System;
+   using System.Collections.Generic;
    using System.Linq;
+   using System.Linq.Expressions;
 
    using Internal;
 
@@ -69,35 +71,100 @@ namespace MicroParser
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
 #endif
 
+      static Function CreateSatisfyFromString (
+         IEnumerable<char> s,
+         bool matchResult
+         )
+      {
+         var parameter0 = Expression.Parameter (typeof (char), "ch");
+         var parameter1 = Expression.Parameter (typeof (int), "index");
+
+         Func<char, Expression> compareCreator;
+         Func<Expression, Expression, Expression> aggregator;
+         if (matchResult)
+         {
+            compareCreator = c => Expression.Equal (Expression.Constant (c), parameter0);
+            aggregator = (accu, value) => Expression.OrElse (value, accu);
+         }
+         else
+         {
+            compareCreator = c => Expression.NotEqual (Expression.Constant (c), parameter0);
+            aggregator = (accu, value) => Expression.AndAlso (value, accu);            
+         }
+         var comparisons = s
+            .Select (compareCreator)
+            .ToArray ();
+
+         var body = comparisons
+            .Skip (1)
+            .Aggregate (
+               comparisons[0],
+               aggregator
+               );
+
+         var lambda = Expression.Lambda<Function> (
+            body,
+            parameter0,
+            parameter1
+            );
+
+         return lambda.Compile ();
+      }
+
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
-         bool matchResult)
+         bool matchResult
+         )
       {
-         var matchArray = (match ?? Strings.Empty).ToArray ();
+         if (string.IsNullOrEmpty (match))
+         {
+            throw new ArgumentNullException ("match");
+         }
 
-         var expected = matchArray
+         var errorMessages = match
             .Select (action)
             .ToArray ()
             ;
 
-         var group = new ParserErrorMessage_Group (expected);
+         var group = new ParserErrorMessage_Group (errorMessages);
 
-         return new CharSatisfy (
-            group,
-            (c, i) =>
-               {
-                  foreach (var ch in matchArray)
-                  {
-                     if (ch == c)
-                     {
-                        return matchResult;
-                     }
-                  }
+         if (match.Length < 4)
+         {
+            return new CharSatisfy (
+               group,
+               CreateSatisfyFromString (match, matchResult)
+               );
+         }
+         else if (!match.Any (ch => ch > 255))
+         {
+            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
+            foreach (var c in match)
+            {
+               boolMap[c] = matchResult;
+            }
 
-                  return !matchResult;
-               }
-            );
+            return new CharSatisfy (
+               group,
+               (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF]
+               );
+         }
+         else if (match.Length < 16)
+         {
+            return new CharSatisfy (
+               group,
+               CreateSatisfyFromString (match, matchResult)
+               );
+         }
+         else
+         {
+            var hashSet = new HashSet<char>(match);
+            return new CharSatisfy (
+               group,
+               (c, i) => hashSet.Contains (c) ? matchResult : !matchResult
+               );            
+         }
+
       }
 
       public static CharSatisfy CreateSatisfyForAnyOf (string match)

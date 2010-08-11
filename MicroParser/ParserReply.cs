@@ -41,16 +41,16 @@ namespace MicroParser
          switch (advanceResult)
          {
             case ParserState.AdvanceResult.Error_EndOfStream:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+               return ParserReply<TValue>.Failure (State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState.AdvanceResult.Error_SatisfyFailed:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessage);
+               return ParserReply<TValue>.Failure (State.Error, state, parserErrorMessage);
             case ParserState.AdvanceResult.Error_EndOfStream_PostionChanged:
-               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
+               return ParserReply<TValue>.Failure (State.FatalError_StateIsNotRestored | State.Error_Unexpected, state, ParserErrorMessages.Unexpected_Eos);
             case ParserState.AdvanceResult.Error_SatisfyFailed_PositionChanged:
-               return ParserReply<TValue>.Failure (ParserReply.State.FatalError_StateIsNotRestored | ParserReply.State.Error, state, parserErrorMessage);
+               return ParserReply<TValue>.Failure (State.FatalError_StateIsNotRestored | State.Error, state, parserErrorMessage);
             case ParserState.AdvanceResult.Error:
             default:
-               return ParserReply<TValue>.Failure (ParserReply.State.Error, state, ParserErrorMessages.Message_Unknown);
+               return ParserReply<TValue>.Failure (State.Error, state, ParserErrorMessages.Message_Unknown);
          }
       }
 
