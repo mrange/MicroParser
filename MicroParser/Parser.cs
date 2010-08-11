@@ -158,7 +158,7 @@ namespace MicroParser
       }
 #endif
 
-#if !MICRO_PARSER_SUPPRESS_PARSER_MAP_1
+#if !MICRO_PARSER_SUPPRESS_PARSER_MAP
       public static Parser<TValue2> Map<TValue1, TValue2> (this Parser<TValue1> firstParser, Func<TValue1, TValue2> mapper)
       {
          Parser<TValue2>.Function function = state =>
@@ -174,9 +174,7 @@ namespace MicroParser
          };
          return function;
       }
-#endif
 
-#if !MICRO_PARSER_SUPPRESS_PARSER_MAP_2
       public static Parser<TValue2> Map<TValue1, TValue2> (this Parser<TValue1> firstParser, TValue2 value2)
       {
          return firstParser.Map (ignore => value2);
