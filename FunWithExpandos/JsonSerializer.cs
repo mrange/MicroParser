@@ -208,14 +208,14 @@ namespace FunWithExpandos
          var p_object            = p_object_redirect.Parser;
 
          var p_value = Parser
-            .Choice (
-               p_string,
-               p_number,
-               p_object,
-               p_array,
-               p_true,
-               p_false,
-               p_null
+            .Switch (
+               Tuple.Create ("\"", p_string),
+               Tuple.Create ("0123456789", p_number),
+               Tuple.Create ("{", p_object),
+               Tuple.Create ("[", p_array),
+               Tuple.Create ("t", p_true),
+               Tuple.Create ("f", p_false),
+               Tuple.Create ("n", p_null)
                )
             .KeepLeft (p_spaces);
 

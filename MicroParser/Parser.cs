@@ -357,6 +357,67 @@ namespace MicroParser
       }
 #endif
 
+#if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
+      public static Parser<TValue> Switch<TValue> (       
+         params Tuple<string, Parser<TValue>>[] parserFunctions
+         )
+      {
+         if (parserFunctions == null)
+         {
+            throw new ArgumentNullException ("parserFunctions");
+         }
+
+         if (parserFunctions.Length == 0)
+         {
+            throw new ArgumentOutOfRangeException ("parserFunctions", Strings.Parser.Verify_AtLeastOneParserFunctions);
+         }
+
+         var dictionary = parserFunctions
+            .SelectMany ((tuple, i) => tuple.Item1.Select (c => Tuple.Create (c, i)))
+            .ToDictionary (kv => kv.Item1, kv => kv.Item2);
+
+         var errorMessages = dictionary
+            .Select (ch => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch.Key)))
+            .ToArray ();
+
+         var errorMessage = new ParserErrorMessage_Group (
+            errorMessages
+            );
+
+         Parser<TValue>.Function function = state =>
+                  {
+                     var peeked = state.PeekChar ();
+
+                     if (peeked == null)
+                     {
+                        return ParserReply<TValue>.Failure (
+                           ParserReply.State.Error_Unexpected,
+                           state,
+                           ParserErrorMessages.Unexpected_Eos
+                           );
+                     }
+
+                     var peekedValue = peeked.Value;
+
+                     int index;
+                     if (!dictionary.TryGetValue (peekedValue, out index))
+                     {
+                        return ParserReply<TValue>.Failure (
+                           ParserReply.State.Error_Expected,
+                           state,
+                           errorMessage
+                           );                        
+                     }
+
+                     return parserFunctions[index].Item2.Execute (
+                        state
+                        );
+                  };
+
+         return function;
+      }
+#endif
+
 #if !MICRO_PARSER_SUPPRESS_PARSER_CHOICE
       public static Parser<TValue> Choice<TValue> (
          params Parser<TValue>[] parserFunctions

@@ -21,6 +21,11 @@ namespace MicroParser
       public int Position;
       public int Length;
 
+      public static implicit operator SubString (string s)
+      {
+         return new SubString (s);
+      }
+
       public SubString (string value, int position, int length)
       {
          Value = value;
@@ -123,7 +128,7 @@ namespace MicroParser
 
       public static bool operator != (SubString left, SubString right)
       {
-         return !left.Equals (right);
+         return !(left == right);
       }
 
       public override bool Equals (object obj)
