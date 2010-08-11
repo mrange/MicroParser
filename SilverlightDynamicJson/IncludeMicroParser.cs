@@ -8,7 +8,6 @@
 #define MICRO_PARSER_SUPPRESS_PARSER_END_OF_STREAM
 #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
 #define MICRO_PARSER_SUPPRESS_PARSER_FAIL
-#define MICRO_PARSER_SUPPRESS_PARSER_RETURN
 
 #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
 #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
@@ -490,16 +489,16 @@ namespace MicroParser
       public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
 
       public static readonly CharSatisfy LineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
-                                                                                                                            {
-                                                                                                                               switch (c)
-                                                                                                                               {
-                                                                                                                                  case '\r':
-                                                                                                                                  case '\n':
-                                                                                                                                     return true;
-                                                                                                                                  default:
-                                                                                                                                     return false;
-                                                                                                                               }
-                                                                                                                            });
+         {
+            switch (c)
+            {
+               case '\r':
+               case '\n':
+                  return true;
+               default:
+                  return false;
+            }
+         });
 
 #if !MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
       public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
@@ -546,6 +545,36 @@ namespace MicroParser
          return lambda.Compile ();
       }
 
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
+         string match,
+         bool matchResult
+         )
+      {
+         if (match.Length < 4)
+         {
+            return CreateSatisfyFromString (match, matchResult);
+         }
+         else if (!match.Any (ch => ch > 255))
+         {
+            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
+            foreach (var c in match)
+            {
+               boolMap[c] = matchResult;
+            }
+
+            return (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF];
+         }
+         else if (match.Length < 16)
+         {
+            return CreateSatisfyFromString (match, matchResult);
+         }
+         else
+         {
+            var hashSet = new HashSet<char>(match);
+            return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
+         }
+      }
+
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,
          Func<char, IParserErrorMessage> action,
@@ -562,44 +591,10 @@ namespace MicroParser
             .ToArray ()
             ;
 
-         var group = new ParserErrorMessage_Group (errorMessages);
-
-         if (match.Length < 4)
-         {
-            return new CharSatisfy (
-               group,
-               CreateSatisfyFromString (match, matchResult)
-               );
-         }
-         else if (!match.Any (ch => ch > 255))
-         {
-            var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
-            foreach (var c in match)
-            {
-               boolMap[c] = matchResult;
-            }
-
-            return new CharSatisfy (
-               group,
-               (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF]
-               );
-         }
-         else if (match.Length < 16)
-         {
-            return new CharSatisfy (
-               group,
-               CreateSatisfyFromString (match, matchResult)
-               );
-         }
-         else
-         {
-            var hashSet = new HashSet<char>(match);
-            return new CharSatisfy (
-               group,
-               (c, i) => hashSet.Contains (c) ? matchResult : !matchResult
-               );            
-         }
-
+         return new CharSatisfy (
+            new ParserErrorMessage_Group (errorMessages),
+            CreateSatisfyFunctionForAnyOfOrNoneOf (match, matchResult)
+            );
       }
 
       public static CharSatisfy CreateSatisfyForAnyOf (string match)
@@ -1354,7 +1349,15 @@ namespace MicroParser
 #endif
 
 #if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
-      public static Parser<TValue> Switch<TValue> (       
+
+      public enum SwitchCharacterBehavior
+      {
+         Consume,
+         Leave,
+      }
+
+      public static Parser<TValue> Switch<TValue> (
+         SwitchCharacterBehavior switchCharacterBehavior,
          params Tuple<string, Parser<TValue>>[] parserFunctions
          )
       {
@@ -1403,6 +1406,13 @@ namespace MicroParser
                            state,
                            errorMessage
                            );                        
+                     }
+
+                     if (switchCharacterBehavior == SwitchCharacterBehavior.Consume)
+                     {
+                        // Intentionally ignores result as SkipAdvance can't fail 
+                        // in this situation (we know ParserState has at least one character left)
+                        state.SkipAdvance (1);
                      }
 
                      return parserFunctions[index].Item2.Execute (
@@ -2342,6 +2352,18 @@ namespace MicroParser
          }
 
          subString.Length = m_position - subString.Position;
+
+         return AdvanceResult.Successful;
+      }
+
+      public AdvanceResult SkipAdvance (int count)
+      {
+         if (m_position + count >= m_text.Length + 1)
+         {
+            return AdvanceResult.Error_EndOfStream;
+         }
+
+         m_position += count;
 
          return AdvanceResult.Successful;
       }

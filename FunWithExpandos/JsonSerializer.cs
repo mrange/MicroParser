@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using MicroParser;
 
@@ -172,23 +173,31 @@ namespace FunWithExpandos
          const string simpleEscapeMap  = "\"\\/\b\f\n\r\t";
          Debug.Assert (simpleEscape.Length == simpleEscapeMap.Length);
 
-         var p_simpleEscape = CharParser
-            .AnyOf (simpleEscape, minCount:1, maxCount:1)
-            .Map (ch => new StringPart (simpleEscapeMap[simpleEscape.IndexOf (ch[0])]));
+         var simpleSwitchCases = simpleEscape
+            .Zip (
+               simpleEscapeMap,
+               (l, r) => Tuple.Create (
+                  l.ToString (),
+                  Parser.Return (new StringPart (r))
+               )
+            );
 
-         var p_unicodeEscape = CharParser
-            .SkipChar ('u')
-            .KeepRight (
-               CharParser
-               .Hex (minCount:4, maxCount:4)
-               .Map (ui => new StringPart ((char)ui))
-               );
+         var otherSwitchCases =
+            new[]
+               {
+                  Tuple.Create (
+                     "u",
+                     CharParser
+                        .Hex (minCount: 4, maxCount: 4)
+                        .Map (ui => new StringPart ((char) ui)))
+               };
 
-         var p_escape = Parser
-            .Choice (
-               p_simpleEscape,
-               p_unicodeEscape
-               );
+         var switchCases = simpleSwitchCases.Concat (otherSwitchCases).ToArray ();
+
+         var p_escape = Parser.Switch (
+            Parser.SwitchCharacterBehavior.Consume,
+            switchCases
+            );
 
          var p_string = Parser
             .Choice (
@@ -209,6 +218,7 @@ namespace FunWithExpandos
 
          var p_value = Parser
             .Switch (
+               Parser.SwitchCharacterBehavior.Leave,
                Tuple.Create ("\"", p_string),
                Tuple.Create ("0123456789", p_number),
                Tuple.Create ("{", p_object),

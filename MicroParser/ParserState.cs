@@ -150,6 +150,18 @@ namespace MicroParser
          return AdvanceResult.Successful;
       }
 
+      public AdvanceResult SkipAdvance (int count)
+      {
+         if (m_position + count >= m_text.Length + 1)
+         {
+            return AdvanceResult.Error_EndOfStream;
+         }
+
+         m_position += count;
+
+         return AdvanceResult.Successful;
+      }
+
       public AdvanceResult SkipAdvance (
          CharSatisfy.Function satisfy,
          int minCount = 1,

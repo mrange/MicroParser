@@ -49,7 +49,7 @@ namespace PerformanceTestFunWithExpandos
          {
             var json = GetStringResource ("PerformanceTestFunWithExpandos.JSON.txt");
 
-            const int Count = 10000;
+            const int Count = 40000;
 
             var dt = DateTime.Now;
 
@@ -75,7 +75,7 @@ namespace PerformanceTestFunWithExpandos
             dynamic bigObject = new ExpandoObject ();
             bigObject.BigOne = bigString;
             var json = JsonSerializer.Serialize (bigObject);
-            const int Count = 20;
+            const int Count = 400;
 
             var dt = DateTime.Now;
 
