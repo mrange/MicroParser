@@ -1,21 +1,11 @@
-﻿// ----------------------------------------------------------------------------------------------
-// Copyright (c) Mårten Rånge.
-// ----------------------------------------------------------------------------------------------
-// This source code is subject to terms and conditions of the Microsoft Public License. A 
-// copy of the license can be found in the License.html file at the root of this distribution. 
-// If you cannot locate the  Microsoft Public License, please send an email to 
-// dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
-//  by the terms of the Microsoft Public License.
-// ----------------------------------------------------------------------------------------------
-// You must not remove this notice, or any other, from this software.
-// ----------------------------------------------------------------------------------------------
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("SilverlightDynamicJson")]
+[assembly: AssemblyTitle ("PerformanceTest.MicroParse.Json")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("microparser.codeplex.com")]
@@ -30,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid ("760643ef-1f4e-44d5-b7ca-38e2080ccd7c")]
+[assembly: Guid ("516db6f8-5bb2-454e-96d3-6e7fdecff85f")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -39,7 +29,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-// You can specify all the values or you can default the Revision and Build Numbers 
+// You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
+// [assembly: AssemblyVersion ("1.0.*")]
 [assembly: AssemblyVersion ("1.0.0.0")]
 [assembly: AssemblyFileVersion ("1.0.0.0")]
