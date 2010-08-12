@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("MicroParser")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Mårten Rånge")]
+[assembly: AssemblyCompany ("microparser.codeplex.com")]
 [assembly: AssemblyProduct ("MicroParser")]
 [assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark ("")]
