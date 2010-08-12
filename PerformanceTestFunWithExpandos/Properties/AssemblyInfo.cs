@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("PerformanceTestFunWithExpandos")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Microsoft")]
+[assembly: AssemblyCompany ("Mårten Rånge")]
 [assembly: AssemblyProduct ("PerformanceTestFunWithExpandos")]
 [assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
 [assembly: AssemblyTrademark ("")]
