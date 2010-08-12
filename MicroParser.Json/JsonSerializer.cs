@@ -175,11 +175,8 @@ namespace MicroParser.Json
          var simpleSwitchCases = simpleEscape
             .Zip (
                simpleEscapeMap,
-               (l, r) => Tuple.Create (
-                  l.ToString (),
-                  Parser.Return (new StringPart (r))
-               )
-            );
+               (l, r) => Tuple.Create (l.ToString (), Parser.Return (new StringPart (r)))
+               );
 
          var otherSwitchCases =
             new[]
@@ -215,16 +212,17 @@ namespace MicroParser.Json
          var p_array             = p_array_redirect.Parser;
          var p_object            = p_object_redirect.Parser;
 
+         // .Switch is used as we can tell by looking at the first character which parser to use
          var p_value = Parser
             .Switch (
                Parser.SwitchCharacterBehavior.Leave,
-               Tuple.Create ("\"", p_string),
-               Tuple.Create ("0123456789", p_number),
-               Tuple.Create ("{", p_object),
-               Tuple.Create ("[", p_array),
-               Tuple.Create ("t", p_true),
-               Tuple.Create ("f", p_false),
-               Tuple.Create ("n", p_null)
+               Tuple.Create ("\""            , p_string  ),
+               Tuple.Create ("0123456789"    , p_number  ),
+               Tuple.Create ("{"             , p_object  ),
+               Tuple.Create ("["             , p_array   ),
+               Tuple.Create ("t"             , p_true    ),
+               Tuple.Create ("f"             , p_false   ),
+               Tuple.Create ("n"             , p_null    )
                )
             .KeepLeft (p_spaces);
 

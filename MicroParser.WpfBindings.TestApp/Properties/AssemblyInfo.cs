@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 
 [assembly: AssemblyTitle ("MicroParser.WpfBindings.TestApp")]
-[assembly: Guid("5EF627FA-04CD-4FDB-959B-C60B81D46BD3")]
+[assembly: Guid ("5EF627FA-04CD-4FDB-959B-C60B81D46BD3")]
 
 //In order to begin building localizable applications, set 
 //<UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file

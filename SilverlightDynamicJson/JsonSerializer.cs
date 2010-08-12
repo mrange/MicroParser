@@ -166,20 +166,15 @@ namespace SilverlightDynamicJson
          var p_false    = p_str ("false").Map (empty => false as object);
          var p_number   = CharParser.Double ().Map (d => d as object);
 
-         var p_array_redirect    = Parser.Redirect<object>();
-         var p_object_redirect   = Parser.Redirect<object>();
-
          const string simpleEscape     = "\"\\/bfnrt";
-         const string simpleEscapeMap  = "\"\\/\b\f\n\r\t";
+         const string simpleEscapeMap = "\"\\/\b\f\n\r\t";
+         Debug.Assert (simpleEscape.Length == simpleEscapeMap.Length);
 
          var simpleSwitchCases = simpleEscape
             .Zip (
                simpleEscapeMap,
-               (l, r) => Tuple.Create (
-                  l.ToString (),
-                  Parser.Return (new StringPart (r))
-               )
-            );
+               (l, r) => Tuple.Create (l.ToString (), Parser.Return (new StringPart (r)))
+               );
 
          var otherSwitchCases =
             new[]
@@ -200,7 +195,7 @@ namespace SilverlightDynamicJson
 
          var p_string = Parser
             .Choice (
-               CharParser.NoneOf ("\\\"", minCount: 1).Map (ss => new StringPart (ss.Position, ss.Length)),
+               CharParser.NoneOf ("\\\"", minCount:1).Map (ss => new StringPart (ss.Position, ss.Length)),
                CharParser.SkipChar ('\\').KeepRight (p_escape))
             .Many ()
             .Between (
@@ -209,19 +204,23 @@ namespace SilverlightDynamicJson
                )
             .CombineStringParts ();
 
-         var p_array    = p_array_redirect.Parser;
-         var p_object   = p_object_redirect.Parser;
+         var p_array_redirect    = Parser.Redirect<object> ();
+         var p_object_redirect   = Parser.Redirect<object> ();
 
+         var p_array             = p_array_redirect.Parser;
+         var p_object            = p_object_redirect.Parser;
+
+         // .Switch is used as we can tell by looking at the first character which parser to use
          var p_value = Parser
             .Switch (
                Parser.SwitchCharacterBehavior.Leave,
-               Tuple.Create ("\"", p_string),
-               Tuple.Create ("0123456789", p_number),
-               Tuple.Create ("{", p_object),
-               Tuple.Create ("[", p_array),
-               Tuple.Create ("t", p_true),
-               Tuple.Create ("f", p_false),
-               Tuple.Create ("n", p_null)
+               Tuple.Create ("\""            , p_string  ),
+               Tuple.Create ("0123456789"    , p_number  ),
+               Tuple.Create ("{"             , p_object  ),
+               Tuple.Create ("["             , p_array   ),
+               Tuple.Create ("t"             , p_true    ),
+               Tuple.Create ("f"             , p_false   ),
+               Tuple.Create ("n"             , p_null    )
                )
             .KeepLeft (p_spaces);
 

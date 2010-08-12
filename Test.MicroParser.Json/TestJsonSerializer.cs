@@ -121,7 +121,7 @@ namespace Test.MicroParser.Json
       [TestMethod]
       public void Test_ComplexExpressions ()
       {
-         var json = GetStringResource("Test.MicroParser.Json.JSON.txt");
+         var json = GetStringResource ("Test.MicroParser.Json.JSON.txt");
 
          var object0 = JsonSerializer.Unserialize (json);
 
@@ -174,7 +174,7 @@ namespace Test.MicroParser.Json
       [TestMethod]
       public void Test_Performance ()
       {
-         var json = GetStringResource("Test.MicroParser.Json.JSON.txt");
+         var json = GetStringResource ("Test.MicroParser.Json.JSON.txt");
          var object0 = JsonSerializer.Unserialize (json);
          var glossary = object0.glossary;
 
@@ -205,7 +205,7 @@ namespace Test.MicroParser.Json
       [TestMethod]
       public void Test_ComplexSerialize ()
       {
-         var json = GetStringResource("Test.MicroParser.Json.JSON.txt");
+         var json = GetStringResource ("Test.MicroParser.Json.JSON.txt");
 
          var object0 = JsonSerializer.Unserialize (json);
 
