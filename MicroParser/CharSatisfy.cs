@@ -9,15 +9,13 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-
-
-
 namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
    using System.Diagnostics;
    using System.Linq;
+   using System.Linq.Expressions;
    using System.Reflection;
    using System.Reflection.Emit;
 
@@ -29,14 +27,6 @@ namespace MicroParser
 
       public readonly IParserErrorMessage ErrorMessage;
       public readonly Function Satisfy;
-
-      static CharSatisfy ()
-      {
-         var assemblyName = new AssemblyName ("MicroParser.Dynamic");
-
-         s_assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
-         s_moduleBuilder = s_assemblyBuilder.DefineDynamicModule ("MicroParser.Dynamic.Module");
-      }
 
       public static implicit operator CharSatisfy (char ch)
       {
@@ -62,104 +52,56 @@ namespace MicroParser
       }
 #endif
 
-      static readonly object s_lock = new object ();
-      static readonly AssemblyBuilder s_assemblyBuilder;
-      static readonly ModuleBuilder s_moduleBuilder;
+      class SatisfyFunctions
+      {
+         // ReSharper disable MemberHidesStaticFromOuterClass
+         // ReSharper disable MemberCanBeMadeStatic.Local
 
-      static readonly IDictionary<string, Function> s_anyOf = new Dictionary<string, Function> ();
-      static readonly IDictionary<string, Function> s_noneOf = new Dictionary<string, Function>();
+         // These methods should be kept non static as that reduces delegate overhead
 
-      public static readonly CharSatisfy AnyChar = new CharSatisfy (ParserErrorMessages.Expected_Any, (c, i) => true);
-      public static readonly CharSatisfy WhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => Char.IsWhiteSpace (c));
-      public static readonly CharSatisfy Digit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => Char.IsDigit (c));
-      public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
-
-      public static readonly CharSatisfy LineBreak  = new CharSatisfy (ParserErrorMessages.Expected_LineBreak    , (c, i) =>
+         public bool AnyChar (char ch, int index)
          {
-            switch (c)
-            {
-               case '\r':
-               case '\n':
-                  return true;
-               default:
-                  return false;
-            }
-         });
+            return true;
+         }
+
+         public bool WhiteSpace (char ch, int index)
+         {
+            return char.IsWhiteSpace (ch);
+         }
+
+         public bool Digit (char ch, int index)
+         {
+            return char.IsDigit (ch);
+         }
+
+         public bool Letter (char ch, int index)
+         {
+            return char.IsLetter (ch);
+         }
+         // ReSharper restore MemberCanBeMadeStatic.Local
+         // ReSharper restore MemberHidesStaticFromOuterClass
+      }
+
+      static readonly SatisfyFunctions s_satisfyFunctions   = new SatisfyFunctions ();
+
+      public static readonly CharSatisfy AnyChar      = new CharSatisfy (ParserErrorMessages.Expected_Any         , s_satisfyFunctions.AnyChar     );
+      public static readonly CharSatisfy WhiteSpace   = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace  , s_satisfyFunctions.WhiteSpace  );
+      public static readonly CharSatisfy Digit        = new CharSatisfy (ParserErrorMessages.Expected_Digit       , s_satisfyFunctions.Digit       );
+      public static readonly CharSatisfy Letter       = new CharSatisfy (ParserErrorMessages.Expected_Letter      , s_satisfyFunctions.Letter      );
+
+      public static readonly CharSatisfy LineBreak    = new CharSatisfy (ParserErrorMessages.Expected_LineBreak   , CreateSatisfyFunctionForAnyOfOrNoneOf ("\r\n", true));
 
 #if !MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
       public static readonly CharSatisfy LineBreakOrWhiteSpace  = LineBreak.Or (WhiteSpace);
       public static readonly CharSatisfy LetterOrDigit          = Letter.Or (Digit);
 #endif
 
-      static Function CreateSatisfyFromString (
+#if MICRO_PARSER_NET35
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf(
          string match,
          bool matchResult
          )
       {
-         lock (s_lock)
-         {
-            var dic = matchResult ? s_anyOf : s_noneOf;
-
-            Function func;
-            if (!dic.TryGetValue (match, out func))
-            {
-               var typeBuilder = s_moduleBuilder.DefineType (
-                  "Satisfy_{0}_{1}".FormatString (
-                     matchResult ? "AnyOf" : "NoneOf",
-                     match
-                     ));
-
-               var methodBuilder = typeBuilder.DefineMethod (
-                  "Execute",
-                  MethodAttributes.Public,
-                  CallingConventions.Standard,
-                  typeof (bool),
-                  new[] {typeof (char), typeof (int)}
-                  );
-
-               var ilGenerator = methodBuilder.GetILGenerator ();
-
-               for (var iter = 0; iter < match.Length; ++iter)
-               {
-                  var ch = match[iter];
-
-                  ilGenerator.Emit (OpCodes.Ldarg_1);
-                  ilGenerator.Emit (OpCodes.Ldc_I4, ch);
-                  ilGenerator.Emit (OpCodes.Ceq);
-                  if (iter != 0)
-                  {
-                     ilGenerator.Emit (OpCodes.Or);
-                  }
-               }
-
-               if (!matchResult)
-               {
-                  ilGenerator.Emit (OpCodes.Ldc_I4_0);
-                  ilGenerator.Emit (OpCodes.Ceq);
-               }
-
-               ilGenerator.Emit (OpCodes.Ret);
-
-               var type = typeBuilder.CreateType ();
-               var instance = Activator.CreateInstance (type);
-               func = (Function) Delegate.CreateDelegate (typeof (Function), instance, "Execute");
-               dic[match] = func;
-            }
-
-            return func;
-         }
-
-      }
-
-      static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
-         string match,
-         bool matchResult
-         )
-      {
-         if (match.Length < 4)
-         {
-            return CreateSatisfyFromString (match, matchResult);
-         }
          if (!match.Any (ch => ch > 255))
          {
             var boolMap = Enumerable.Repeat (!matchResult, 256).ToArray ();
@@ -170,14 +112,44 @@ namespace MicroParser
 
             return (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF];
          }
-         if (match.Length < 16)
-         {
-            return CreateSatisfyFromString (match, matchResult);
-         }
 
          var hashSet = new HashSet<char>(match);
          return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
       }
+#else
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf(
+         string match,
+         bool matchResult
+         )
+      {
+         var parameter0 = Expression.Parameter(typeof(char), "ch");
+         var parameter1 = Expression.Parameter(typeof(int), "index");
+
+         var resultVariable = Expression.Variable(typeof(bool), "result");
+
+         var switchStatement = Expression.Switch(
+            parameter0,
+            Expression.Assign(resultVariable, Expression.Constant(!matchResult)),
+            Expression.SwitchCase(
+               Expression.Assign(resultVariable, Expression.Constant(matchResult)),
+               match.Select(ch => Expression.Constant(ch)).ToArray()
+               ));
+
+         var body = Expression.Block(
+            new[] { resultVariable },
+            switchStatement,
+            resultVariable
+            );
+
+         var lambda = Expression.Lambda<Function>(
+            body,
+            parameter0,
+            parameter1
+            );
+
+         return lambda.Compile();
+      }
+#endif
 
       static CharSatisfy CreateSatisfyForAnyOfOrNoneOf (
          string match,

@@ -11,6 +11,7 @@
 // ----------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Reflection;
 using FunWithExpandos;
@@ -96,7 +97,7 @@ namespace TestFunWithExpandos
 
       }
 
-      static int NumberOfProperties (dynamic dyn)
+      static int NumberOfProperties (object dyn)
       {
          var dic = dyn as IDictionary<string, object>;
          return dic != null ? dic.Count : 0;
@@ -106,17 +107,13 @@ namespace TestFunWithExpandos
       public void Test_ObjectExpressions ()
       {
          var object0 = JsonSerializer.Unserialize ("{}");
-
          Assert.AreEqual (0, NumberOfProperties (object0));
 
          var object1 = JsonSerializer.Unserialize ("{\"Test\":1}");
-
-         Assert.AreEqual (1, NumberOfProperties (object1));
+         Assert.AreEqual(1, NumberOfProperties(object1));
          Assert.IsTrue (Equals (1.0, object1.Test));
 
-
-         var object2 = JsonSerializer.Unserialize ("{\"Test\":1, \"Test2\": \"Tjo\"}");
-
+         var object2 = JsonSerializer.Unserialize("{\"Test\":1, \"Test2\": \"Tjo\"}");
          Assert.AreEqual (2, NumberOfProperties (object2));
          Assert.IsTrue (Equals (1.0, object2.Test));
          Assert.IsTrue (Equals ("Tjo", object2.Test2));

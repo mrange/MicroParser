@@ -1,7 +1,4 @@
 ﻿
-#define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
-#define MICRO_PARSER_NET35
-
 
 
 // ----------------------------------------------------------------------------------------------

@@ -1,8 +1,5 @@
 ﻿<#@ output extension="cs" #>
 
-#define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
-#define MICRO_PARSER_NET35
-
 <#
    var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
    var blackList = new Regex[]

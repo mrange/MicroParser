@@ -38,21 +38,6 @@ namespace MicroParser
       
    }
 
-   public partial class Tuple
-   {
-      
-   }
-
-   public partial struct Tuple<TValue1, TValue2>
-   {
-      
-   }
-
-   public partial struct Tuple<TValue1, TValue2, TValue3>
-   {
-
-   }
-
    public partial class Optional
    {
 
@@ -112,5 +97,23 @@ namespace MicroParser
    {
 
    }
+
+#if MICRO_PARSER_NET35
+   public partial class Tuple
+   {
+
+   }
+
+   public partial struct Tuple<TValue1, TValue2>
+   {
+
+   }
+
+   public partial struct Tuple<TValue1, TValue2, TValue3>
+   {
+
+   }
+#endif
+
 #endif
 }
