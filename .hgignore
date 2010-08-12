@@ -39,3 +39,4 @@ relre:^PerformanceTestFunWithExpandos/bin/
 relre:^PerformanceTestFunWithExpandos/obj/
 relre:^MicroParser35/bin/
 relre:^MicroParser35/obj/
+relre:^Output/
