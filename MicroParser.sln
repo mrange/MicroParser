@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleParsers", "SamplePars
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestFunWithExpandos", "PerformanceTestFunWithExpandos\PerformanceTestFunWithExpandos.csproj", "{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroParser35", "MicroParser35\MicroParser35.csproj", "{32CE385E-8F68-4FC4-A8DB-905A933CC545}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MicroParser1.vsmdi
@@ -147,6 +149,16 @@ Global
 		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|Mixed Platforms.Build.0 = Release|x86
 		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|x86.ActiveCfg = Release|x86
 		{BB0C5770-1CD4-486A-8C6B-8EFEAF75F2D2}.Release|x86.Build.0 = Release|x86
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,6 +166,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5C289FB2-2A23-4929-AB17-1429750BDAC0} = {BE182199-90F3-48DB-91AF-91D83D937714}
 		{9DA50BC5-790A-4C59-94E7-D2FF0D48F48B} = {BE182199-90F3-48DB-91AF-91D83D937714}
+		{32CE385E-8F68-4FC4-A8DB-905A933CC545} = {BE182199-90F3-48DB-91AF-91D83D937714}
 		{5F523787-43AE-4783-912C-C5BD986533FB} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
 		{06DA2CF9-A357-48E9-B290-0723340E7CC2} = {1BB81A47-924F-459E-8C9A-196B82DDF812}
 		{23ADA443-D3D3-4E02-B949-B939324E6E29} = {D0ECEF34-E447-4820-9D64-7C02DEACABAB}

@@ -120,7 +120,7 @@ namespace SampleParsers
 
       // Sample1
 
-      static readonly Parser<MicroParser.Tuple<SubString, int>> s_parserSample1;
+      static readonly Parser<Tuple<SubString, int>> s_parserSample1;
 
       static void Sample1 ()
       {
