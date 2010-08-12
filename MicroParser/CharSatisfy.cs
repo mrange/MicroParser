@@ -10,11 +10,15 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
+
+
 namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
+   using System.Diagnostics;
    using System.Linq;
+   using System.Reflection;
    using System.Reflection.Emit;
 
    using Internal;
@@ -25,6 +29,14 @@ namespace MicroParser
 
       public readonly IParserErrorMessage ErrorMessage;
       public readonly Function Satisfy;
+
+      static CharSatisfy ()
+      {
+         var assemblyName = new AssemblyName ("MicroParser.Dynamic");
+
+         s_assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
+         s_moduleBuilder = s_assemblyBuilder.DefineDynamicModule ("MicroParser.Dynamic.Module");
+      }
 
       public static implicit operator CharSatisfy (char ch)
       {
@@ -50,7 +62,14 @@ namespace MicroParser
       }
 #endif
 
-      public static readonly CharSatisfy AnyChar    = new CharSatisfy (ParserErrorMessages.Expected_Any          , (c, i) => true);
+      static readonly object s_lock = new object ();
+      static readonly AssemblyBuilder s_assemblyBuilder;
+      static readonly ModuleBuilder s_moduleBuilder;
+
+      static readonly IDictionary<string, Function> s_anyOf = new Dictionary<string, Function> ();
+      static readonly IDictionary<string, Function> s_noneOf = new Dictionary<string, Function>();
+
+      public static readonly CharSatisfy AnyChar = new CharSatisfy (ParserErrorMessages.Expected_Any, (c, i) => true);
       public static readonly CharSatisfy WhiteSpace = new CharSatisfy (ParserErrorMessages.Expected_WhiteSpace   , (c, i) => Char.IsWhiteSpace (c));
       public static readonly CharSatisfy Digit      = new CharSatisfy (ParserErrorMessages.Expected_Digit        , (c, i) => Char.IsDigit (c));
       public static readonly CharSatisfy Letter     = new CharSatisfy (ParserErrorMessages.Expected_Letter       , (c, i) => Char.IsLetter (c));
@@ -73,39 +92,63 @@ namespace MicroParser
 #endif
 
       static Function CreateSatisfyFromString (
-         string str,
+         string match,
          bool matchResult
          )
       {
-         var dm = new DynamicMethod (
-            "Dynamic_MicroParser_Satisfy_{0}_{1}_{2}".FormatString (matchResult, str, Guid.NewGuid ()),
-            typeof (bool),
-            new[] {typeof (char), typeof (int)}
-            );
-         var ig = dm.GetILGenerator ();
-
-         for (var iter = 0; iter < str.Length; ++iter)
+         lock (s_lock)
          {
-            var ch = str[iter];
+            var dic = matchResult ? s_anyOf : s_noneOf;
 
-            ig.Emit (OpCodes.Ldarg_0);
-            ig.Emit (OpCodes.Ldc_I4, ch);
-            ig.Emit (OpCodes.Ceq);
-
-            if (iter != 0)
+            Function func;
+            if (!dic.TryGetValue (match, out func))
             {
-               ig.Emit (OpCodes.Or);
+               var typeBuilder = s_moduleBuilder.DefineType (
+                  "Satisfy_{0}_{1}".FormatString (
+                     matchResult ? "AnyOf" : "NoneOf",
+                     match
+                     ));
+
+               var methodBuilder = typeBuilder.DefineMethod (
+                  "Execute",
+                  MethodAttributes.Public,
+                  CallingConventions.Standard,
+                  typeof (bool),
+                  new[] {typeof (char), typeof (int)}
+                  );
+
+               var ilGenerator = methodBuilder.GetILGenerator ();
+
+               for (var iter = 0; iter < match.Length; ++iter)
+               {
+                  var ch = match[iter];
+
+                  ilGenerator.Emit (OpCodes.Ldarg_1);
+                  ilGenerator.Emit (OpCodes.Ldc_I4, ch);
+                  ilGenerator.Emit (OpCodes.Ceq);
+                  if (iter != 0)
+                  {
+                     ilGenerator.Emit (OpCodes.Or);
+                  }
+               }
+
+               if (!matchResult)
+               {
+                  ilGenerator.Emit (OpCodes.Ldc_I4_0);
+                  ilGenerator.Emit (OpCodes.Ceq);
+               }
+
+               ilGenerator.Emit (OpCodes.Ret);
+
+               var type = typeBuilder.CreateType ();
+               var instance = Activator.CreateInstance (type);
+               func = (Function) Delegate.CreateDelegate (typeof (Function), instance, "Execute");
+               dic[match] = func;
             }
+
+            return func;
          }
 
-         if (!matchResult)
-         {
-            ig.Emit (OpCodes.Ldc_I4_0);
-            ig.Emit (OpCodes.Ceq);
-         }
-
-         ig.Emit (OpCodes.Ret);
-         return (Function) dm.CreateDelegate (typeof (Function));
       }
 
       static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
