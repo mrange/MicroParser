@@ -9,8 +9,20 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle ("MicroParser")]
-[assembly: Guid ("d64ca7b8-41ba-444a-9762-d522457e4def")]
+[assembly: AssemblyDescription ("")]
+[assembly: AssemblyConfiguration ("")]
+[assembly: AssemblyCompany ("microparser.codeplex.com")]
+[assembly: AssemblyProduct ("MicroParser")]
+[assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
+[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCulture ("")]
+
+[assembly: CLSCompliant (true)]
+[assembly: ComVisible (false)]
+
+[assembly: AssemblyVersion ("1.0.0.0")]
+[assembly: AssemblyFileVersion ("1.0.0.0")]
