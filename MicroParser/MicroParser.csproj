@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Output\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;MICRO_PARSER_MAKE_PUBLIC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,13 +27,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Output\Release\</OutputPath>
     <DefineConstants>TRACE;MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE,MICRO_PARSER_MAKE_PUBLIC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release - Signed|AnyCPU'">
-    <OutputPath>bin\Release - Signed\</OutputPath>
+    <OutputPath>..\Output\ReleaseSigned\</OutputPath>
     <DefineConstants>TRACE;MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE,MICRO_PARSER_MAKE_PUBLIC</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
