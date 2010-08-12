@@ -530,7 +530,7 @@ namespace MicroParser
 #endif
 
 #if MICRO_PARSER_NET35
-      static Function CreateSatisfyFunctionForAnyOfOrNoneOf(
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
          string match,
          bool matchResult
          )
@@ -550,25 +550,25 @@ namespace MicroParser
          return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
       }
 #else
-      static Function CreateSatisfyFunctionForAnyOfOrNoneOf(
+      static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
          string match,
          bool matchResult
          )
       {
-         var parameter0 = Expression.Parameter(typeof(char), "ch");
-         var parameter1 = Expression.Parameter(typeof(int), "index");
+         var parameter0 = Expression.Parameter (typeof (char), "ch");
+         var parameter1 = Expression.Parameter (typeof (int), "index");
 
-         var resultVariable = Expression.Variable(typeof(bool), "result");
+         var resultVariable = Expression.Variable (typeof (bool), "result");
 
-         var switchStatement = Expression.Switch(
+         var switchStatement = Expression.Switch (
             parameter0,
-            Expression.Assign(resultVariable, Expression.Constant(!matchResult)),
-            Expression.SwitchCase(
-               Expression.Assign(resultVariable, Expression.Constant(matchResult)),
-               match.Select(ch => Expression.Constant(ch)).ToArray()
+            Expression.Assign (resultVariable, Expression.Constant (!matchResult)),
+            Expression.SwitchCase (
+               Expression.Assign (resultVariable, Expression.Constant (matchResult)),
+               match.Select (ch => Expression.Constant (ch)).ToArray ()
                ));
 
-         var body = Expression.Block(
+         var body = Expression.Block (
             new[] { resultVariable },
             switchStatement,
             resultVariable
@@ -580,7 +580,7 @@ namespace MicroParser
             parameter1
             );
 
-         return lambda.Compile();
+         return lambda.Compile ();
       }
 #endif
 
