@@ -1,5 +1,5 @@
-ï»¿// ----------------------------------------------------------------------------------------------
-// Copyright (c) MÃ¥rten RÃ¥nge.
+// ----------------------------------------------------------------------------------------------
+// Copyright (c) Mårten Rånge.
 // ----------------------------------------------------------------------------------------------
 // This source code is subject to terms and conditions of the Microsoft Public License. A 
 // copy of the license can be found in the License.html file at the root of this distribution. 
@@ -14,7 +14,7 @@ using System.Dynamic;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using FunWithExpandos;
+using MicroParser.Json;
 
 namespace PerformanceTest.MicroParser.Json
 {

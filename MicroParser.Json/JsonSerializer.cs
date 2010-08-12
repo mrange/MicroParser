@@ -17,9 +17,8 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using MicroParser;
 
-namespace FunWithExpandos
+namespace MicroParser.Json
 {
    public sealed class ExpandoUnserializeError
    {
