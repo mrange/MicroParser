@@ -41,13 +41,13 @@ namespace PerformanceTest.MicroParser.Json
          if (true)
          {
             // cold run
-            var json = GetStringResource("PerformanceTest.MicroParser.Json.JSON.txt");
+            var json = GetStringResource ("PerformanceTest.MicroParser.Json.JSON.txt");
             JsonSerializer.Unserialize (json);            
          }
 
          if (true)
          {
-            var json = GetStringResource("PerformanceTest.MicroParser.Json.JSON.txt");
+            var json = GetStringResource ("PerformanceTest.MicroParser.Json.JSON.txt");
 
             const int Count = 40000;
 
