@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Markup;
+using Include.MicroParser.Internal;
 using MicroParser.WpfBindings.Internal;
 using Include.MicroParser;
 

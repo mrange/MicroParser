@@ -11,8 +11,6 @@
 // ----------------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 
 namespace MicroParser.WpfBindings.Internal
 {
@@ -33,50 +31,6 @@ namespace MicroParser.WpfBindings.Internal
             ? left.Equals (right)
             : left == null && right == null
             ;
-      }
-
-      // System.String
-
-      public static string Form (this string format, params object[] args)
-      {
-         return string.Format (CultureInfo.InvariantCulture, format, args);
-      }
-
-      public static bool IsNullOrEmpty (this string str)
-      {
-         return string.IsNullOrEmpty (str);
-      }
-
-      // IEnumerable<string>
-
-      public static string Concatenate (
-         this IEnumerable<string> strings,
-         string delimiter = null,
-         string prepend = null,
-         string append = null
-         )
-      {
-         var first = true;
-
-         var sb = new StringBuilder (prepend ?? String.Empty);
-
-         var del = delimiter ?? String.Empty;
-
-         foreach (var value in strings)
-         {
-            if (first)
-            {
-               first = false;
-            }
-            else
-            {
-               sb.Append (del);
-            }
-            sb.Append (value);
-         }
-
-         sb.Append (append ?? String.Empty);
-         return sb.ToString ();
       }
 
       // System.Collection.Generic.IDictionary<TKey, TValue>

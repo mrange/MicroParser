@@ -176,7 +176,7 @@ namespace MicroParser
          bool matchResult
          )
       {
-         if (string.IsNullOrEmpty (match))
+         if (match.IsNullOrEmpty ())
          {
             throw new ArgumentNullException ("match");
          }

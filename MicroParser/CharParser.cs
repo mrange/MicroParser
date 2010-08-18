@@ -27,7 +27,7 @@ namespace MicroParser
 #if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_STRING
       public static Parser<Empty> SkipString (string toSkip)
       {
-         if (string.IsNullOrEmpty (toSkip))
+         if (toSkip.IsNullOrEmpty ())
          {
             throw new ArgumentNullException ("toSkip");
          }

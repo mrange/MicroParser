@@ -12,6 +12,7 @@
 using System;
 using System.Linq;
 using Include.MicroParser;
+using Include.MicroParser.Internal;
 
 #pragma warning disable 659
 // ReSharper disable InconsistentNaming
