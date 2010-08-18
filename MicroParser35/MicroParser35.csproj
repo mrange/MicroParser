@@ -71,6 +71,7 @@
     <None Include="..\MicroParser.pfx">
       <Link>MicroParser.pfx</Link>
     </None>
+    <None Include="ClassDiagram1.cd" />
     <None Include="IncludeProject.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>IncludeProject.cs</LastGenOutput>

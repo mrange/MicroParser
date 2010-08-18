@@ -35,7 +35,7 @@ namespace MicroParser
 #if !MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_STRING
       public static Parser<Empty> SkipString (string toSkip)
       {
-         if (string.IsNullOrEmpty (toSkip))
+         if (toSkip.IsNullOrEmpty ())
          {
             throw new ArgumentNullException ("toSkip");
          }
@@ -599,7 +599,7 @@ namespace MicroParser
          bool matchResult
          )
       {
-         if (string.IsNullOrEmpty (match))
+         if (match.IsNullOrEmpty ())
          {
             throw new ArgumentNullException ("match");
          }
@@ -815,6 +815,11 @@ namespace MicroParser.Internal
       public static string FormatString (this string format, params object[] args)
       {
          return string.Format (CultureInfo.InvariantCulture, format, args);
+      }
+
+      public static bool IsNullOrEmpty(this string str)
+      {
+         return string.IsNullOrEmpty(str);
       }
 
       // IEnumerable<string>
