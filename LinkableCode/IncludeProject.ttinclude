@@ -9,18 +9,18 @@
 <#@ import namespace="System.Xml.Linq" #>
 
 <#
-   var projectFilePath = Path.GetFullPath (projectFile);
-   var projectFileLocation = Path.GetDirectoryName (projectFilePath);
-   const string Namespace = @"http://schemas.microsoft.com/developer/msbuild/2003";
-   const string Project = @"{"+Namespace+@"}Project";
-   const string ItemGroup = @"{"+Namespace+@"}ItemGroup";
-   const string Compile = @"{"+Namespace+@"}Compile";
-   using (var streamReader = new StreamReader (projectFilePath))
+   var useIncludeNamespace    = !string.IsNullOrEmpty (includeNamespace);
+   var projectFilePath        = Path.GetFullPath (projectFile);
+   var projectFileLocation    = Path.GetDirectoryName (projectFilePath);
+   const string Namespace     = @"http://schemas.microsoft.com/developer/msbuild/2003";
+   const string Project       = @"{"+Namespace+@"}Project";
+   const string ItemGroup     = @"{"+Namespace+@"}ItemGroup";
+   const string Compile       = @"{"+Namespace+@"}Compile";
+   using (var streamReader    = new StreamReader (projectFilePath))
    {
       var xdoc = XDocument.Load (streamReader);
 
       var compileElements = xdoc.Elements (Project).Elements (ItemGroup).Elements (Compile);
-
 
       foreach (var path in compileElements
          .Select (compileElement => Path.Combine (projectFileLocation, compileElement.Attribute ("Include").Value))
@@ -28,9 +28,22 @@
       )
       {
          var allText = File.ReadAllText (path);
-         WriteLine (allText);
-      }
+         if (useIncludeNamespace)
+         {
+#>
+namespace <#=includeNamespace#>
+{
+<#
+         }
 
+         WriteLine (allText);
+         if (useIncludeNamespace)
+         {
+#>
+}
+<#
+         }
+      }
    }
 #>
 <#+

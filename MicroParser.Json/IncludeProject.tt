@@ -19,8 +19,9 @@
 #define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
 
 <#
-   var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
-   var blackList = new Regex[]
+   var includeNamespace = "Include";
+   var projectFile      = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
+   var blackList        = new Regex[]
       {
          BlackList (@"AssemblyInfo.cs$"),
       };

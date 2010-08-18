@@ -4,6 +4,7 @@
 #define MICRO_PARSER_NET35
 
 <#
+   var includeNamespace = "Include";
    var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
    var blackList = new Regex[]
       {
