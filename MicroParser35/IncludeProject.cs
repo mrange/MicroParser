@@ -537,6 +537,25 @@ namespace MicroParser
          bool matchResult
          )
       {
+         // For input string "Test" this generates the equivalent code to
+         // Func<char, int> d = (ch, index) => 
+         // {
+         //    bool result;
+         //    switch (ch)
+         //    {
+         //       case 'T':
+         //       case 'e':
+         //       case 's':
+         //       case 't':
+         //          result = matchResult;
+         //          break;
+         //       default:
+         //          result = !matchResult;
+         //          break;
+         //    }
+         //    return result;
+         // }
+
          var parameter0 = Expression.Parameter (typeof (char), "ch");
          var parameter1 = Expression.Parameter (typeof (int), "index");
 

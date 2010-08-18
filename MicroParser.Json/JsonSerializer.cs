@@ -17,6 +17,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Include.MicroParser;
 
 namespace MicroParser.Json
 {

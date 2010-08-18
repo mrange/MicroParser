@@ -1,6 +1,7 @@
 ﻿<#@ output extension="cs" #>
 
 <#
+   var includeNamespace = "";
    var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
    var blackList = new Regex[]
       {

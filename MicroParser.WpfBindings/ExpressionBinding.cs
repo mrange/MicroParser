@@ -15,6 +15,7 @@ using System.Linq;
 using System.Windows.Data;
 using System.Windows.Markup;
 using MicroParser.WpfBindings.Internal;
+using Include.MicroParser;
 
 #pragma warning disable 659
 
