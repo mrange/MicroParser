@@ -127,13 +127,13 @@ namespace MicroParser
 #endif
 
 #if !MICRO_PARSER_SUPPRESS_PARSER_DEBUG_BREAK
-      public static Parser<TValue> DebugBreak<TValue>(this Parser<TValue> parser)
+      public static Parser<TValue> DebugBreak<TValue> (this Parser<TValue> parser)
       {
          Parser<TValue>.Function function =
             state =>
                {
                   Debug.Assert (false);
-                  return parser.Execute(state);
+                  return parser.Execute (state);
                };
          return function;
       }
@@ -566,6 +566,7 @@ namespace MicroParser
                       if (!firstResult.State.HasConsistentState ())
                       {
                          ParserState.Restore (state, clone);
+
                          return ParserReply<TValue>.Failure (
                             ParserReply.State.Error_StateIsRestored, 
                             state, 
