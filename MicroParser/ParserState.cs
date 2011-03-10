@@ -212,5 +212,19 @@ namespace MicroParser
             );
       }
 
+      public static void Restore (ParserState parserState, ParserState clone)
+      {
+         if (parserState == null)
+         {
+            return;
+         }
+
+         if (clone == null)
+         {
+            return;
+         }
+
+         parserState.m_position = clone.m_position;
+      }
    }
 }

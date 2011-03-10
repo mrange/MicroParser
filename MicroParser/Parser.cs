@@ -9,6 +9,8 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
+using System.Diagnostics;
+
 namespace MicroParser
 {
    using System;
@@ -120,6 +122,19 @@ namespace MicroParser
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
          Parser<TValue>.Function function = state => ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessageMessage);
+         return function;
+      }
+#endif
+
+#if !MICRO_PARSER_SUPPRESS_PARSER_DEBUG_BREAK
+      public static Parser<TValue> DebugBreak<TValue>(this Parser<TValue> parser)
+      {
+         Parser<TValue>.Function function =
+            state =>
+               {
+                  Debug.Assert (false);
+                  return parser.Execute(state);
+               };
          return function;
       }
 #endif
@@ -550,9 +565,10 @@ namespace MicroParser
 
                       if (!firstResult.State.HasConsistentState ())
                       {
+                         ParserState.Restore (state, clone);
                          return ParserReply<TValue>.Failure (
                             ParserReply.State.Error_StateIsRestored, 
-                            clone, 
+                            state, 
                             firstResult.ParserErrorMessage
                             );
                       }
