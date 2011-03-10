@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-using System.Diagnostics;
 
 namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
+   using System.Diagnostics;
    using System.Linq;
    using Internal;
 
