@@ -155,7 +155,7 @@ namespace MicroParser
       {
          if (
                State.HasError () 
-            && ParserState.InternalPosition - initialPosition.Position > 1
+            && ParserState.InternalPosition - initialPosition.Position > 0
             )
          {
             return new ParserReply<TValue>(

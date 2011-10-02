@@ -226,5 +226,16 @@ namespace MicroParser
 
          parserState.m_position = clone.m_position;
       }
+
+       internal static void RestorePosition (ParserState parserState, int position)
+      {
+          if (parserState == null)
+          {
+              return;
+          }
+
+          parserState.m_position = position;
+      }
+
    }
 }
