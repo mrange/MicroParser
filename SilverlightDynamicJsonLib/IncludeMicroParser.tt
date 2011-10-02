@@ -1,7 +1,5 @@
 ﻿<#@ output extension="cs" #>
 
-#define MICRO_PARSER_NET35
-
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
 #define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
@@ -21,8 +19,8 @@
 #define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
 
 <#
-   var includeNamespace = "Include";
-   var projectFile = Host.ResolvePath (@"..\MicroParser\MicroParser.csproj");
+   var includeNamespace = "";
+   var projectFile = Host.ResolvePath (@"..\MicroParser.Json\MicroParser.Json.csproj");
    var blackList = new Regex[]
       {
          BlackList (@"AssemblyInfo.cs$"),
