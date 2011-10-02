@@ -559,13 +559,13 @@ namespace MicroParser
       {
          Parser<TValue>.Function function = state =>
                    {
-                      var clone = ParserState.Clone (state);
+                      var backupPosition = state.InternalPosition;
 
                       var firstResult = firstParser.Execute (state);
 
                       if (!firstResult.State.HasConsistentState ())
                       {
-                         ParserState.Restore (state, clone);
+                         ParserState.RestorePosition (state, backupPosition);
 
                          return ParserReply<TValue>.Failure (
                             ParserReply.State.Error_StateIsRestored, 
@@ -573,6 +573,12 @@ namespace MicroParser
                             firstResult.ParserErrorMessage
                             );
                       }
+#if DEBUG
+                      else
+                      {
+                         Debug.Assert(backupPosition == state.InternalPosition);
+                      }
+#endif
 
                       return firstResult;
                    };
