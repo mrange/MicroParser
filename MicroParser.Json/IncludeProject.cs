@@ -451,12 +451,8 @@ namespace MicroParser
 {
    using System;
    using System.Collections.Generic;
-   using System.Diagnostics;
    using System.Linq;
    using System.Linq.Expressions;
-   using System.Reflection;
-   using System.Reflection.Emit;
-
    using Internal;
 
    sealed partial class CharSatisfy
@@ -551,8 +547,15 @@ namespace MicroParser
             return (c, i) => ((c & 0xFF00) == 0) && boolMap[c & 0xFF];
          }
 
-         var hashSet = new HashSet<char>(match);
+#if WINDOWS_PHONE
+         // Windows Phone is basically .NET35 but lacks the HashSet class.
+         // Approximate with Dictionary<>
+         var dictionary = match.ToDictionary (v => v, v => true);
+         return (c, i) => dictionary.ContainsKey (c) ? matchResult : !matchResult;
+#else
+         var hashSet = new HashSet<char> (match);
          return (c, i) => hashSet.Contains (c) ? matchResult : !matchResult;
+#endif
       }
 #else
       static Function CreateSatisfyFunctionForAnyOfOrNoneOf (
@@ -1609,13 +1612,13 @@ namespace MicroParser
       {
          Parser<TValue>.Function function = state =>
                    {
-                      var clone = ParserState.Clone (state);
+                      var backupPosition = state.InternalPosition;
 
                       var firstResult = firstParser.Execute (state);
 
                       if (!firstResult.State.HasConsistentState ())
                       {
-                         ParserState.Restore (state, clone);
+                         ParserState.RestorePosition (state, backupPosition);
 
                          return ParserReply<TValue>.Failure (
                             ParserReply.State.Error_StateIsRestored, 
@@ -1623,6 +1626,12 @@ namespace MicroParser
                             firstResult.ParserErrorMessage
                             );
                       }
+#if DEBUG
+                      else
+                      {
+                         Debug.Assert(backupPosition == state.InternalPosition);
+                      }
+#endif
 
                       return firstResult;
                    };
@@ -2167,7 +2176,7 @@ namespace MicroParser
       {
          if (
                State.HasError () 
-            && ParserState.InternalPosition - initialPosition.Position > 1
+            && ParserState.InternalPosition - initialPosition.Position > 0
             )
          {
             return new ParserReply<TValue>(
@@ -2524,6 +2533,17 @@ namespace MicroParser
 
          parserState.m_position = clone.m_position;
       }
+
+       internal static void RestorePosition (ParserState parserState, int position)
+      {
+          if (parserState == null)
+          {
+              return;
+          }
+
+          parserState.m_position = position;
+      }
+
    }
 }
 }
