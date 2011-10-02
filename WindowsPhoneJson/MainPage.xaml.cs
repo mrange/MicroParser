@@ -20,33 +20,33 @@ namespace WindowsPhoneJson
 {
    public partial class MainPage
    {
-      public MainPage()
+      public MainPage ()
       {
-         InitializeComponent();
+         InitializeComponent ();
 
          var obj =
-            (Dictionary<string, object>) JsonSerializer.Unserialize(GetStringResource("WindowsPhoneJson.JSON.txt"));
+            (Dictionary<string, object>) JsonSerializer.Unserialize (GetStringResource ("WindowsPhoneJson.JSON.txt"));
 
          var books = obj["Books"] as object[];
 
          if (books != null)
          {
-            Books.ItemsSource = books.OfType<Dictionary<string, object>>().Select(book => book["ISBN"]);
+            Books.ItemsSource = books.OfType<Dictionary<string, object>>().Select (book => book["ISBN"]);
          }
       }
 
-      static string GetStringResource(string resourceName)
+      static string GetStringResource (string resourceName)
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream (resourceName))
          {
             if (resourceStream == null)
             {
                return "";
             }
 
-            using (var streamReader = new StreamReader(resourceStream))
+            using (var streamReader = new StreamReader (resourceStream))
             {
-               return streamReader.ReadToEnd();
+               return streamReader.ReadToEnd ();
             }
          }
       }

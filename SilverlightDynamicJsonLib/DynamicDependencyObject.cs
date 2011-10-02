@@ -25,55 +25,55 @@ namespace SilverlightDynamicJsonLib
       static readonly IDictionary<string, DependencyProperty> s_properties =
          new Dictionary<string, DependencyProperty>();
 
-      public DynamicDependencyObject(Tuple<string, object>[] values)
+      public DynamicDependencyObject (Tuple<string, object>[] values)
       {
          lock (s_properties)
          {
             foreach (var value in values)
             {
-               SetNamedValueImpl(value.Item1, value.Item2);
+               SetNamedValueImpl (value.Item1, value.Item2);
             }
          }
       }
 
-      void SetNamedValueImpl(string key, object value)
+      void SetNamedValueImpl (string key, object value)
       {
          var name = key ?? "";
          DependencyProperty property;
-         if (!s_properties.TryGetValue(name, out property))
+         if (!s_properties.TryGetValue (name, out property))
          {
-            property = DependencyProperty.Register(
+            property = DependencyProperty.Register (
                name,
                typeof (object),
                typeof (DynamicDependencyObject),
-               new PropertyMetadata(null)
+               new PropertyMetadata (null)
                );
             s_properties[name] = property;
          }
 
-         SetValue(property, value);
+         SetValue (property, value);
       }
 
-      public object GetNamedValue(object name)
+      public object GetNamedValue (object name)
       {
          lock (s_properties)
          {
-            return GetValue(s_properties[(name ?? string.Empty).ToString()]);
+            return GetValue (s_properties[(name ?? string.Empty).ToString ()]);
          }
       }
 
-      public object SetNamedValue(string name, object value)
+      public object SetNamedValue (string name, object value)
       {
          lock (s_properties)
          {
-            SetNamedValueImpl(name ?? "", value);
+            SetNamedValueImpl (name ?? "", value);
             return value;
          }
       }
 
-      public DynamicMetaObject GetMetaObject(Expression parameter)
+      public DynamicMetaObject GetMetaObject (Expression parameter)
       {
-         return new DynamicDependencyMetaObject(
+         return new DynamicDependencyMetaObject (
             parameter,
             this
             );
@@ -82,56 +82,56 @@ namespace SilverlightDynamicJsonLib
 
    sealed partial class DynamicDependencyMetaObject : DynamicMetaObject
    {
-      static readonly MethodInfo s_getNamedValue = GetMethodInfo(ddm => ddm.GetNamedValue(null));
-      static readonly MethodInfo s_setNamedValue = GetMethodInfo(ddm => ddm.SetNamedValue(null, null));
+      static readonly MethodInfo s_getNamedValue = GetMethodInfo (ddm => ddm.GetNamedValue (null));
+      static readonly MethodInfo s_setNamedValue = GetMethodInfo (ddm => ddm.SetNamedValue (null, null));
 
-      static MethodInfo GetMethodInfo(Expression<Action<DynamicDependencyObject>> expression)
+      static MethodInfo GetMethodInfo (Expression<Action<DynamicDependencyObject>> expression)
       {
          return ((MethodCallExpression) expression.Body).Method;
       }
 
-      public DynamicDependencyMetaObject(Expression expression, object value)
-         : base(expression, BindingRestrictions.Empty, value)
+      public DynamicDependencyMetaObject (Expression expression, object value)
+         : base (expression, BindingRestrictions.Empty, value)
       {
       }
 
-      BindingRestrictions GetRestrictions()
+      BindingRestrictions GetRestrictions ()
       {
-         return BindingRestrictions.GetTypeRestriction(Expression, typeof (DynamicDependencyObject));
+         return BindingRestrictions.GetTypeRestriction (Expression, typeof (DynamicDependencyObject));
       }
 
-      public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
+      public override DynamicMetaObject BindSetMember (SetMemberBinder binder, DynamicMetaObject value)
       {
-         var setMemberExpression = Expression.Call(
-            GetSelf(),
+         var setMemberExpression = Expression.Call (
+            GetSelf (),
             s_setNamedValue,
-            Expression.Constant(binder.Name),
-            Expression.Convert(value.Expression, typeof (object))
+            Expression.Constant (binder.Name),
+            Expression.Convert (value.Expression, typeof (object))
             );
 
-         return new DynamicMetaObject(
+         return new DynamicMetaObject (
             setMemberExpression,
-            GetRestrictions()
+            GetRestrictions ()
             );
       }
 
-      public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
+      public override DynamicMetaObject BindGetMember (GetMemberBinder binder)
       {
-         var getMemberExpression = Expression.Call(
-            GetSelf(),
+         var getMemberExpression = Expression.Call (
+            GetSelf (),
             s_getNamedValue,
-            Expression.Constant(binder.Name)
+            Expression.Constant (binder.Name)
             );
 
-         return new DynamicMetaObject(
+         return new DynamicMetaObject (
             getMemberExpression,
-            GetRestrictions()
+            GetRestrictions ()
             );
       }
 
-      Expression GetSelf()
+      Expression GetSelf ()
       {
-         return Expression.Convert(Expression, typeof (DynamicDependencyObject));
+         return Expression.Convert (Expression, typeof (DynamicDependencyObject));
       }
    }
 }

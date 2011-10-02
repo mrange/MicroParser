@@ -13,5 +13,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("WindowsPhoneJsonLib")]
-[assembly: Guid("b6f82279-fdd2-4b15-99f7-1ddc85d53dc0")]
+[assembly: AssemblyTitle ("WindowsPhoneJsonLib")]
+[assembly: Guid ("b6f82279-fdd2-4b15-99f7-1ddc85d53dc0")]

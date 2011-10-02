@@ -12,5 +12,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("WindowsPhoneJson")]
-[assembly: Guid("764f5d0e-4cc2-46e6-ae35-c62bafd11ea5")]
+[assembly: AssemblyTitle ("WindowsPhoneJson")]
+[assembly: Guid ("764f5d0e-4cc2-46e6-ae35-c62bafd11ea5")]

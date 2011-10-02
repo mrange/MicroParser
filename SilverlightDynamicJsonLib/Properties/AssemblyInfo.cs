@@ -13,5 +13,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("SilverlightDynamicJsonLib")]
-[assembly: Guid("54421635-6d28-4e02-8a16-c1c8ffc50f6e")]
+[assembly: AssemblyTitle ("SilverlightDynamicJsonLib")]
+[assembly: Guid ("54421635-6d28-4e02-8a16-c1c8ffc50f6e")]

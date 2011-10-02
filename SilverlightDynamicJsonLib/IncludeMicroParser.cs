@@ -856,9 +856,9 @@ namespace MicroParser.Internal
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
 
-      public static bool IsNullOrEmpty(this string str)
+      public static bool IsNullOrEmpty (this string str)
       {
-         return string.IsNullOrEmpty(str);
+         return string.IsNullOrEmpty (str);
       }
 
       // IEnumerable<string>
@@ -1649,7 +1649,7 @@ namespace MicroParser
 #if DEBUG
                       else
                       {
-                         Debug.Assert(backupPosition == state.InternalPosition);
+                         Debug.Assert (backupPosition == state.InternalPosition);
                       }
 #endif
 
@@ -2896,17 +2896,17 @@ namespace MicroParser.Json
     {
         public readonly string ErrorMessage;
 
-        public JsonUnserializeError(string errorMessage)
+        public JsonUnserializeError (string errorMessage)
         {
             ErrorMessage = errorMessage ?? "<NULL>";
         }
 
-        public override string ToString()
+        public override string ToString ()
         {
             return new
             {
                 ErrorMessage
-            }.ToString();
+            }.ToString ();
         }
 
     }
@@ -2925,24 +2925,24 @@ namespace MicroParser.Json
         {
             if (zipper == null)
             {
-                throw new ArgumentNullException("zipper");
+                throw new ArgumentNullException ("zipper");
             }
             values0 = values0 ?? new T0[0];
             values1 = values1 ?? new T1[0];
 
-            using (var e0 = values0.GetEnumerator())
-            using (var e1 = values1.GetEnumerator())
+            using (var e0 = values0.GetEnumerator ())
+            using (var e1 = values1.GetEnumerator ())
             {
                 bool moveNext0;
                 bool moveNext1;
-                while ((moveNext0 = e0.MoveNext() & (moveNext1 = e1.MoveNext())))
+                while ((moveNext0 = e0.MoveNext () & (moveNext1 = e1.MoveNext ())))
                 {
-                    yield return zipper(e0.Current, e1.Current);
+                    yield return zipper (e0.Current, e1.Current);
                 }
 
                 if (moveNext0 != moveNext1)
                 {
-                    throw new ArgumentException("values0 and values1 must be of same length");
+                    throw new ArgumentException ("values0 and values1 must be of same length");
                 }
             }
 
@@ -2955,13 +2955,13 @@ namespace MicroParser.Json
             readonly int m_item1;
             readonly int m_item2;
 
-            public StringPart(int position, int length)
+            public StringPart (int position, int length)
             {
                 m_item1 = position;
                 m_item2 = length;
             }
 
-            public StringPart(char ch)
+            public StringPart (char ch)
             {
                 m_item1 = ch;
                 m_item2 = 0;
@@ -2979,7 +2979,7 @@ namespace MicroParser.Json
             {
                 get
                 {
-                    Debug.Assert(IsRange);
+                    Debug.Assert (IsRange);
                     return m_item1;
                 }
             }
@@ -2988,7 +2988,7 @@ namespace MicroParser.Json
             {
                 get
                 {
-                    Debug.Assert(IsRange);
+                    Debug.Assert (IsRange);
                     return m_item2;
                 }
             }
@@ -2999,22 +2999,22 @@ namespace MicroParser.Json
                 {
                     unchecked
                     {
-                        Debug.Assert(!IsRange);
+                        Debug.Assert (!IsRange);
                         return (char)(m_item1 & 0xFFFF);
                     }
                 }
             }
         }
 
-        static Parser<string> CombineStringParts(
+        static Parser<string> CombineStringParts (
            this Parser<StringPart[]> parser
            )
         {
             Parser<string>.Function function =
                state =>
                {
-                   var result = parser.Execute(state);
-                   if (result.State.HasError())
+                   var result = parser.Execute (state);
+                   if (result.State.HasError ())
                    {
                        return result.Failure<string>();
                    }
@@ -3055,27 +3055,27 @@ namespace MicroParser.Json
                        }
                    }
 
-                   var stringValue = new string(charArray);
-                   return result.Success(stringValue);
+                   var stringValue = new string (charArray);
+                   return result.Success (stringValue);
                };
             return function;
         }
 
-        static object TransformObjects(object[] objects)
+        static object TransformObjects (object[] objects)
         {
             object result = objects;
-            TransformObjects(objects, ref result);
+            TransformObjects (objects, ref result);
             return result;
         }
 
-        static object TransformObject(Tuple<string, object>[] properties)
+        static object TransformObject (Tuple<string, object>[] properties)
         {
             object result = properties;
-            TransformObject(properties, ref result);
+            TransformObject (properties, ref result);
             return result;
         }
 
-        static JsonSerializer()
+        static JsonSerializer ()
         {
             // Language spec at www.json.org
 
@@ -3083,21 +3083,21 @@ namespace MicroParser.Json
             Func<char, Parser<Empty>> p_char = CharParser.SkipChar;
             Func<string, Parser<Empty>> p_str = CharParser.SkipString;
 
-            var p_spaces = CharParser.SkipWhiteSpace();
+            var p_spaces = CharParser.SkipWhiteSpace ();
 
-            var p_null      = p_str("null").Map(null as object);
-            var p_true      = p_str("true").Map(true as object);
-            var p_false     = p_str("false").Map(false as object);
-            var p_number    = CharParser.Double().Map(d => d as object);
+            var p_null      = p_str ("null").Map (null as object);
+            var p_true      = p_str ("true").Map (true as object);
+            var p_false     = p_str ("false").Map (false as object);
+            var p_number    = CharParser.Double ().Map (d => d as object);
 
             const string simpleEscape = "\"\\/bfnrt";
             const string simpleEscapeMap = "\"\\/\b\f\n\r\t";
-            Debug.Assert(simpleEscape.Length == simpleEscapeMap.Length);
+            Debug.Assert (simpleEscape.Length == simpleEscapeMap.Length);
 
             var simpleSwitchCases = simpleEscape
-               .Zip(
+               .Zip (
                   simpleEscapeMap,
-                  (l, r) => Tuple.Create(l.ToString(), Parser.Return(new StringPart(r)))
+                  (l, r) => Tuple.Create (l.ToString (), Parser.Return (new StringPart (r)))
                   );
 
             var otherSwitchCases =
@@ -3110,23 +3110,23 @@ namespace MicroParser.Json
                         .Map (ui => new StringPart ((char) ui)))
                };
 
-            var switchCases = simpleSwitchCases.Concat(otherSwitchCases).ToArray();
+            var switchCases = simpleSwitchCases.Concat (otherSwitchCases).ToArray ();
 
-            var p_escape = Parser.Switch(
+            var p_escape = Parser.Switch (
                Parser.SwitchCharacterBehavior.Consume,
                switchCases
                );
 
             var p_string = Parser
-               .Choice(
-                  CharParser.NoneOf("\\\"", minCount: 1).Map(ss => new StringPart(ss.Position, ss.Length)),
-                  CharParser.SkipChar('\\').KeepRight(p_escape))
-               .Many()
-               .Between(
-                  p_char('"'),
-                  p_char('"')
+               .Choice (
+                  CharParser.NoneOf ("\\\"", minCount: 1).Map (ss => new StringPart (ss.Position, ss.Length)),
+                  CharParser.SkipChar ('\\').KeepRight (p_escape))
+               .Many ()
+               .Between (
+                  p_char ('"'),
+                  p_char ('"')
                   )
-               .CombineStringParts();
+               .CombineStringParts ();
 
             var p_array_redirect = Parser.Redirect<object>();
             var p_object_redirect = Parser.Redirect<object>();
@@ -3136,90 +3136,90 @@ namespace MicroParser.Json
 
             // .Switch is used as we can tell by looking at the first character which parser to use
             var p_value = Parser
-               .Switch(
+               .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
-                  Tuple.Create("\""             , p_string.Map(v => v as object)),
-                  Tuple.Create("0123456789"     , p_number),
-                  Tuple.Create("{"              , p_object),
-                  Tuple.Create("["              , p_array),
-                  Tuple.Create("t"              , p_true),
-                  Tuple.Create("f"              , p_false),
-                  Tuple.Create("n"              , p_null)
+                  Tuple.Create ("\""             , p_string.Map (v => v as object)),
+                  Tuple.Create ("0123456789"     , p_number),
+                  Tuple.Create ("{"              , p_object),
+                  Tuple.Create ("["              , p_array),
+                  Tuple.Create ("t"              , p_true),
+                  Tuple.Create ("f"              , p_false),
+                  Tuple.Create ("n"              , p_null)
                   )
-               .KeepLeft(p_spaces);
+               .KeepLeft (p_spaces);
 
             var p_elements = p_value
-               .Array(p_char(',')
-               .KeepLeft(p_spaces))
-               .Map(TransformObjects);
+               .Array (p_char (',')
+               .KeepLeft (p_spaces))
+               .Map (TransformObjects);
 
             p_array_redirect.ParserRedirect = p_elements
-               .Between(
-                  p_char('[').KeepLeft(p_spaces),
-                  p_char(']')
+               .Between (
+                  p_char ('[').KeepLeft (p_spaces),
+                  p_char (']')
                   );
 
             var p_member = Parser
-               .Group(
-                  p_string.KeepLeft(p_spaces),
-                  p_char(':').KeepLeft(p_spaces).KeepRight(p_value)
+               .Group (
+                  p_string.KeepLeft (p_spaces),
+                  p_char (':').KeepLeft (p_spaces).KeepRight (p_value)
                   );
 
             var p_members = p_member
-               .Array(p_char(',')
-               .KeepLeft(p_spaces));
+               .Array (p_char (',')
+               .KeepLeft (p_spaces));
 
             p_object_redirect.ParserRedirect = p_members
-               .Between(
-                  p_char('{').KeepLeft(p_spaces),
-                  p_char('}')
+               .Between (
+                  p_char ('{').KeepLeft (p_spaces),
+                  p_char ('}')
                   )
-               .Map(TransformObject);
+               .Map (TransformObject);
 
-            s_parser = p_spaces.KeepRight(p_value);
+            s_parser = p_spaces.KeepRight (p_value);
 
             // ReSharper restore InconsistentNaming
         }
 
-        public static object Unserialize(string str)
+        public static object Unserialize (string str)
         {
-            var result = Parser.Parse(s_parser, str);
+            var result = Parser.Parse (s_parser, str);
 
-            return result.IsSuccessful ? result.Value : new JsonUnserializeError(result.ErrorMessage);
+            return result.IsSuccessful ? result.Value : new JsonUnserializeError (result.ErrorMessage);
         }
 
         static readonly CultureInfo s_cultureInfo = CultureInfo.InvariantCulture;
 
-        static void SerializeImpl(StringBuilder stringBuilder, object dyn)
+        static void SerializeImpl (StringBuilder stringBuilder, object dyn)
         {
             if (dyn is double)
             {
-                stringBuilder.Append(((double)dyn).ToString(s_cultureInfo));
+                stringBuilder.Append (((double)dyn).ToString (s_cultureInfo));
             }
             else if (dyn is int)
             {
-                stringBuilder.Append(((int)dyn).ToString(s_cultureInfo));
+                stringBuilder.Append (((int)dyn).ToString (s_cultureInfo));
             }
             else if (dyn is string)
             {
-                SerializeString(stringBuilder, (string)dyn);
+                SerializeString (stringBuilder, (string)dyn);
             }
             else if (dyn is bool)
             {
                 if ((bool)dyn)
                 {
-                    stringBuilder.Append("true");
+                    stringBuilder.Append ("true");
                 }
                 else
                 {
-                    stringBuilder.Append("false");
+                    stringBuilder.Append ("false");
                 }
             }
             else if (dyn is IDictionary<string, object>)
             {
                 var dictionary = dyn as IDictionary<string, object>;
 
-                stringBuilder.Append('{');
+                stringBuilder.Append ('{');
 
                 var first = true;
 
@@ -3231,21 +3231,21 @@ namespace MicroParser.Json
                     }
                     else
                     {
-                        stringBuilder.Append(',');
+                        stringBuilder.Append (',');
                     }
 
-                    SerializeString(stringBuilder, kv.Key);
-                    stringBuilder.Append(':');
-                    SerializeImpl(stringBuilder, kv.Value);
+                    SerializeString (stringBuilder, kv.Key);
+                    stringBuilder.Append (':');
+                    SerializeImpl (stringBuilder, kv.Value);
                 }
 
-                stringBuilder.Append('}');
+                stringBuilder.Append ('}');
             }
             else if (dyn is IEnumerable)
             {
                 var enumerable = (IEnumerable)dyn;
 
-                stringBuilder.Append('[');
+                stringBuilder.Append ('[');
 
                 var first = true;
 
@@ -3257,57 +3257,57 @@ namespace MicroParser.Json
                     }
                     else
                     {
-                        stringBuilder.Append(',');
+                        stringBuilder.Append (',');
                     }
 
-                    SerializeImpl(stringBuilder, obj);
+                    SerializeImpl (stringBuilder, obj);
                 }
 
-                stringBuilder.Append(']');
+                stringBuilder.Append (']');
             }
             else
             {
-                stringBuilder.Append("null");
+                stringBuilder.Append ("null");
             }
         }
 
-        static void SerializeString(StringBuilder stringBuilder, string str)
+        static void SerializeString (StringBuilder stringBuilder, string str)
         {
-            stringBuilder.Append('"');
+            stringBuilder.Append ('"');
             foreach (var ch in str)
             {
                 switch (ch)
                 {
                     case '\b':
-                        stringBuilder.Append("\\b");
+                        stringBuilder.Append ("\\b");
                         break;
                     case '\f':
-                        stringBuilder.Append("\\f");
+                        stringBuilder.Append ("\\f");
                         break;
                     case '\n':
-                        stringBuilder.Append("\\n");
+                        stringBuilder.Append ("\\n");
                         break;
                     case '\r':
-                        stringBuilder.Append("\\r");
+                        stringBuilder.Append ("\\r");
                         break;
                     case '\t':
-                        stringBuilder.Append("\\t");
+                        stringBuilder.Append ("\\t");
                         break;
                     default:
-                        stringBuilder.Append(ch);
+                        stringBuilder.Append (ch);
                         break;
                 }
             }
-            stringBuilder.Append('"');
+            stringBuilder.Append ('"');
         }
 
-        public static string Serialize(object dyn)
+        public static string Serialize (object dyn)
         {
-            var sb = new StringBuilder(32);
+            var sb = new StringBuilder (32);
 
-            SerializeImpl(sb, dyn);
+            SerializeImpl (sb, dyn);
 
-            return sb.ToString();
+            return sb.ToString ();
         }
 
     }
@@ -3338,9 +3338,9 @@ namespace MicroParser.Json
 
    public partial class JsonSerializer
    {
-       static partial void TransformObject(Tuple<string, object>[] properties, ref object result)
+       static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
        {
-           IDictionary<string, object> expando = new ExpandoObject();
+           IDictionary<string, object> expando = new ExpandoObject ();
            foreach (var p in properties)
            {
                expando[p.Item1 ?? ""] = p.Item2;
