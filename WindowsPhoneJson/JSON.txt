@@ -1,0 +1,10 @@
+﻿{
+ "Books": 
+   [
+      { "ISBN":"287382-BBB", "Title": "1984"             , "Author": "Georg Orwell"       },
+      { "ISBN":"382732-723", "Title": "Elantris"         , "Author": "Brandon Sanderson"  },
+      { "ISBN":"111111-AAA", "Title": "The Holy Bible"                                    },
+      { "ISBN":"288392-JDS", "Title": "Exceptional C++"  , "Author": "Herb Sutter"        },
+   ]
+  }
+}
