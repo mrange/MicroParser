@@ -1016,7 +1016,6 @@ namespace MicroParser
 
 #endif
 }
-
 }
 namespace Include
 {
@@ -2036,7 +2035,6 @@ namespace MicroParser
 
    }
 }
-
 }
 namespace Include
 {
@@ -2632,7 +2630,6 @@ namespace MicroParser
 
    }
 }
-
 }
 namespace Include
 {
@@ -2871,7 +2868,6 @@ namespace MicroParser
    }
 #endif
 }
-
 }
 // ----------------------------------------------------------------------------------------------
 // Copyright (c) Mårten Rånge.
