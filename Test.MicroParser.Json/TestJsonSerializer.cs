@@ -105,14 +105,14 @@ namespace Test.MicroParser.Json
       [TestMethod]
       public void Test_ObjectExpressions ()
       {
-         var object0 = JsonSerializer.Unserialize ("{}");
+         dynamic object0 = JsonSerializer.Unserialize("{}");
          Assert.AreEqual (0, NumberOfProperties (object0));
 
-         var object1 = JsonSerializer.Unserialize ("{\"Test\":1}");
+         dynamic object1 = JsonSerializer.Unserialize("{\"Test\":1}");
          Assert.AreEqual (1, NumberOfProperties (object1));
          Assert.IsTrue (Equals (1.0, object1.Test));
 
-         var object2 = JsonSerializer.Unserialize ("{\"Test\":1, \"Test2\": \"Tjo\"}");
+         dynamic object2 = JsonSerializer.Unserialize ("{\"Test\":1, \"Test2\": \"Tjo\"}");
          Assert.AreEqual (2, NumberOfProperties (object2));
          Assert.IsTrue (Equals (1.0, object2.Test));
          Assert.IsTrue (Equals ("Tjo", object2.Test2));
@@ -175,8 +175,8 @@ namespace Test.MicroParser.Json
       public void Test_Performance ()
       {
          var json = GetStringResource ("Test.MicroParser.Json.JSON.txt");
-         var object0 = JsonSerializer.Unserialize (json);
-         var glossary = object0.glossary;
+         dynamic object0 = JsonSerializer.Unserialize(json);
+         dynamic glossary = object0.glossary;
 
          var then = DateTime.Now;
 
