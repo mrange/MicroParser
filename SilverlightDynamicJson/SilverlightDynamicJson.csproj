@@ -93,17 +93,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <None Include="IncludeMicroParser.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>IncludeMicroParser.cs</LastGenOutput>
-    </None>
-    <Compile Include="DynamicDependencyObject.cs" />
-    <Compile Include="IncludeMicroParser.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>IncludeMicroParser.tt</DependentUpon>
-    </Compile>
-    <Compile Include="JsonSerializer.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -127,6 +116,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="JSON.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SilverlightDynamicJsonLib\SilverlightDynamicJsonLib.csproj">
+      <Project>{516CF1B6-854A-4FE1-8FFD-193420659C89}</Project>
+      <Name>SilverlightDynamicJsonLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -14,43 +14,46 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using MicroParser.Json;
+using SilverlightDynamicJsonLib;
 
 namespace SilverlightDynamicJson
 {
    public partial class MainPage
    {
-      public MainPage ()
+      public MainPage()
       {
-         InitializeComponent ();
+         InitializeComponent();
 
-         var obj = (DynamicDependencyObject)JsonSerializer.Unserialize (GetStringResource ("SilverlightDynamicJson.JSON.txt"));
+         var obj =
+            (DynamicDependencyObject) JsonSerializer.Unserialize(GetStringResource("SilverlightDynamicJson.JSON.txt"));
 
-         var books = obj.GetNamedValue ("Books");
+         var books = obj.GetNamedValue("Books");
 
          LB.ItemsSource = (IEnumerable) books;
 
       }
 
-      static string GetStringResource (string resourceName)
+      static string GetStringResource(string resourceName)
       {
-         using (var resourceStream = Assembly.GetExecutingAssembly ().GetManifestResourceStream (resourceName))
+         using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
          {
             if (resourceStream == null)
             {
                return "";
             }
 
-            using (var streamReader = new StreamReader (resourceStream))
+            using (var streamReader = new StreamReader(resourceStream))
             {
-               return streamReader.ReadToEnd ();
+               return streamReader.ReadToEnd();
             }
          }
       }
 
-      void Change (object sender, RoutedEventArgs e)
+      void Change(object sender, RoutedEventArgs e)
       {
-         var dynamicDependencyObject = LB.ItemsSource.Cast<DynamicDependencyObject>().First ();
-         dynamicDependencyObject.SetNamedValue ("ISBN", "TEST");
+         var dynamicDependencyObject = LB.ItemsSource.Cast<DynamicDependencyObject>().First();
+         dynamicDependencyObject.SetNamedValue("ISBN", "TEST");
       }
    }
 }

@@ -27,7 +27,7 @@
          .Where (path => !blackList.Any (bl => bl.IsMatch (path)))
       )
       {
-         var allText = File.ReadAllText (path);
+         var allLines = File.ReadAllLines (path);
          if (useIncludeNamespace)
          {
 #>
@@ -35,8 +35,14 @@ namespace <#=includeNamespace#>
 {
 <#
          }
-
-         WriteLine (allText);
+         foreach (var line in allLines)
+         {
+            if (line.StartsWith ("#define"))
+            {
+                Write ("// ");
+            }
+            WriteLine (line);
+         }
          if (useIncludeNamespace)
          {
 #>
