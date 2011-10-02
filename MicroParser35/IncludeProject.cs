@@ -803,9 +803,9 @@ namespace MicroParser.Internal
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
 
-      public static bool IsNullOrEmpty(this string str)
+      public static bool IsNullOrEmpty (this string str)
       {
-         return string.IsNullOrEmpty(str);
+         return string.IsNullOrEmpty (str);
       }
 
       // IEnumerable<string>
@@ -1587,7 +1587,7 @@ namespace MicroParser
 #if DEBUG
                       else
                       {
-                         Debug.Assert(backupPosition == state.InternalPosition);
+                         Debug.Assert (backupPosition == state.InternalPosition);
                       }
 #endif
 

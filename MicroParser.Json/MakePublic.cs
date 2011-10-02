@@ -23,9 +23,9 @@ namespace MicroParser.Json
 
    public partial class JsonSerializer
    {
-       static partial void TransformObject(Tuple<string, object>[] properties, ref object result)
+       static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
        {
-           IDictionary<string, object> expando = new ExpandoObject();
+           IDictionary<string, object> expando = new ExpandoObject ();
            foreach (var p in properties)
            {
                expando[p.Item1 ?? ""] = p.Item2;

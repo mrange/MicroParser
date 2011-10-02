@@ -23,14 +23,14 @@ namespace MicroParser.Json
 
    public partial class JsonSerializer
    {
-      static partial void TransformObjects(object[] objects, ref object result)
+      static partial void TransformObjects (object[] objects, ref object result)
       {
          result = new ObservableCollection<object>(objects);
       }
 
-      static partial void TransformObject(Tuple<string, object>[] properties, ref object result)
+      static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
       {
-         result = new DynamicDependencyObject(properties);
+         result = new DynamicDependencyObject (properties);
       }
    }
 }

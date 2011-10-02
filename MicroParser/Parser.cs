@@ -576,7 +576,7 @@ namespace MicroParser
 #if DEBUG
                       else
                       {
-                         Debug.Assert(backupPosition == state.InternalPosition);
+                         Debug.Assert (backupPosition == state.InternalPosition);
                       }
 #endif
 

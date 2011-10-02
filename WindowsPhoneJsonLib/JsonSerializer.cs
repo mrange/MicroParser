@@ -22,7 +22,7 @@ namespace MicroParser.Json
 
    public partial class JsonSerializer
    {
-      static partial void TransformObject(Tuple<string, object>[] properties, ref object result)
+      static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
       {
          var expando = new Dictionary<string, object>();
          foreach (var p in properties)
