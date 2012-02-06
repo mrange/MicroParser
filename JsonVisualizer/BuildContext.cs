@@ -24,12 +24,12 @@ namespace JsonVisualizer
         public readonly List<Inline> Inlines;
         public LineNo LineNo;
 
-        public BuildContext()
-            : this("  ", new List<Inline>(), new LineNo())
+        public BuildContext ()
+            : this ("  ", new List<Inline>(), new LineNo ())
         {
         }
 
-        BuildContext(
+        BuildContext (
             string indention,
             List<Inline> inlines,
             LineNo lineNo
@@ -40,17 +40,17 @@ namespace JsonVisualizer
             LineNo = lineNo;
         }
 
-        public BuildContext Indent()
+        public BuildContext Indent ()
         {
-            return new BuildContext(Indention + s_indent, Inlines, LineNo);
+            return new BuildContext (Indention + s_indent, Inlines, LineNo);
         }
 
-        public void SetInlines(TextBlock textBlock)
+        public void SetInlines (TextBlock textBlock)
         {
             if (textBlock != null)
             {
-                textBlock.Inlines.Clear();
-                textBlock.Inlines.AddRange(Inlines);
+                textBlock.Inlines.Clear ();
+                textBlock.Inlines.AddRange (Inlines);
             }
         }
 
