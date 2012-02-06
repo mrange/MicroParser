@@ -1,0 +1,30 @@
+﻿<#@ output extension="cs" #>
+
+#define MICRO_PARSER_JSON_MAKE_PUBLIC
+#define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
+
+#define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
+#define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
+#define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
+#define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
+#define MICRO_PARSER_SUPPRESS_PARSER_FAIL
+
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NONE_OF
+
+#define MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
+
+#define MICRO_PARSER_SUPPRESS_EXTENSIONS_EXCEPT
+#define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
+
+<#
+   var includeNamespace = "";
+   var projectFile = Host.ResolvePath (@"..\MicroParser.Json\MicroParser.Json.csproj");
+   var blackList = new Regex[]
+      {
+         BlackList (@"AssemblyInfo.cs$"),
+      };
+#>
+
+<#@ include file="..\LinkableCode\IncludeProject.ttinclude"#>
