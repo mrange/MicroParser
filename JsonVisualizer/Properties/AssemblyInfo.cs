@@ -16,7 +16,7 @@ using System.Windows;
 [assembly: AssemblyTitle ("JsonVisualizer")]
 [assembly: Guid ("a88f7f89-0bb6-4a1f-8518-fb06c28720ee")]
 
-[assembly: ThemeInfo(
+[assembly: ThemeInfo (
     ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
     ResourceDictionaryLocation.SourceAssembly //where the generic resource dictionary is located
 )]

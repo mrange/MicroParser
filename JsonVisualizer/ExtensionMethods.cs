@@ -23,7 +23,7 @@ namespace JsonVisualizer
         {
             if (freezable != null && freezable.CanFreeze && !freezable.IsFrozen)
             {
-                freezable.Freeze();
+                freezable.Freeze ();
             }
             return freezable;
         }
