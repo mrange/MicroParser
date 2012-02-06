@@ -12,5 +12,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle ("PerformanceTest.MicroParse.Json")]
+[assembly: AssemblyTitle ("PerformanceTest.MicroParser.Json")]
 [assembly: Guid ("516db6f8-5bb2-454e-96d3-6e7fdecff85f")]
