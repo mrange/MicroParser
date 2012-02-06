@@ -305,12 +305,14 @@ namespace MicroParser.Json
                   )
                .Map (TransformObject);
 
-            s_parser = p_spaces.KeepRight (p_value);
+            var p_eos = Parser.EndOfStream ();
+
+            s_parser = p_spaces.KeepRight (p_value).KeepLeft (p_spaces).KeepLeft (p_eos);
 
             // ReSharper restore InconsistentNaming
         }
 
-        public static object Unserialize (string str)
+        public static dynamic Unserialize (string str)
         {
             var result = Parser.Parse (s_parser, str);
 
