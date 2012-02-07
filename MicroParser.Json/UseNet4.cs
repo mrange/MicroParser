@@ -9,23 +9,24 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-
-using System;
-using System.Collections.ObjectModel;
-using SilverlightDynamicJsonLib;
-
+#if MICRO_PARSER_JSON_NET4
 namespace MicroParser.Json
 {
-   partial class JsonSerializer
-   {
-      static partial void TransformObjects (object[] objects, ref object result)
-      {
-         result = new ObservableCollection<object>(objects);
-      }
+    using System;
+    using System.Collections.Generic;
+    using System.Dynamic;
 
-      static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
-      {
-         result = new DynamicDependencyObject (properties);
-      }
-   }
+    partial class JsonSerializer
+    {
+        static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
+        {
+            IDictionary<string, object> expando = new ExpandoObject ();
+            foreach (var p in properties)
+            {
+                expando[p.Item1 ?? ""] = p.Item2;
+            }
+            result = expando;
+        }
+    }
 }
+#endif

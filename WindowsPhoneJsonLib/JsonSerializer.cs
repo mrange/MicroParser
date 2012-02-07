@@ -15,12 +15,7 @@ using Include.MicroParser;
 
 namespace MicroParser.Json
 {
-   public partial class JsonUnserializeError
-   {
-
-   }
-
-   public partial class JsonSerializer
+   partial class JsonSerializer
    {
       static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
       {

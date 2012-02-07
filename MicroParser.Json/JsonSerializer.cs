@@ -312,7 +312,7 @@ namespace MicroParser.Json
             // ReSharper restore InconsistentNaming
         }
 
-        public static dynamic Unserialize (string str)
+        public static object Unserialize (string str)
         {
             var result = Parser.Parse (s_parser, str);
 
