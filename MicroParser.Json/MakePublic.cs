@@ -12,10 +12,6 @@
 #if MICRO_PARSER_JSON_MAKE_PUBLIC
 namespace MicroParser.Json
 {
-   using System;
-   using System.Collections.Generic;
-   using System.Dynamic;
-
    public partial class JsonUnserializeError
    {
 
@@ -23,15 +19,6 @@ namespace MicroParser.Json
 
    public partial class JsonSerializer
    {
-       static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
-       {
-           IDictionary<string, object> expando = new ExpandoObject ();
-           foreach (var p in properties)
-           {
-               expando[p.Item1 ?? ""] = p.Item2;
-           }
-           result = expando;
-       }
    }
 }
 #endif
