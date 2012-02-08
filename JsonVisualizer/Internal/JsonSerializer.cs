@@ -21,7 +21,7 @@ namespace MicroParser.Json
         {
             value = value ?? "";
             var sb = new StringBuilder (value.Length + 2);
-            SerializeString (sb, value);
+            SerializeStringValue (sb, value);
             return sb.ToString ();
         }
 
