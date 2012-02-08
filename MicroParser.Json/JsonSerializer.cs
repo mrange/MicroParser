@@ -333,7 +333,7 @@ namespace MicroParser.Json
             }
             else if (dyn is string)
             {
-                SerializeString (stringBuilder, (string)dyn);
+                SerializeStringValue (stringBuilder, (string)dyn);
             }
             else if (dyn is bool)
             {
@@ -365,7 +365,7 @@ namespace MicroParser.Json
                         stringBuilder.Append (',');
                     }
 
-                    SerializeString (stringBuilder, kv.Key);
+                    SerializeStringValue (stringBuilder, kv.Key);
                     stringBuilder.Append (':');
                     SerializeImpl (stringBuilder, kv.Value);
                 }
@@ -402,7 +402,7 @@ namespace MicroParser.Json
             }
         }
 
-        static void SerializeString (StringBuilder stringBuilder, string str)
+        static void SerializeStringValue (StringBuilder stringBuilder, string str)
         {
             stringBuilder.Append ('"');
             foreach (var ch in str)

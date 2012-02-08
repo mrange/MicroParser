@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Output\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,7 +30,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Output\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -66,18 +66,29 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BuildContext.cs" />
-    <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="IncludeMicroParser.Json.cs">
+    <Compile Include="Internal\BuildContext.cs" />
+    <Compile Include="Internal\ExtensionMethods.cs" />
+    <Compile Include="Internal\Generated_DependencyProperties.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Generated_DependencyProperties.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Internal\IncludeMicroParser.Json.cs">
       <DependentUpon>IncludeMicroParser.Json.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="LineNo.cs" />
+    <Compile Include="Internal\JsonSerializer.cs" />
+    <Compile Include="Internal\LineNo.cs" />
+    <Compile Include="Internal\WatermarkTextBox.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -97,7 +108,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="IncludeMicroParser.Json.tt">
+    <None Include="Internal\Generated_DependencyProperties.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Generated_DependencyProperties.cs</LastGenOutput>
+    </None>
+    <None Include="Internal\IncludeMicroParser.Json.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>IncludeMicroParser.Json.cs</LastGenOutput>
     </None>

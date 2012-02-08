@@ -10,12 +10,12 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
-using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Windows.Documents;
-
-namespace JsonVisualizer
+namespace JsonVisualizer.Internal
 {
+    using System.Collections.Generic;
+    using System.Windows.Controls;
+    using System.Windows.Documents;
+
     sealed class BuildContext
     {
         const string s_indent = "   ";
