@@ -10,7 +10,7 @@
     FontFamily="Consolas"
     FontSize="18"
     >
-    <Grid Margin="8">
+    <Grid x:Name="Main" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="8"/>
@@ -34,7 +34,6 @@
                 Grid.Column="0"
                 x:Name="JsonInput"
                 AcceptsReturn="true"
-                TextChanged="OnJsonChanged"
                 VerticalAlignment="Top"
                 MaxLines="6"
                 VerticalScrollBarVisibility="Auto"

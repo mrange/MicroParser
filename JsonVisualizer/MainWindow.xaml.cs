@@ -12,6 +12,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Windows.Media.Animation;
+
 namespace JsonVisualizer
 {
     using System;
@@ -43,11 +45,22 @@ namespace JsonVisualizer
         readonly SolidColorBrush m_bool         = new SolidColorBrush (Colors.DodgerBlue).FreezeIt ();
         readonly SolidColorBrush m_name         = new SolidColorBrush (Colors.Violet).FreezeIt ();
 
-        double m_zoom = 1.0;
+        double m_zoom           = 1.0;
+        string m_currentJson    = "";
+
+        DispatcherTimer m_updateTimer;
 
         public MainWindow ()
         {
             InitializeComponent ();
+
+            m_updateTimer = new DispatcherTimer (
+                TimeSpan.FromSeconds (0.1),
+                DispatcherPriority.ApplicationIdle,
+                OnUpdateJson,
+                Dispatcher
+                );
+            m_updateTimer.Start ();
 
             Loaded += MainWindow_Loaded;
         }
@@ -57,14 +70,21 @@ namespace JsonVisualizer
             JsonInput.Focus ();
         }
 
-        void OnJsonChanged (object sender, TextChangedEventArgs e)
+        void OnUpdateJson (object sender, EventArgs e)
         {
-            DeferAction (UpdateJson);
+            UpdateJson ();
         }
 
         void UpdateJson ()
-        {
-            var json = JsonInput.Text;
+        {               
+            var json        = JsonInput.Text ?? "";
+            var currentJson = m_currentJson ?? "";
+
+            // TODO: For very large json strings there's a recurring cost here
+            if (json.Equals (currentJson, StringComparison.Ordinal))
+            {
+                return;
+            }
 
             if (json.IsNullOrEmpty ())
             {
@@ -126,7 +146,8 @@ namespace JsonVisualizer
                 buildContext.SetInlines (textBlock);
             }
 
-            JsonOutput.Content = textBlock;
+            JsonOutput.Content  = textBlock;
+            m_currentJson       = json;
         }
 
         void BuildInlines (
@@ -161,7 +182,7 @@ namespace JsonVisualizer
                 var subIndent = buildContext.Indent ();
                 var subSubIndent = subIndent.Indent ();
                 var dictionary = (IDictionary<string, object>)result;
-                foreach (var value in dictionary.Select ((kv, i) => new {kv, i}))
+                foreach (var value in dictionary.OrderBy (kv => kv.Key).Select ((kv, i) => new { kv, i }))
                 {
                     AppendLine (
                         subIndent,
