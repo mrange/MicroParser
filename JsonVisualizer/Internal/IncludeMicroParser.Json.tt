@@ -20,11 +20,11 @@
 
 <#
    var includeNamespace = "";
-   var projectFile = Host.ResolvePath (@"..\MicroParser.Json\MicroParser.Json.csproj");
+   var projectFile = Host.ResolvePath (@"..\..\MicroParser.Json\MicroParser.Json.csproj");
    var blackList = new Regex[]
       {
          BlackList (@"AssemblyInfo.cs$"),
       };
 #>
 
-<#@ include file="..\LinkableCode\IncludeProject.ttinclude"#>
+<#@ include file="..\..\LinkableCode\IncludeProject.ttinclude"#>

@@ -10,19 +10,25 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Threading;
-using MicroParser.Json;
+// ReSharper disable InconsistentNaming
 
 namespace JsonVisualizer
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Documents;
+    using System.Windows.Media;
+    using System.Windows.Threading;
+    using JsonVisualizer.Internal;
+    using MicroParser.Json;
+
     public partial class MainWindow
     {
         static readonly CultureInfo s_defaultCulture = CultureInfo.InvariantCulture;
@@ -40,6 +46,13 @@ namespace JsonVisualizer
         public MainWindow ()
         {
             InitializeComponent ();
+
+            Loaded += MainWindow_Loaded;
+        }
+
+        void MainWindow_Loaded (object sender, RoutedEventArgs e)
+        {
+            JsonInput.Focus ();
         }
 
         void OnJsonChanged (object sender, TextChangedEventArgs e)
@@ -55,18 +68,22 @@ namespace JsonVisualizer
 
             var error = result as JsonUnserializeError;
 
+            var textBlock = new TextBlock ();
+
             if (error != null)
             {
                 var buildContext = new BuildContext ();
                 AppendLine (buildContext, false, new Run (error.ErrorMessage).ColorIt (m_error));
-                buildContext.SetInlines (JsonOutput);
+                buildContext.SetInlines (textBlock);
             }
             else
             {
                 var buildContext = new BuildContext ();
                 BuildInlines (buildContext, false, result);
-                buildContext.SetInlines (JsonOutput);
+                buildContext.SetInlines (textBlock);
             }
+
+            JsonOutput.Content = textBlock;
         }
 
         void BuildInlines (
@@ -92,7 +109,7 @@ namespace JsonVisualizer
             else if (result is string)
             {
                 var s = (string)result;
-                AppendLine (buildContext, appendComma, new Run ("\"" + s + "\"").ColorIt (m_string));
+                AppendLine (buildContext, appendComma, new Run (JsonSerializer.SerializeStringValue (s)).ColorIt (m_string));
             }
             else if (result is IDictionary<string, object>)
             {
@@ -106,7 +123,7 @@ namespace JsonVisualizer
                     AppendLine (
                         subIndent,
                         false,
-                        new Run ("\"" + value.kv.Key + "\"").ColorIt (m_name),
+                        new Run (JsonSerializer.SerializeStringValue (value.kv.Key)).ColorIt (m_name),
                         new Run (" : ").ColorIt (m_token)
                         );
                     BuildInlines (subSubIndent, value.i + 1 < dictionary.Count, value.kv.Value);
@@ -192,5 +209,32 @@ namespace JsonVisualizer
             }
         }
 
+        void OnClickCopy (object sender, RoutedEventArgs e)
+        {
+            var textBlock = JsonOutput.Content as TextBlock;
+            if (textBlock != null)
+            {
+                var sb = new StringBuilder (32);
+
+                foreach (var inline in textBlock.Inlines)
+                {
+                    if (inline is Run)
+                    {
+                        sb.Append (((Run) inline).Text);
+                    }
+                    else if (inline is LineBreak)
+                    {
+                        sb.AppendLine ();
+                    }
+                    else
+                    {
+                        // Unrecognized Inline, skipping it
+                        Debug.Assert (false);
+                    }
+                }
+
+                Clipboard.SetText (sb.ToString ());
+            }
+        }
     }
 }

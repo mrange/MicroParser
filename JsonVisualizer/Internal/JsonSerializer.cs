@@ -1,5 +1,5 @@
-// ----------------------------------------------------------------------------------------------
-// Copyright (c) Mårten Rånge.
+ï»¿// ----------------------------------------------------------------------------------------------
+// Copyright (c) MÃ¥rten RÃ¥nge.
 // ----------------------------------------------------------------------------------------------
 // This source code is subject to terms and conditions of the Microsoft Public License. A 
 // copy of the license can be found in the License.html file at the root of this distribution. 
@@ -10,10 +10,20 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
-namespace JsonVisualizer
+namespace MicroParser.Json
 {
-    sealed class LineNo
+    using System.Text;
+
+    partial class JsonSerializer
     {
-        public int Value;
+
+        public static string SerializeStringValue (string value)
+        {
+            value = value ?? "";
+            var sb = new StringBuilder (value.Length + 2);
+            SerializeString (sb, value);
+            return sb.ToString ();
+        }
+
     }
 }

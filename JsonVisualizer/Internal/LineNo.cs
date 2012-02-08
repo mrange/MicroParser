@@ -10,34 +10,10 @@
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
 
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
-
-namespace JsonVisualizer
+namespace JsonVisualizer.Internal
 {
-    static class ExtensionMethods
+    sealed class LineNo
     {
-        public static TFreezable FreezeIt<TFreezable> (this TFreezable freezable)
-            where TFreezable : Freezable
-        {
-            if (freezable != null && freezable.CanFreeze && !freezable.IsFrozen)
-            {
-                freezable.Freeze ();
-            }
-            return freezable;
-        }
-
-
-        public static TInline ColorIt<TInline>(this TInline inline, Brush brush)
-            where TInline : Inline
-        {
-            if (inline != null)
-            {
-                inline.Foreground = brush;
-            }
-
-            return inline;
-        }
+        public int Value;
     }
 }

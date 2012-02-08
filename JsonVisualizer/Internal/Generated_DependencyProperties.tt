@@ -1,0 +1,16 @@
+﻿<#
+    var namespaceName ="JsonVisualizer.Internal";
+
+    var model = new []
+    {
+        new ClassDefinition ("WatermarkTextBox")
+            {
+                P ("bool"   , "IsWatermarkEnabled"  , defaultValue:"true"   ),
+                P ("bool"   , "IsWatermarkVisible"  , defaultValue:"true"   ),
+                P ("string" , "WatermarkText"       , defaultValue:@"""Enter text here...""" ),
+                P ("Brush"  , "WatermarkBrush"      ),
+            },
+    };
+    // ------------------------------------------------------------------------
+#>
+<#@ include file="..\..\LinkableCode\DependencyProperties.ttinclude" #>

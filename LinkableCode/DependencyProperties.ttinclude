@@ -1,0 +1,433 @@
+﻿<#@ include     file        ="Header.ttinclude"             #>
+
+// ReSharper disable InconsistentNaming
+// ReSharper disable InvocationIsSkipped
+// ReSharper disable PartialMethodWithSinglePart
+// ReSharper disable PartialTypeWithSinglePart
+// ReSharper disable RedundantAssignment
+// ReSharper disable RedundantUsingDirective
+
+namespace <#=namespaceName#>
+{
+    using System.Collections.ObjectModel;
+    using System.Windows;
+    using System.Windows.Media;
+
+<#
+    // ------------------------------------------------------------------------
+    // +++ Template
+    // ------------------------------------------------------------------------
+    foreach (var classDef in model)
+    {
+#>
+    // ------------------------------------------------------------------------
+    // <#=classDef.Name#>
+    // ------------------------------------------------------------------------
+    <#=classDef.IsStatic ? "static " : ""#>partial class <#=classDef.Name#>
+    {
+        #region Uninteresting generated code
+<#
+        foreach (var propertyDef in classDef)
+        {
+
+            if (propertyDef.IsReadOnly)
+            {
+#>
+        static readonly DependencyPropertyKey <#=propertyDef.DependencyPropertyKeyName#> = DependencyProperty.Register<#=propertyDef.IsAttached ? "Attached" : ""#>ReadOnly (
+            "<#=propertyDef.Name#>",
+            typeof (<#=propertyDef.Type#>),
+            typeof (<#=classDef.Name#>),
+            new FrameworkPropertyMetadata (
+                <#=propertyDef.DefaultValue#>,
+                <#=propertyDef.MetaDataOptions#>,
+                <#=propertyDef.PropertyChangedEventName#>,
+                <#=propertyDef.PropertyCoerceEventName#>          
+            ));
+
+        public static readonly DependencyProperty <#=propertyDef.DependencyPropertyName#> = <#=propertyDef.DependencyPropertyKeyName#>.DependencyProperty;
+<#
+            }
+            else
+            {
+#>
+        public static readonly DependencyProperty <#=propertyDef.DependencyPropertyName#> = DependencyProperty.Register<#=propertyDef.IsAttached ? "Attached" : ""#> (
+            "<#=propertyDef.Name#>",
+            typeof (<#=propertyDef.Type#>),
+            typeof (<#=classDef.Name#>),
+            new FrameworkPropertyMetadata (
+                <#=propertyDef.DefaultValue#>,
+                <#=propertyDef.MetaDataOptions#>,
+                <#=propertyDef.PropertyChangedEventName#>,
+                <#=propertyDef.PropertyCoerceEventName#>          
+            ));
+<#
+            }
+#>
+
+<#
+            if (propertyDef.IsAttached)
+            {
+#>
+        static void <#=propertyDef.PropertyChangedEventName#> (DependencyObject dependencyObject, DependencyPropertyChangedEventArgs eventArgs)
+        {
+            if (dependencyObject != null)
+            {
+                var oldValue = (<#=propertyDef.Type#>)eventArgs.OldValue;
+                var newValue = (<#=propertyDef.Type#>)eventArgs.NewValue;
+
+                <#=propertyDef.PropertyChangedEventName#> (dependencyObject, oldValue, newValue);
+            }
+        }
+
+        static object <#=propertyDef.PropertyCoerceEventName#> (DependencyObject dependencyObject, object basevalue)
+        {
+            if (dependencyObject == null)
+            {
+                return basevalue;
+            }
+            var oldValue = (<#=propertyDef.Type#>)basevalue;
+            var newValue = oldValue;
+
+            <#=propertyDef.PropertyCoerceEventName#> (dependencyObject, oldValue, ref newValue);
+
+<#
+            if (propertyDef.IsCollection)
+            {
+#>
+            if (newValue == null)
+            {
+               newValue = new <#=propertyDef.Type#> ();
+            }
+<#
+            }
+#>
+
+            return newValue;
+        }
+<#
+            }
+            else
+            {
+#>
+        static void <#=propertyDef.PropertyChangedEventName#> (DependencyObject dependencyObject, DependencyPropertyChangedEventArgs eventArgs)
+        {
+            var instance = dependencyObject as <#=classDef.Name#>;
+            if (instance != null)
+            {
+                var oldValue = (<#=propertyDef.Type#>)eventArgs.OldValue;
+                var newValue = (<#=propertyDef.Type#>)eventArgs.NewValue;
+
+                instance.<#=propertyDef.PropertyChangedEventName#> (oldValue, newValue);
+            }
+        }
+
+        static object <#=propertyDef.PropertyCoerceEventName#> (DependencyObject dependencyObject, object basevalue)
+        {
+            var instance = dependencyObject as <#=classDef.Name#>;
+            if (instance == null)
+            {
+                return basevalue;
+            }
+            var oldValue = (<#=propertyDef.Type#>)basevalue;
+            var newValue = oldValue;
+
+            instance.<#=propertyDef.PropertyCoerceEventName#> (oldValue, ref newValue);
+
+<#
+            if (propertyDef.IsCollection)
+            {
+#>
+            if (newValue == null)
+            {
+               newValue = new <#=propertyDef.Type#> ();
+            }
+<#
+            }
+#>
+
+            return newValue;
+        }
+
+<#
+            }
+        }
+#>
+        #endregion
+
+<#
+        if (!classDef.IsStatic)
+        {
+#>
+        // --------------------------------------------------------------------
+        // Constructor
+        // --------------------------------------------------------------------
+        public <#=classDef.Name#> ()
+        {
+<#
+        foreach (var propertyDef in classDef)
+        {
+#>
+            CoerceValue (<#=propertyDef.DependencyPropertyName#>);
+<#
+        }
+#>
+            Constructed__<#=classDef.Name#> ();
+        }
+        // --------------------------------------------------------------------
+        partial void Constructed__<#=classDef.Name#> ();
+        // --------------------------------------------------------------------
+<#
+        }
+#>
+
+        // --------------------------------------------------------------------
+        // Properties
+        // --------------------------------------------------------------------
+
+<#
+        foreach (var propertyDef in classDef)
+        {
+#>
+<#
+            if (propertyDef.IsAttached)
+            {
+#>
+           
+        // --------------------------------------------------------------------
+        public static <#=propertyDef.Type#> Get<#=propertyDef.Name#> (DependencyObject dependencyObject)
+        {
+            if (dependencyObject == null)
+            {
+                return <#=propertyDef.DefaultValue#>;
+            }
+
+            return (<#=propertyDef.Type#>)dependencyObject.GetValue (<#=propertyDef.DependencyPropertyName#>);
+        }
+
+<#
+            if (propertyDef.IsReadOnly)
+            {
+#>
+        private static void Set<#=propertyDef.Name#> (DependencyObject dependencyObject, <#=propertyDef.Type#> value)
+        {
+            if (dependencyObject != null)
+            {
+                if (Get<#=propertyDef.Name#> (dependencyObject) != value)
+                {
+                    SetValue (<#=propertyDef.DependencyPropertyKeyName#>, value);
+                }
+            }
+        }
+<#
+            }
+            else
+            {
+#>
+        public static void Set<#=propertyDef.Name#> (DependencyObject dependencyObject, <#=propertyDef.Type#> value)
+        {
+            if (dependencyObject != null)
+            {
+                if (Get<#=propertyDef.Name#> (dependencyObject) != value)
+                {
+                    dependencyObject.SetValue (<#=propertyDef.DependencyPropertyName#>, value);
+                }
+            }
+        }
+<#
+            }
+#>
+        // --------------------------------------------------------------------
+        static partial void <#=propertyDef.PropertyChangedEventName#> (DependencyObject dependencyObject, <#=propertyDef.Type#> oldValue, <#=propertyDef.Type#> newValue);
+        static partial void <#=propertyDef.PropertyCoerceEventName#> (DependencyObject dependencyObject, <#=propertyDef.Type#> value, ref <#=propertyDef.Type#> coercedValue);
+        // --------------------------------------------------------------------
+
+<#
+            }
+            else
+            {
+#>
+           
+        // --------------------------------------------------------------------
+        public <#=propertyDef.Type#> <#=propertyDef.Name#>
+        {
+            get
+            {
+                return (<#=propertyDef.Type#>)GetValue (<#=propertyDef.DependencyPropertyName#>);
+            }
+<#
+            if (propertyDef.IsReadOnly)
+            {
+#>
+            private set
+            {
+                if (<#=propertyDef.Name#> != value)
+                {
+                    SetValue (<#=propertyDef.DependencyPropertyKeyName#>, value);
+                }
+            }
+<#
+            }
+            else
+            {
+#>
+            set
+            {
+                if (<#=propertyDef.Name#> != value)
+                {
+                    SetValue (<#=propertyDef.DependencyPropertyName#>, value);
+                }
+            }
+<#
+            }
+#>
+        }
+        // --------------------------------------------------------------------
+        partial void <#=propertyDef.PropertyChangedEventName#> (<#=propertyDef.Type#> oldValue, <#=propertyDef.Type#> newValue);
+        partial void <#=propertyDef.PropertyCoerceEventName#> (<#=propertyDef.Type#> value, ref <#=propertyDef.Type#> coercedValue);
+        // --------------------------------------------------------------------
+
+<#
+            }
+#>
+
+<#
+        }
+#>
+    }
+    // ------------------------------------------------------------------------
+
+<#
+    }
+    // ------------------------------------------------------------------------
+#>
+}
+<#+
+    class ClassDefinition : BaseContainer<Root, PropertyDefinition>
+    {
+        public readonly string Name;
+        public readonly bool IsStatic;
+
+        public ClassDefinition (string name, bool isStatic = false)
+        {
+            Name = name ?? "NoName";
+            IsStatic = isStatic;
+        }
+    }
+
+    enum PropertyFlags
+    {
+        None            = 0x0,
+        IsCollection    = 0x1,
+        IsReadOnly      = 0x2,
+        IsAttached      = 0x4,
+    }
+
+    PropertyDefinition P (
+        string type             , 
+        string name             , 
+        string defaultValue     = null              ,
+        string metaDataOptions  = null              , 
+        PropertyFlags flags     = PropertyFlags.None
+        )
+    {
+        return new PropertyDefinition
+        {
+            ItemType        = "<NoType>"                                                        ,
+            Type            = type                  ?? "<NoType>"                               ,
+            Name            = name                  ?? "<NoName>"                               ,
+            DefaultValue    = defaultValue          ?? "default (" + (type ?? "<NoType>") + ")" ,
+            MetaDataOptions = metaDataOptions       ?? "FrameworkPropertyMetadataOptions.None"  ,
+            Flags           = flags                                                             ,
+        };
+    }
+
+    PropertyDefinition C (
+        string itemType         , 
+        string name             , 
+        string metaDataOptions  = null              , 
+        PropertyFlags flags     = PropertyFlags.None
+        )
+    {
+        return new PropertyDefinition
+        {
+            ItemType        = itemType              ?? "<NoType>"                               ,
+            Type            = "ObservableCollection<" + (itemType ?? "<NoType>") + ">"          , 
+            Name            = name ?? "<NoName>"                                                ,
+            DefaultValue    = "null"                                                            ,
+            MetaDataOptions = metaDataOptions       ?? "FrameworkPropertyMetadataOptions.None"  ,
+            Flags           = flags | PropertyFlags.IsCollection                                ,
+        };
+    }
+
+    static bool IsOn (PropertyFlags flags, PropertyFlags test)
+    {
+        return (flags & test) == test;
+    }
+
+    class PropertyDefinition : BaseEntity<ClassDefinition>
+    {
+        public string               ItemType        ;
+        public string               Type            ;
+        public string               Name            ;
+        public string               DefaultValue    ;
+        public string               MetaDataOptions ;
+        public PropertyFlags        Flags           ; 
+
+        public string DependencyPropertyName
+        {
+            get
+            {
+                return Name + "Property";
+            }
+        }
+
+        public string DependencyPropertyKeyName
+        {
+            get
+            {
+                return Name + "PropertyKey";
+            }
+        }
+
+        public string PropertyCoerceEventName
+        {
+            get
+            {
+                return "Coerce_" + Name;
+            }
+        }
+
+        public string PropertyChangedEventName
+        {
+            get
+            {
+                return "Changed_" + Name;
+            }
+        }
+
+        public bool IsCollection 
+        {
+            get
+            {
+               return IsOn (Flags, PropertyFlags.IsCollection);
+            }
+        }
+
+        public bool IsAttached 
+        {
+            get
+            {
+               return IsOn (Flags, PropertyFlags.IsAttached);
+            }
+        }
+
+        public bool IsReadOnly
+        {
+            get
+            {
+               return IsOn (Flags, PropertyFlags.IsReadOnly);
+            }
+        }
+    }
+
+#>
