@@ -2,7 +2,7 @@
     x:Class="JsonVisualizer.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Internal="clr-namespace:JsonVisualizer.Internal"
-    Title="MainWindow" 
+    Title="JsonVisualizer - microparser.codeplex.com" 
     MinHeight="480"
     MinWidth="640"
     Background="Black"
@@ -24,6 +24,10 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="32"/>
             </Grid.ColumnDefinitions>                
             
             <Internal:WatermarkTextBox
@@ -42,10 +46,25 @@
                 Grid.Column="2"
                 Content="Copy"
                 VerticalAlignment="Top"
-                Height="36"
+                Height="32"
                 Click="OnClickCopy"
                 />
-        
+
+            <Button
+                Grid.Column="4"
+                Content="+"
+                VerticalAlignment="Top"
+                Height="32"
+                Click="OnClickZoomIn"
+                />
+            
+            <Button
+                Grid.Column="6"
+                Content="-"
+                VerticalAlignment="Top"
+                Height="32"
+                Click="OnClickZoomOut"
+                />
         </Grid>
         <ScrollViewer
             Grid.Row="2"
