@@ -34,6 +34,7 @@ namespace JsonVisualizer
         static readonly CultureInfo s_defaultCulture = CultureInfo.InvariantCulture;
 
         readonly SolidColorBrush m_error        = new SolidColorBrush (Colors.Red).FreezeIt ();
+        readonly SolidColorBrush m_errorPointer = new SolidColorBrush (Colors.White).FreezeIt ();
         readonly SolidColorBrush m_lineNo       = new SolidColorBrush (Colors.DarkGray).FreezeIt ();
         readonly SolidColorBrush m_token        = new SolidColorBrush (Colors.DarkGray).FreezeIt ();
         readonly SolidColorBrush m_string       = new SolidColorBrush (Colors.DarkOrange).FreezeIt ();
@@ -62,7 +63,7 @@ namespace JsonVisualizer
 
         void UpdateJson ()
         {
-            var json = JsonInput.Text;
+            var json = JsonInput.Text ?? "";
 
             object result = JsonSerializer.Unserialize (json);
 
@@ -73,7 +74,42 @@ namespace JsonVisualizer
             if (error != null)
             {
                 var buildContext = new BuildContext ();
+
+                const int offset = 20;
+
+                var begin   = error.ErrorOffset - offset;
+                var end     = error.ErrorOffset + offset;
+
+                var adjustedBegin   = Math.Max (0, begin);
+                var adjustedEnd     = Math.Min (json.Length, end);
+
+                var excerpt = new string (json
+                    .Substring (adjustedBegin, adjustedEnd - adjustedBegin)
+                    .Select (ch =>
+                                 {
+                                     switch (ch)
+                                     {
+                                         case '\b':
+                                         case '\f':
+                                         case '\n':
+                                         case '\r':
+                                         case '\t':
+                                             return ' ';
+                                         default:
+                                             return ch;
+                                     }
+                                     
+                                 })
+                    .ToArray ()
+                    )
+                    ;
+
+                var adjustedOffset  = Math.Min (excerpt.Length, Math.Max (0, offset + begin - adjustedBegin)); 
+
                 AppendLine (buildContext, false, new Run (error.ErrorMessage).ColorIt (m_error));
+                AppendLine (buildContext, false, new Run (new string ('-', adjustedOffset)).ColorIt (m_error), new Run ("V").ColorIt (m_errorPointer));
+                AppendLine (buildContext, false, new Run (excerpt).ColorIt (m_error));
+
                 buildContext.SetInlines (textBlock);
             }
             else
