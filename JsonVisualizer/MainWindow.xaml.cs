@@ -43,6 +43,7 @@ namespace JsonVisualizer
         readonly SolidColorBrush m_bool         = new SolidColorBrush (Colors.DodgerBlue).FreezeIt ();
         readonly SolidColorBrush m_name         = new SolidColorBrush (Colors.Violet).FreezeIt ();
 
+        double m_zoom = 1.0;
 
         public MainWindow ()
         {
@@ -63,7 +64,13 @@ namespace JsonVisualizer
 
         void UpdateJson ()
         {
-            var json = JsonInput.Text ?? "";
+            var json = JsonInput.Text;
+
+            if (json.IsNullOrEmpty ())
+            {
+                JsonOutput.Content = null;
+                return;
+            }
 
             object result = JsonSerializer.Unserialize (json);
 
@@ -271,6 +278,23 @@ namespace JsonVisualizer
 
                 Clipboard.SetText (sb.ToString ());
             }
+        }
+
+        void UpdateZoomLevel ()
+        {
+            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
+        }
+
+        void OnClickZoomIn (object sender, RoutedEventArgs e)
+        {
+            m_zoom *= 1.1;
+            UpdateZoomLevel ();
+        }
+
+        void OnClickZoomOut (object sender, RoutedEventArgs e)
+        {
+            m_zoom /= 1.1;
+            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
         }
     }
 }
