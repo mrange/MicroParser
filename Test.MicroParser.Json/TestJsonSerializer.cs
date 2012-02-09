@@ -69,8 +69,16 @@ namespace Test.MicroParser.Json
 
          foreach (var primitiveTest in s_primitiveTest)
          {
-            var value = JsonSerializer.Unserialize (primitiveTest.Item1);
-            bool result = Equals (primitiveTest.Item2, value);
+            // In order to parse simple value expressions we need to wrap them in arrays
+            var wrappedInArray = "[" + primitiveTest.Item1 + "]";
+            var wrappedValue = JsonSerializer.Unserialize (wrappedInArray);
+
+            var array = wrappedValue as object[];
+            Assert.IsNotNull (array);
+            Assert.AreEqual(1, array.Length);
+
+            var value = array[0];
+            var result = Equals (primitiveTest.Item2, value);
             Assert.IsTrue (result);
          }
       }
