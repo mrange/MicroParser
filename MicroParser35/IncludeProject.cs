@@ -1446,11 +1446,21 @@ namespace MicroParser
                         // Intentionally ignores result as SkipAdvance can't fail 
                         // in this situation (we know ParserState has at least one character left)
                         state.SkipAdvance (1);
+
+                        // As we already advanced one character we can't restore the state
+                        // So upgrade the error
+                        return parserFunctions[index].Item2.Execute (
+                           state
+                           )
+                           .UpgradeFailure (ParserReply.State.FatalError_StateIsNotRestored);
+                     }
+                     else
+                     {
+                        return parserFunctions[index].Item2.Execute (
+                           state
+                           );                         
                      }
 
-                     return parserFunctions[index].Item2.Execute (
-                        state
-                        );
                   };
 
          return function;
@@ -1988,17 +1998,17 @@ namespace MicroParser
       [Flags]
       public enum State
       {
-         Successful = 00,
-         Error = 10,
-         Error_Message = 11,
-         Error_Expected = 12,
-         Error_Unexpected = 13,
-         Error_Group = 14,
-         Error_StateIsRestored = 15,
-         FatalError = 0x00010000,
-         FatalError_Mask = 0x7FFF0000,
-         FatalError_Terminate = 0x00010000,
-         FatalError_StateIsNotRestored = 0x00020000,
+         Successful                     = 00,
+         Error                          = 10,
+         Error_Message                  = 11,
+         Error_Expected                 = 12,
+         Error_Unexpected               = 13,
+         Error_Group                    = 14,
+         Error_StateIsRestored          = 15,
+         FatalError                     = 0x00010000,
+         FatalError_Mask                = 0x7FFF0000,
+         FatalError_Terminate           = 0x00010000,
+         FatalError_StateIsNotRestored  = 0x00020000,
       }
       // ReSharper restore InconsistentNaming
 
@@ -2096,6 +2106,18 @@ namespace MicroParser
       public ParserReply<TValueTo> Failure<TValueTo> ()
       {
          return ParserReply<TValueTo>.Failure (State, ParserState, ParserErrorMessage);
+      }
+
+      public ParserReply<TValue> UpgradeFailure (ParserReply.State additionalStateFlags)
+      {
+         if (State.HasError ())
+         {
+            return Failure (State | additionalStateFlags, ParserState, ParserErrorMessage);
+         }
+         else
+         {
+            return this;
+         }
       }
 
       public ParserReply<TValue> Success (ParserState parserState)
@@ -2286,12 +2308,12 @@ namespace MicroParser
       // ReSharper disable InconsistentNaming
       public enum AdvanceResult
       {
-         Successful = 00,
-         Error = 10,
-         Error_EndOfStream = 11,
-         Error_SatisfyFailed = 12,
-         Error_EndOfStream_PostionChanged = 23,
-         Error_SatisfyFailed_PositionChanged = 24,
+         Successful                             = 00,
+         Error                                  = 10,
+         Error_EndOfStream                      = 11,
+         Error_SatisfyFailed                    = 12,
+         Error_EndOfStream_PostionChanged       = 23,
+         Error_SatisfyFailed_PositionChanged    = 24,
       }
       // ReSharper restore InconsistentNaming
 
@@ -2363,10 +2385,14 @@ namespace MicroParser
          subString.Value = m_text;
          subString.Position = m_position;
 
+         /*
+          * This optimization is very tempting to do, but this will give the wrong error message
+          * The optimization only saves time at the end of stream so it was removed
          if (m_position + minCount >= m_text.Length + 1)
          {
             return AdvanceResult.Error_EndOfStream;
          }
+         */ 
 
          var length = Math.Min (maxCount, m_text.Length - m_position);
          for (var iter = 0; iter < length; ++iter)
@@ -2392,6 +2418,14 @@ namespace MicroParser
          }
 
          subString.Length = m_position - subString.Position;
+
+         if (length < minCount)
+         {
+            return subString.Position == m_position
+                      ? AdvanceResult.Error_SatisfyFailed
+                      : AdvanceResult.Error_SatisfyFailed_PositionChanged
+               ;
+         }
 
          return AdvanceResult.Successful;
       }
