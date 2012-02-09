@@ -1346,20 +1346,32 @@ namespace MicroParser
                      break;
                   }
 
-               }
+               }               
 
                var parserResult = parser.Execute (state);
 
-               if (parserResult.State.HasFatalError ())
+               if (result.Count > 0)
                {
-                  return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
+                  // If a separator has been consumed we need to fail on failures
+                  if (parserResult.State.HasError())
+                  {
+                     return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
+                  }
                }
-               else if (parserResult.State.HasError ())
+               else
                {
-                  break;
+                  // If a separator has not been consumed we only need to fail on fatal errors
+                  if (parserResult.State.HasFatalError ())
+                  {
+                     return parserResult.Failure<TValue[]> ().VerifyConsistency (initialPosition);
+                  }
+                  else if (parserResult.State.HasError ())
+                  {
+                     break;
+                  }
                }
 
-               result.Add (parserResult.Value);
+                result.Add (parserResult.Value);
             }
 
             return ParserReply<TValue[]>.Success (state, result.ToArray ());
@@ -1458,6 +1470,8 @@ namespace MicroParser
 
          Parser<TValue>.Function function = state =>
                   {
+                     var initialPosition = state.Position;
+
                      var peeked = state.PeekChar ();
 
                      if (peeked == null)
@@ -1487,12 +1501,10 @@ namespace MicroParser
                         // in this situation (we know ParserState has at least one character left)
                         state.SkipAdvance (1);
 
-                        // As we already advanced one character we can't restore the state
-                        // So upgrade the error
                         return parserFunctions[index].Item2.Execute (
                            state
                            )
-                           .UpgradeFailure (ParserReply.State.FatalError_StateIsNotRestored);
+                           .VerifyConsistency (initialPosition);
                      }
                      else
                      {
@@ -2158,18 +2170,6 @@ namespace MicroParser
       public ParserReply<TValueTo> Failure<TValueTo> ()
       {
          return ParserReply<TValueTo>.Failure (State, ParserState, ParserErrorMessage);
-      }
-
-      public ParserReply<TValue> UpgradeFailure (ParserReply.State additionalStateFlags)
-      {
-         if (State.HasError ())
-         {
-            return Failure (State | additionalStateFlags, ParserState, ParserErrorMessage);
-         }
-         else
-         {
-            return this;
-         }
       }
 
       public ParserReply<TValue> Success (ParserState parserState)
