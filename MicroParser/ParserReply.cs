@@ -132,18 +132,6 @@ namespace MicroParser
          return ParserReply<TValueTo>.Failure (State, ParserState, ParserErrorMessage);
       }
 
-      public ParserReply<TValue> UpgradeFailure (ParserReply.State additionalStateFlags)
-      {
-         if (State.HasError ())
-         {
-            return Failure (State | additionalStateFlags, ParserState, ParserErrorMessage);
-         }
-         else
-         {
-            return this;
-         }
-      }
-
       public ParserReply<TValue> Success (ParserState parserState)
       {
          return Success (parserState, Value);
