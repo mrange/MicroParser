@@ -1,7 +1,6 @@
 ﻿
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
-#define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
 #define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
 #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
@@ -21,7 +20,6 @@
 
 // #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
-// #define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
 // #define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
 // #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 // #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
@@ -1313,6 +1311,7 @@ namespace MicroParser
       public static Parser<TValue[]> Array<TValue> (
          this Parser<TValue> parser,
          Parser<Empty> separator,
+         bool allowTrailingSeparator = false,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -1370,7 +1369,7 @@ namespace MicroParser
 
                var parserResult = parser.Execute (state);
 
-               if (result.Count > 0)
+               if (!allowTrailingSeparator && result.Count > 0)
                {
                   // If a separator has been consumed we need to fail on failures
                   if (parserResult.State.HasError())
@@ -3123,7 +3122,11 @@ namespace MicroParser.Json
             var p_null      = p_str ("null").Map (null as object);
             var p_true      = p_str ("true").Map (true as object);
             var p_false     = p_str ("false").Map (false as object);
-            var p_number    = CharParser.Double ().Map (d => d as object);
+            var p_number    = Parser.Choice (
+                p_str ("0").Map (0.0 as object),
+                p_str ("-0").Map (0.0 as object).Attempt (),
+                CharParser.Double ().Map (d => d as object)
+                );
 
             const string simpleEscape = "\"\\/bfnrt";
             const string simpleEscapeMap = "\"\\/\b\f\n\r\t";
@@ -3174,7 +3177,7 @@ namespace MicroParser.Json
                .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
                   Tuple.Create ("\""             , p_string.Map (v => v as object)),
-                  Tuple.Create ("0123456789"     , p_number),
+                  Tuple.Create ("-0123456789"    , p_number),
                   Tuple.Create ("{"              , p_object),
                   Tuple.Create ("["              , p_array),
                   Tuple.Create ("t"              , p_true),
@@ -3230,7 +3233,7 @@ namespace MicroParser.Json
         public static object Unserialize (string str)
         {
             // TODO: Parser bugs
-            // 0123 -> Doesn't generate an error (according to json.org non-zero digits can't start with 0)
+            // 0123 -> Parse as decimal, not double
 
             var result = Parser.Parse (s_parser, str);
 

@@ -1,7 +1,6 @@
 ﻿
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
-#define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
 #define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
 #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
@@ -1293,6 +1292,7 @@ namespace MicroParser
       public static Parser<TValue[]> Array<TValue> (
          this Parser<TValue> parser,
          Parser<Empty> separator,
+         bool allowTrailingSeparator = false,
          int minCount = 0,
          int maxCount = int.MaxValue
          )
@@ -1350,7 +1350,7 @@ namespace MicroParser
 
                var parserResult = parser.Execute (state);
 
-               if (result.Count > 0)
+               if (!allowTrailingSeparator && result.Count > 0)
                {
                   // If a separator has been consumed we need to fail on failures
                   if (parserResult.State.HasError())
