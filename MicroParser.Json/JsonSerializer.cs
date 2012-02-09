@@ -229,7 +229,7 @@ namespace MicroParser.Json
             var simpleSwitchCases = simpleEscape
                .Zip (
                   simpleEscapeMap,
-                  (l, r) => Tuple.Create (l.ToString (), Parser.Return (new StringPart (r)))
+                  (l, r) => Tuple.Create (l.ToString (s_cultureInfo), Parser.Return (new StringPart (r)))
                   );
 
             var otherSwitchCases =
