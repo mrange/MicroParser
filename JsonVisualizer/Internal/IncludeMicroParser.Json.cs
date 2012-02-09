@@ -1,5 +1,4 @@
 ﻿
-#define MICRO_PARSER_JSON_NET4
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
 #define MICRO_PARSER_SUPPRESS_PARSER_ATTEMPT
@@ -2918,7 +2917,7 @@ namespace MicroParser.Json
        static partial void TransformObjects (object[] objects, ref object result);
        static partial void TransformObject (Tuple<string, object>[] properties, ref object result);
 
-#if MICRO_PARSER_NET35
+#if MICRO_PARSER_JSON_NET35
         static IEnumerable<TZipped> Zip<T0, T1, TZipped>(
            this IEnumerable<T0> values0,
            IEnumerable<T1> values1,
@@ -3366,7 +3365,7 @@ namespace MicroParser.Json
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-#if MICRO_PARSER_JSON_NET4
+#if MICRO_PARSER_JSON_EXPANDO_OBJECT
 namespace MicroParser.Json
 {
     using System;

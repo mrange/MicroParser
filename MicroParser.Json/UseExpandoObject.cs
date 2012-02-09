@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-#if MICRO_PARSER_JSON_NET4
+#if MICRO_PARSER_JSON_EXPANDO_OBJECT
 namespace MicroParser.Json
 {
     using System;
