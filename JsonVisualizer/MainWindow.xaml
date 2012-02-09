@@ -10,6 +10,10 @@
     FontFamily="Consolas"
     FontSize="18"
     >
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Copy"  Executed="OnCopy"/>
+        <CommandBinding Command="ApplicationCommands.Paste" Executed="OnPaste "/>
+    </Window.CommandBindings>
     <Grid x:Name="Main" Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -46,7 +50,7 @@
                 Content="Copy"
                 VerticalAlignment="Top"
                 Height="32"
-                Click="OnClickCopy"
+                Command="ApplicationCommands.Copy"
                 />
 
             <Button

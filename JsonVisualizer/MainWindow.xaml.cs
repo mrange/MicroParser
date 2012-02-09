@@ -12,13 +12,10 @@
 
 // ReSharper disable InconsistentNaming
 
-using System.Windows.Media.Animation;
-
 namespace JsonVisualizer
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -26,6 +23,7 @@ namespace JsonVisualizer
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Documents;
+    using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Threading;
     using JsonVisualizer.Internal;
@@ -88,7 +86,8 @@ namespace JsonVisualizer
 
             if (json.IsNullOrEmpty ())
             {
-                JsonOutput.Content = null;
+                JsonOutput.Content  = null;
+                m_currentJson       = json;
                 return;
             }
 
@@ -265,15 +264,24 @@ namespace JsonVisualizer
             inl.Add (new LineBreak ());
         }
 
-        void DeferAction (Action action)
+        void UpdateZoomLevel ()
         {
-            if (action != null)
-            {
-                Dispatcher.BeginInvoke (action, DispatcherPriority.ApplicationIdle);
-            }
+            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
         }
 
-        void OnClickCopy (object sender, RoutedEventArgs e)
+        void OnClickZoomIn (object sender, RoutedEventArgs e)
+        {
+            m_zoom *= 1.1;
+            UpdateZoomLevel ();
+        }
+
+        void OnClickZoomOut (object sender, RoutedEventArgs e)
+        {
+            m_zoom /= 1.1;
+            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
+        }
+
+        void OnCopy (object sender, ExecutedRoutedEventArgs e)
         {
             var textBlock = JsonOutput.Content as TextBlock;
             if (textBlock != null)
@@ -284,7 +292,7 @@ namespace JsonVisualizer
                 {
                     if (inline is Run)
                     {
-                        sb.Append (((Run) inline).Text);
+                        sb.Append (((Run)inline).Text);
                     }
                     else if (inline is LineBreak)
                     {
@@ -301,21 +309,12 @@ namespace JsonVisualizer
             }
         }
 
-        void UpdateZoomLevel ()
+        void OnPaste (object sender, ExecutedRoutedEventArgs e)
         {
-            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
-        }
-
-        void OnClickZoomIn (object sender, RoutedEventArgs e)
-        {
-            m_zoom *= 1.1;
-            UpdateZoomLevel ();
-        }
-
-        void OnClickZoomOut (object sender, RoutedEventArgs e)
-        {
-            m_zoom /= 1.1;
-            JsonOutput.LayoutTransform = new ScaleTransform (m_zoom, m_zoom);
+            if (Clipboard.ContainsText ())
+            {
+                JsonInput.Text = Clipboard.GetText ();
+            }
         }
     }
 }
