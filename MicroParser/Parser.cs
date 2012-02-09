@@ -435,11 +435,21 @@ namespace MicroParser
                         // Intentionally ignores result as SkipAdvance can't fail 
                         // in this situation (we know ParserState has at least one character left)
                         state.SkipAdvance (1);
+
+                        // As we already advanced one character we can't restore the state
+                        // So upgrade the error
+                        return parserFunctions[index].Item2.Execute (
+                           state
+                           )
+                           .UpgradeFailure (ParserReply.State.FatalError_StateIsNotRestored);
+                     }
+                     else
+                     {
+                        return parserFunctions[index].Item2.Execute (
+                           state
+                           );                         
                      }
 
-                     return parserFunctions[index].Item2.Execute (
-                        state
-                        );
                   };
 
          return function;

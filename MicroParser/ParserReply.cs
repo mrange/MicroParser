@@ -22,17 +22,17 @@ namespace MicroParser
       [Flags]
       public enum State
       {
-         Successful = 00,
-         Error = 10,
-         Error_Message = 11,
-         Error_Expected = 12,
-         Error_Unexpected = 13,
-         Error_Group = 14,
-         Error_StateIsRestored = 15,
-         FatalError = 0x00010000,
-         FatalError_Mask = 0x7FFF0000,
-         FatalError_Terminate = 0x00010000,
-         FatalError_StateIsNotRestored = 0x00020000,
+         Successful                     = 00,
+         Error                          = 10,
+         Error_Message                  = 11,
+         Error_Expected                 = 12,
+         Error_Unexpected               = 13,
+         Error_Group                    = 14,
+         Error_StateIsRestored          = 15,
+         FatalError                     = 0x00010000,
+         FatalError_Mask                = 0x7FFF0000,
+         FatalError_Terminate           = 0x00010000,
+         FatalError_StateIsNotRestored  = 0x00020000,
       }
       // ReSharper restore InconsistentNaming
 
@@ -130,6 +130,18 @@ namespace MicroParser
       public ParserReply<TValueTo> Failure<TValueTo> ()
       {
          return ParserReply<TValueTo>.Failure (State, ParserState, ParserErrorMessage);
+      }
+
+      public ParserReply<TValue> UpgradeFailure (ParserReply.State additionalStateFlags)
+      {
+         if (State.HasError ())
+         {
+            return Failure (State | additionalStateFlags, ParserState, ParserErrorMessage);
+         }
+         else
+         {
+            return this;
+         }
       }
 
       public ParserReply<TValue> Success (ParserState parserState)
