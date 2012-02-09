@@ -126,8 +126,8 @@ namespace JsonVisualizer
                                      }
                                      
                                  })
-                    .ToArray ()
-                    )
+                    .ToArray ())
+                    .Trim ()
                     ;
 
                 var adjustedOffset  = Math.Min (excerpt.Length, Math.Max (0, offset + begin - adjustedBegin)); 
