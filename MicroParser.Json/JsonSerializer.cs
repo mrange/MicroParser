@@ -327,8 +327,6 @@ namespace MicroParser.Json
         public static object Unserialize (string str)
         {
             // TODO: Parser bugs
-            // "\u" -> Doesn't generate an error
-            // Trailing commas -> Doesn't generate an error
             // 0123 -> Doesn't generate an error (according to json.org non-zero digits can't start with 0)
 
             var result = Parser.Parse (s_parser, str);
