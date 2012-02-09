@@ -332,6 +332,9 @@ namespace MicroParser.Json
         {
             // TODO: Parser bugs
             // 0123 -> Parse as decimal, not double
+            // There's a problem with the error reporter if there's spaces in the beginning
+            // Refine Switch/Case parser combinator. Replace Tuple with Switch.Case
+            // Add support for expected error message if Case fails
 
             var result = Parser.Parse (s_parser, str);
 
