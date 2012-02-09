@@ -2,6 +2,7 @@
 #define MICRO_PARSER_JSON_MAKE_PUBLIC
 
 #define MICRO_PARSER_NET35
+#define MICRO_PARSER_JSON_NET35
 
 #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
@@ -2897,16 +2898,19 @@ namespace MicroParser.Json
     public sealed partial class JsonUnserializeError
     {
         public readonly string ErrorMessage;
+        public readonly int ErrorOffset;
 
-        public JsonUnserializeError (string errorMessage)
+        public JsonUnserializeError (string errorMessage, int errorOffset)
         {
             ErrorMessage = errorMessage ?? "<NULL>";
+            ErrorOffset = errorOffset;
         }
 
         public override string ToString ()
         {
             return new
             {
+                ErrorOffset,
                 ErrorMessage
             }.ToString ();
         }
@@ -2918,7 +2922,7 @@ namespace MicroParser.Json
        static partial void TransformObjects (object[] objects, ref object result);
        static partial void TransformObject (Tuple<string, object>[] properties, ref object result);
 
-#if MICRO_PARSER_NET35
+#if MICRO_PARSER_JSON_NET35
         static IEnumerable<TZipped> Zip<T0, T1, TZipped>(
            this IEnumerable<T0> values0,
            IEnumerable<T1> values1,
@@ -3180,16 +3184,30 @@ namespace MicroParser.Json
 
             var p_eos = Parser.EndOfStream ();
 
-            s_parser = p_spaces.KeepRight (p_value).KeepLeft (p_spaces).KeepLeft (p_eos);
+            // .Switch is used as we can tell by looking at the first character which parser to use
+            var p_root = Parser
+               .Switch (
+                  Parser.SwitchCharacterBehavior.Leave,
+                  Tuple.Create ("{", p_object),
+                  Tuple.Create ("[", p_array)
+                  )
+               .KeepLeft (p_spaces);
+
+            s_parser = p_spaces.KeepRight (p_root).KeepLeft (p_spaces).KeepLeft (p_eos);
 
             // ReSharper restore InconsistentNaming
         }
 
         public static object Unserialize (string str)
         {
+            // TODO: Parser bugs
+            // "\u" -> Doesn't generate an error
+            // Trailing commas -> Doesn't generate an error
+            // 0123 -> Doesn't generate an error (according to json.org non-zero digits can't start with 0)
+
             var result = Parser.Parse (s_parser, str);
 
-            return result.IsSuccessful ? result.Value : new JsonUnserializeError (result.ErrorMessage);
+            return result.IsSuccessful ? result.Value : new JsonUnserializeError (result.ErrorMessage, result.Unconsumed.Begin);
         }
 
         static readonly CultureInfo s_cultureInfo = CultureInfo.InvariantCulture;
@@ -3206,7 +3224,7 @@ namespace MicroParser.Json
             }
             else if (dyn is string)
             {
-                SerializeString (stringBuilder, (string)dyn);
+                SerializeStringValue (stringBuilder, (string)dyn);
             }
             else if (dyn is bool)
             {
@@ -3238,7 +3256,7 @@ namespace MicroParser.Json
                         stringBuilder.Append (',');
                     }
 
-                    SerializeString (stringBuilder, kv.Key);
+                    SerializeStringValue (stringBuilder, kv.Key);
                     stringBuilder.Append (':');
                     SerializeImpl (stringBuilder, kv.Value);
                 }
@@ -3275,7 +3293,7 @@ namespace MicroParser.Json
             }
         }
 
-        static void SerializeString (StringBuilder stringBuilder, string str)
+        static void SerializeStringValue (StringBuilder stringBuilder, string str)
         {
             stringBuilder.Append ('"');
             foreach (var ch in str)
@@ -3352,7 +3370,7 @@ namespace MicroParser.Json
 // ----------------------------------------------------------------------------------------------
 // You must not remove this notice, or any other, from this software.
 // ----------------------------------------------------------------------------------------------
-#if MICRO_PARSER_JSON_NET4
+#if MICRO_PARSER_JSON_EXPANDO_OBJECT
 namespace MicroParser.Json
 {
     using System;
@@ -3361,9 +3379,9 @@ namespace MicroParser.Json
 
     partial class JsonSerializer
     {
-        static partial void TransformObject(Tuple<string, object>[] properties, ref object result)
+        static partial void TransformObject (Tuple<string, object>[] properties, ref object result)
         {
-            IDictionary<string, object> expando = new ExpandoObject();
+            IDictionary<string, object> expando = new ExpandoObject ();
             foreach (var p in properties)
             {
                 expando[p.Item1 ?? ""] = p.Item2;

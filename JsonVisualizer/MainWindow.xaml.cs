@@ -175,22 +175,22 @@ namespace JsonVisualizer
                 var s = (string)result;
                 AppendLine (buildContext, appendComma, new Run (JsonSerializer.SerializeStringValue (s)).ColorIt (m_string));
             }
-            else if (result is IDictionary<string, object>)
+            else if (result is Tuple<string, object>[])
             {
                 AppendLine (buildContext, false, new Run ("{").ColorIt (m_token));
 
                 var subIndent = buildContext.Indent ();
                 var subSubIndent = subIndent.Indent ();
-                var dictionary = (IDictionary<string, object>)result;
-                foreach (var value in dictionary.OrderBy (kv => kv.Key).Select ((kv, i) => new { kv, i }))
+                var values = (Tuple<string, object>[])result;
+                foreach (var value in values.Select ((kv, i) => new { kv, i }))
                 {
                     AppendLine (
                         subIndent,
                         false,
-                        new Run (JsonSerializer.SerializeStringValue (value.kv.Key)).ColorIt (m_name),
+                        new Run (JsonSerializer.SerializeStringValue (value.kv.Item1)).ColorIt (m_name),
                         new Run (" : ").ColorIt (m_token)
                         );
-                    BuildInlines (subSubIndent, value.i + 1 < dictionary.Count, value.kv.Value);
+                    BuildInlines (subSubIndent, value.i + 1 < values.Length, value.kv.Item2);
                 }
 
                 AppendLine (buildContext, appendComma, new Run ("}").ColorIt (m_token));                                
