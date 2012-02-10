@@ -47,6 +47,7 @@ namespace MicroParser
          public const string Eos          = "end of stream";
          public const string WhiteSpace   = "whitespace";
          public const string Digit        = "digit";
+         public const string HexDigit     = "hexdigit";
          public const string Letter       = "letter";
          public const string Any          = "any";
          public const string LineBreak    = "linebreak";
