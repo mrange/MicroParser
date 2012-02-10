@@ -280,7 +280,7 @@ namespace MicroParser
             return ParserReply.Create (
                advanceResult,
                state,
-               ParserErrorMessages.Expected_Digit,
+               ParserErrorMessages.Expected_HexDigit,
                () =>
                {
                   var accumulated = 0u;
