@@ -457,16 +457,13 @@ namespace MicroParser
 
          var errorMessages = cases
             .SelectMany(
-               (@case, i) =>
-                  {
-                     return
-                        @case.Expected.IsNullOrEmpty()
-                           ? @case
-                                .Case
-                                .Select(ch => new ParserErrorMessage_Expected(Strings.CharSatisfy.FormatChar_1.FormatWith(ch)))
-                           : new[] { new ParserErrorMessage_Expected(@case.Expected) }
-                           ;
-                  })
+               (@case, i) => @case.Expected.IsNullOrEmpty()
+                                ? @case
+                                     .Case
+                                     .Select(ch => Strings.CharSatisfy.FormatChar_1.FormatWith(ch))
+                                : new[] { @case.Expected })
+            .Distinct ()
+            .Select (message => new ParserErrorMessage_Expected (message))            
             .ToArray();
 
          var errorMessage = new ParserErrorMessage_Group (
