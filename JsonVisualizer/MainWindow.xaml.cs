@@ -109,7 +109,7 @@ namespace JsonVisualizer
                 var adjustedBegin   = Math.Max (0, begin);
                 var adjustedEnd     = Math.Min (json.Length, end);
 
-                var excerpt = new string (json
+                var halfTrimmedExcerpt = new string (json
                     .Substring (adjustedBegin, adjustedEnd - adjustedBegin)
                     .Select (ch =>
                                  {
@@ -127,10 +127,13 @@ namespace JsonVisualizer
                                      
                                  })
                     .ToArray ())
-                    .Trim ()
+                    .TrimEnd ()
                     ;
 
-                var adjustedOffset  = Math.Min (excerpt.Length, Math.Max (0, offset + begin - adjustedBegin)); 
+                var excerpt         = halfTrimmedExcerpt.TrimStart();
+                var leftTrimLength  = halfTrimmedExcerpt.Length - excerpt.Length;
+
+                var adjustedOffset  = Math.Min (excerpt.Length, Math.Max (0, offset + begin - adjustedBegin - leftTrimLength)); 
 
                 AppendLine (buildContext, false, new Run (error.ErrorMessage).ColorIt (m_error));
                 AppendLine (buildContext, false, new Run (new string ('-', adjustedOffset)).ColorIt (m_error), new Run ("V").ColorIt (m_errorPointer));
