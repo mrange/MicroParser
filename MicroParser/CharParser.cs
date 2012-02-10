@@ -33,7 +33,7 @@ namespace MicroParser
          }
 
          CharSatisfy.Function satisfy = (c, i) => c == toSkip[i];
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (toSkip));
 
          return SkipSatisfy (
             new CharSatisfy (parserErrorMessage, satisfy),

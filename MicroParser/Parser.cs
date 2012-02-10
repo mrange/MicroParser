@@ -65,7 +65,7 @@ namespace MicroParser
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
                .Select (messages =>
-                        Strings.Parser.ErrorMessage_2.FormatString (
+                        Strings.Parser.ErrorMessage_2.FormatWith (
                            messages.Key,
                            messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
                            ))
@@ -77,7 +77,7 @@ namespace MicroParser
                   );
 
             var completeErrorResult =
-               "Pos: {0} ('{1}') - {2}".FormatString (
+               "Pos: {0} ('{1}') - {2}".FormatWith (
                   subString.Position,
                   subString[0],
                   errorResult
@@ -122,6 +122,29 @@ namespace MicroParser
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
          Parser<TValue>.Function function = state => ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessageMessage);
+         return function;
+      }
+#endif
+
+#if !MICRO_PARSER_SUPPRESS_PARSER_FAIL_WITH_EXPECTED
+      public static Parser<TValue> FailWithExpected<TValue>(this Parser<TValue> parser, string message)
+      {
+         var parserErrorMessageMessage = new ParserErrorMessage_Expected (message);
+         Parser<TValue>.Function function = 
+            state => 
+               {
+                  var reply = parser.Execute (state);
+                  if (reply.State.HasError ())
+                  {
+                     return ParserReply<TValue>.Failure(
+                        ParserReply.State.Error_Expected | reply.State & ParserReply.State.FatalError_Mask, 
+                        state, 
+                        parserErrorMessageMessage
+                        );
+                  }
+                  return reply;
+                  
+               };
          return function;
       }
 #endif
@@ -384,35 +407,67 @@ namespace MicroParser
 #endif
 
 #if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
-
       public enum SwitchCharacterBehavior
       {
-         Consume,
-         Leave,
+         Consume  ,
+         Leave    ,
+      }
+
+      public struct SwitchCase<TValue>
+      {
+         public readonly string           Case;  
+         public readonly Parser<TValue>   Parser;
+         public readonly string           Expected;
+
+         public SwitchCase (string @case, Parser<TValue> parser, string expected) : this()
+         {
+            Case     = @case     ?? "";
+            Parser   = parser    ;
+            Expected = expected  ?? "";
+         }
+      }
+      
+      public static SwitchCase<TValue> Case<TValue> (
+         string @case,
+         Parser<TValue> parser,
+         string expected = null
+         )
+      {
+         return new SwitchCase<TValue>(@case, parser, expected);
       }
 
       public static Parser<TValue> Switch<TValue> (
          SwitchCharacterBehavior switchCharacterBehavior,
-         params Tuple<string, Parser<TValue>>[] parserFunctions
+         params SwitchCase<TValue>[] cases
          )
       {
-         if (parserFunctions == null)
+         if (cases == null)
          {
-            throw new ArgumentNullException ("parserFunctions");
+            throw new ArgumentNullException ("cases");
          }
 
-         if (parserFunctions.Length == 0)
+         if (cases.Length == 0)
          {
-            throw new ArgumentOutOfRangeException ("parserFunctions", Strings.Parser.Verify_AtLeastOneParserFunctions);
+            throw new ArgumentOutOfRangeException ("cases", Strings.Parser.Verify_AtLeastOneParserFunctions);
          }
 
-         var dictionary = parserFunctions
-            .SelectMany ((tuple, i) => tuple.Item1.Select (c => Tuple.Create (c, i)))
+         var caseDictionary = cases
+            .SelectMany ((@case, i) => @case.Case.Select (c => Tuple.Create (c, i)))
             .ToDictionary (kv => kv.Item1, kv => kv.Item2);
 
-         var errorMessages = dictionary
-            .Select (ch => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch.Key)))
-            .ToArray ();
+         var errorMessages = cases
+            .SelectMany(
+               (@case, i) =>
+                  {
+                     return
+                        @case.Expected.IsNullOrEmpty()
+                           ? @case
+                                .Case
+                                .Select(ch => new ParserErrorMessage_Expected(Strings.CharSatisfy.FormatChar_1.FormatWith(ch)))
+                           : new[] { new ParserErrorMessage_Expected(@case.Expected) }
+                           ;
+                  })
+            .ToArray();
 
          var errorMessage = new ParserErrorMessage_Group (
             errorMessages
@@ -436,7 +491,7 @@ namespace MicroParser
                      var peekedValue = peeked.Value;
 
                      int index;
-                     if (!dictionary.TryGetValue (peekedValue, out index))
+                     if (!caseDictionary.TryGetValue (peekedValue, out index))
                      {
                         return ParserReply<TValue>.Failure (
                            ParserReply.State.Error_Expected,
@@ -450,18 +505,12 @@ namespace MicroParser
                         // Intentionally ignores result as SkipAdvance can't fail 
                         // in this situation (we know ParserState has at least one character left)
                         state.SkipAdvance (1);
+                     }
 
-                        return parserFunctions[index].Item2.Execute (
-                           state
-                           )
-                           .VerifyConsistency (initialPosition);
-                     }
-                     else
-                     {
-                        return parserFunctions[index].Item2.Execute (
-                           state
-                           );                         
-                     }
+                     return cases[index].Parser.Execute(
+                        state
+                        )
+                        .VerifyConsistency(initialPosition);
 
                   };
 

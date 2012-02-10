@@ -27,7 +27,7 @@ namespace MicroParser
       public static implicit operator CharSatisfy (char ch)
       {
          return new CharSatisfy (
-            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch)), 
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (ch)), 
             (c, i) => ch == c
             );
       }
@@ -199,7 +199,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (x)),
             true
             );
       }
@@ -208,7 +208,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.FormatWith (x)),
             false
             );
       }

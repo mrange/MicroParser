@@ -29,6 +29,7 @@ namespace MicroParser
          Error_Unexpected               = 13,
          Error_Group                    = 14,
          Error_StateIsRestored          = 15,
+         Error_Mask                     = 0x0000FFFF,
          FatalError                     = 0x00010000,
          FatalError_Mask                = 0x7FFF0000,
          FatalError_Terminate           = 0x00010000,
