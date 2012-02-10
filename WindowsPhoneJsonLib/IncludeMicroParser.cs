@@ -10,6 +10,7 @@
 #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
 #define MICRO_PARSER_SUPPRESS_PARSER_FAIL
+#define MICRO_PARSER_SUPPRESS_PARSER_FAIL_WITH_EXPECTED
 
 #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
 #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
@@ -29,6 +30,7 @@
 // #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 // #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
 // #define MICRO_PARSER_SUPPRESS_PARSER_FAIL
+// #define MICRO_PARSER_SUPPRESS_PARSER_FAIL_WITH_EXPECTED
 
 // #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
 // #define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
@@ -78,7 +80,7 @@ namespace MicroParser
          }
 
          CharSatisfy.Function satisfy = (c, i) => c == toSkip[i];
-         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (toSkip));
+         var parserErrorMessage = new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (toSkip));
 
          return SkipSatisfy (
             new CharSatisfy (parserErrorMessage, satisfy),
@@ -487,7 +489,7 @@ namespace MicroParser
       public static implicit operator CharSatisfy (char ch)
       {
          return new CharSatisfy (
-            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch)), 
+            new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (ch)), 
             (c, i) => ch == c
             );
       }
@@ -659,7 +661,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
+            x => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatWith (x)),
             true
             );
       }
@@ -668,7 +670,7 @@ namespace MicroParser
       {
          return CreateSatisfyForAnyOfOrNoneOf (
             match,
-            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.FormatString (x)),
+            x => new ParserErrorMessage_Unexpected (Strings.CharSatisfy.FormatChar_1.FormatWith (x)),
             false
             );
       }
@@ -852,7 +854,7 @@ namespace MicroParser.Internal
 
       // System.String
 
-      public static string FormatString (this string format, params object[] args)
+      public static string FormatWith (this string format, params object[] args)
       {
          return string.Format (CultureInfo.InvariantCulture, format, args);
       }
@@ -1139,7 +1141,7 @@ namespace MicroParser
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
                .Select (messages =>
-                        Strings.Parser.ErrorMessage_2.FormatString (
+                        Strings.Parser.ErrorMessage_2.FormatWith (
                            messages.Key,
                            messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
                            ))
@@ -1151,7 +1153,7 @@ namespace MicroParser
                   );
 
             var completeErrorResult =
-               "Pos: {0} ('{1}') - {2}".FormatString (
+               "Pos: {0} ('{1}') - {2}".FormatWith (
                   subString.Position,
                   subString[0],
                   errorResult
@@ -1196,6 +1198,29 @@ namespace MicroParser
       {
          var parserErrorMessageMessage = new ParserErrorMessage_Message (message);
          Parser<TValue>.Function function = state => ParserReply<TValue>.Failure (ParserReply.State.Error, state, parserErrorMessageMessage);
+         return function;
+      }
+#endif
+
+#if !MICRO_PARSER_SUPPRESS_PARSER_FAIL_WITH_EXPECTED
+      public static Parser<TValue> FailWithExpected<TValue>(this Parser<TValue> parser, string message)
+      {
+         var parserErrorMessageMessage = new ParserErrorMessage_Expected (message);
+         Parser<TValue>.Function function = 
+            state => 
+               {
+                  var reply = parser.Execute (state);
+                  if (reply.State.HasError ())
+                  {
+                     return ParserReply<TValue>.Failure(
+                        ParserReply.State.Error_Expected | reply.State & ParserReply.State.FatalError_Mask, 
+                        state, 
+                        parserErrorMessageMessage
+                        );
+                  }
+                  return reply;
+                  
+               };
          return function;
       }
 #endif
@@ -1458,35 +1483,67 @@ namespace MicroParser
 #endif
 
 #if !MICRO_PARSER_SUPPRESS_PARSER_SWITCH
-
       public enum SwitchCharacterBehavior
       {
-         Consume,
-         Leave,
+         Consume  ,
+         Leave    ,
+      }
+
+      public struct SwitchCase<TValue>
+      {
+         public readonly string           Case;  
+         public readonly Parser<TValue>   Parser;
+         public readonly string           Expected;
+
+         public SwitchCase (string @case, Parser<TValue> parser, string expected) : this()
+         {
+            Case     = @case     ?? "";
+            Parser   = parser    ;
+            Expected = expected  ?? "";
+         }
+      }
+      
+      public static SwitchCase<TValue> Case<TValue> (
+         string @case,
+         Parser<TValue> parser,
+         string expected = null
+         )
+      {
+         return new SwitchCase<TValue>(@case, parser, expected);
       }
 
       public static Parser<TValue> Switch<TValue> (
          SwitchCharacterBehavior switchCharacterBehavior,
-         params Tuple<string, Parser<TValue>>[] parserFunctions
+         params SwitchCase<TValue>[] cases
          )
       {
-         if (parserFunctions == null)
+         if (cases == null)
          {
-            throw new ArgumentNullException ("parserFunctions");
+            throw new ArgumentNullException ("cases");
          }
 
-         if (parserFunctions.Length == 0)
+         if (cases.Length == 0)
          {
-            throw new ArgumentOutOfRangeException ("parserFunctions", Strings.Parser.Verify_AtLeastOneParserFunctions);
+            throw new ArgumentOutOfRangeException ("cases", Strings.Parser.Verify_AtLeastOneParserFunctions);
          }
 
-         var dictionary = parserFunctions
-            .SelectMany ((tuple, i) => tuple.Item1.Select (c => Tuple.Create (c, i)))
+         var caseDictionary = cases
+            .SelectMany ((@case, i) => @case.Case.Select (c => Tuple.Create (c, i)))
             .ToDictionary (kv => kv.Item1, kv => kv.Item2);
 
-         var errorMessages = dictionary
-            .Select (ch => new ParserErrorMessage_Expected (Strings.CharSatisfy.FormatChar_1.FormatString (ch.Key)))
-            .ToArray ();
+         var errorMessages = cases
+            .SelectMany(
+               (@case, i) =>
+                  {
+                     return
+                        @case.Expected.IsNullOrEmpty()
+                           ? @case
+                                .Case
+                                .Select(ch => new ParserErrorMessage_Expected(Strings.CharSatisfy.FormatChar_1.FormatWith(ch)))
+                           : new[] { new ParserErrorMessage_Expected(@case.Expected) }
+                           ;
+                  })
+            .ToArray();
 
          var errorMessage = new ParserErrorMessage_Group (
             errorMessages
@@ -1510,7 +1567,7 @@ namespace MicroParser
                      var peekedValue = peeked.Value;
 
                      int index;
-                     if (!dictionary.TryGetValue (peekedValue, out index))
+                     if (!caseDictionary.TryGetValue (peekedValue, out index))
                      {
                         return ParserReply<TValue>.Failure (
                            ParserReply.State.Error_Expected,
@@ -1524,18 +1581,12 @@ namespace MicroParser
                         // Intentionally ignores result as SkipAdvance can't fail 
                         // in this situation (we know ParserState has at least one character left)
                         state.SkipAdvance (1);
+                     }
 
-                        return parserFunctions[index].Item2.Execute (
-                           state
-                           )
-                           .VerifyConsistency (initialPosition);
-                     }
-                     else
-                     {
-                        return parserFunctions[index].Item2.Execute (
-                           state
-                           );                         
-                     }
+                     return cases[index].Parser.Execute(
+                        state
+                        )
+                        .VerifyConsistency(initialPosition);
 
                   };
 
@@ -1845,7 +1896,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Message_1.FormatString (Message);
+         return Strings.ParserErrorMessages.Message_1.FormatWith (Message);
       }
 
       public override string Description
@@ -1870,7 +1921,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Expected_1.FormatString (Expected);
+         return Strings.ParserErrorMessages.Expected_1.FormatWith (Expected);
       }
 
       public override string Description
@@ -1895,7 +1946,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Unexpected_1.FormatString (Unexpected);
+         return Strings.ParserErrorMessages.Unexpected_1.FormatWith (Unexpected);
       }
 
       public override string Description
@@ -1920,7 +1971,7 @@ namespace MicroParser
 
       public override string ToString ()
       {
-         return Strings.ParserErrorMessages.Group_1.FormatString (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
+         return Strings.ParserErrorMessages.Group_1.FormatWith (Group.Select (message => message.ToString ()).Concatenate (Strings.CommaSeparator));
       }
 
       public override string Description
@@ -2093,6 +2144,7 @@ namespace MicroParser
          Error_Unexpected               = 13,
          Error_Group                    = 14,
          Error_StateIsRestored          = 15,
+         Error_Mask                     = 0x0000FFFF,
          FatalError                     = 0x00010000,
          FatalError_Mask                = 0x7FFF0000,
          FatalError_Terminate           = 0x00010000,
@@ -2624,14 +2676,14 @@ namespace MicroParser
 
    static partial class Strings
    {
-      public const string CommaSeparator = ", ";
-      public const string Empty = "";
+      public const string CommaSeparator  = ", ";
+      public const string Empty           = "";
 
       public static class Parser
       {
-         public const string ErrorMessage_2 = "{0} : {1}";
-         public const string Verify_AtLeastOneParserFunctions = "parserFunctions should contain at least 1 item";
-         public const string Verify_MinCountAndMaxCount = "minCount need to be less or equal to maxCount";
+         public const string ErrorMessage_2                    = "{0} : {1}";
+         public const string Verify_AtLeastOneParserFunctions  = "cases should contain at least 1 item";
+         public const string Verify_MinCountAndMaxCount        = "minCount need to be less or equal to maxCount";
       }
 
       public static class CharSatisfy
@@ -2641,26 +2693,26 @@ namespace MicroParser
 
       public static class ParserErrorMessages
       {
-         public const string Message_1 = "Message:{0}";
-         public const string Expected_1 = "Expected:{0}";
+         public const string Message_1    = "Message:{0}";
+         public const string Expected_1   = "Expected:{0}";
          public const string Unexpected_1 = "Unexpected:{0}";
-         public const string Group_1 = "Group:{0}";
+         public const string Group_1      = "Group:{0}";
 
          [Obsolete]
-         public const string Todo = "TODO:";
-         public const string Unexpected = "unexpected ";
-         public const string Unknown = "unknown error";
-         public const string Eos = "end of stream";
-         public const string WhiteSpace = "whitespace";
-         public const string Digit = "digit";
-         public const string Letter = "letter";
-         public const string Any = "any";
-         public const string LineBreak = "linebreak";
+         public const string Todo         = "TODO:";
+         public const string Unexpected   = "unexpected ";
+         public const string Unknown      = "unknown error";
+         public const string Eos          = "end of stream";
+         public const string WhiteSpace   = "whitespace";
+         public const string Digit        = "digit";
+         public const string Letter       = "letter";
+         public const string Any          = "any";
+         public const string LineBreak    = "linebreak";
 
-         public const string Choice = "multiple choices";
-         public const string Message = "message";
-         public const string Group = "group";
-         public const string Expected = "expected";
+         public const string Choice       = "multiple choices";
+         public const string Message      = "message";
+         public const string Group        = "group";
+         public const string Expected     = "expected";
 
       }
 
@@ -3124,10 +3176,17 @@ namespace MicroParser.Json
 
             var p_spaces = CharParser.SkipWhiteSpace ();
 
-            var p_null      = p_str ("null").Map (null as object);
-            var p_true      = p_str ("true").Map (true as object);
-            var p_false     = p_str ("false").Map (false as object);
-            var p_number    = Parser.Choice (
+            var expected_true    = "'true'";
+            var expected_false   = "'false'";
+            var expected_string  = "string";
+            var expected_number  = "object";
+            var expected_array   = "array";
+            var expected_null    = "'null'";
+
+            var p_null     = p_str (expected_null).Map (null as object);
+            var p_true     = p_str (expected_true).Map (true as object);
+            var p_false    = p_str (expected_false).Map (false as object);
+            var p_number   = Parser.Choice (
                 p_str ("0").Map (0.0 as object),
                 p_str ("-0").Map (0.0 as object).Attempt (),
                 CharParser.Double ().Map (d => d as object)
@@ -3140,13 +3199,13 @@ namespace MicroParser.Json
             var simpleSwitchCases = simpleEscape
                .Zip (
                   simpleEscapeMap,
-                  (l, r) => Tuple.Create (l.ToString (s_cultureInfo), Parser.Return (new StringPart (r)))
+                  (l, r) => Parser.Case (l.ToString (s_cultureInfo), Parser.Return (new StringPart (r)))
                   );
 
             var otherSwitchCases =
                new[]
                {
-                  Tuple.Create (
+                  Parser.Case (
                      "u",
                      CharParser
                         .Hex (minCount: 4, maxCount: 4)
@@ -3178,16 +3237,16 @@ namespace MicroParser.Json
             var p_object = p_object_redirect.Parser;
 
             // .Switch is used as we can tell by looking at the first character which parser to use
-            var p_value = Parser
+           var p_value = Parser
                .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
-                  Tuple.Create ("\""             , p_string.Map (v => v as object)),
-                  Tuple.Create ("-0123456789"    , p_number),
-                  Tuple.Create ("{"              , p_object),
-                  Tuple.Create ("["              , p_array),
-                  Tuple.Create ("t"              , p_true),
-                  Tuple.Create ("f"              , p_false),
-                  Tuple.Create ("n"              , p_null)
+                  Parser.Case ("\""             , p_string.Map (v => v as object), expected_string ),
+                  Parser.Case ("-0123456789"    , p_number                       , expected_number ),
+                  Parser.Case ("{"              , p_object                                         ),
+                  Parser.Case ("["              , p_array                                          ),
+                  Parser.Case ("t"              , p_true                         , expected_true   ),
+                  Parser.Case ("f"              , p_false                        , expected_false  ),
+                  Parser.Case ("n"              , p_null                         , expected_null   )
                   )
                .KeepLeft (p_spaces);
 
@@ -3225,8 +3284,8 @@ namespace MicroParser.Json
             var p_root = Parser
                .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
-                  Tuple.Create ("{", p_object),
-                  Tuple.Create ("[", p_array)
+                  Parser.Case ("{", p_object),
+                  Parser.Case ("[", p_array)
                   )
                .KeepLeft (p_spaces);
 
@@ -3239,6 +3298,10 @@ namespace MicroParser.Json
         {
             // TODO: Parser bugs
             // 0123 -> Parse as decimal, not double
+            // There's a problem with the error reporter if there's spaces in the beginning
+            // Refine Switch/Case parser combinator. Replace Tuple with Switch.Case
+            // Add support for expected error message if Case fails
+            // Update Hex parser to report that it expects HexDigit
 
             var result = Parser.Parse (s_parser, str);
 
