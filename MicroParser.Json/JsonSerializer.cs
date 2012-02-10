@@ -217,10 +217,17 @@ namespace MicroParser.Json
 
             var p_spaces = CharParser.SkipWhiteSpace ();
 
-            var p_null      = p_str ("null").Map (null as object);
-            var p_true      = p_str ("true").Map (true as object);
-            var p_false     = p_str ("false").Map (false as object);
-            var p_number    = Parser.Choice (
+            var expected_true    = "'true'";
+            var expected_false   = "'false'";
+            var expected_string  = "string";
+            var expected_number  = "object";
+            var expected_array   = "array";
+            var expected_null    = "'null'";
+
+            var p_null     = p_str (expected_null).Map (null as object);
+            var p_true     = p_str (expected_true).Map (true as object);
+            var p_false    = p_str (expected_false).Map (false as object);
+            var p_number   = Parser.Choice (
                 p_str ("0").Map (0.0 as object),
                 p_str ("-0").Map (0.0 as object).Attempt (),
                 CharParser.Double ().Map (d => d as object)
@@ -233,13 +240,13 @@ namespace MicroParser.Json
             var simpleSwitchCases = simpleEscape
                .Zip (
                   simpleEscapeMap,
-                  (l, r) => Tuple.Create (l.ToString (s_cultureInfo), Parser.Return (new StringPart (r)))
+                  (l, r) => Parser.Case (l.ToString (s_cultureInfo), Parser.Return (new StringPart (r)))
                   );
 
             var otherSwitchCases =
                new[]
                {
-                  Tuple.Create (
+                  Parser.Case (
                      "u",
                      CharParser
                         .Hex (minCount: 4, maxCount: 4)
@@ -271,16 +278,16 @@ namespace MicroParser.Json
             var p_object = p_object_redirect.Parser;
 
             // .Switch is used as we can tell by looking at the first character which parser to use
-            var p_value = Parser
+           var p_value = Parser
                .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
-                  Tuple.Create ("\""             , p_string.Map (v => v as object)),
-                  Tuple.Create ("-0123456789"    , p_number),
-                  Tuple.Create ("{"              , p_object),
-                  Tuple.Create ("["              , p_array),
-                  Tuple.Create ("t"              , p_true),
-                  Tuple.Create ("f"              , p_false),
-                  Tuple.Create ("n"              , p_null)
+                  Parser.Case ("\""             , p_string.Map (v => v as object), expected_string ),
+                  Parser.Case ("-0123456789"    , p_number                       , expected_number ),
+                  Parser.Case ("{"              , p_object                                         ),
+                  Parser.Case ("["              , p_array                                          ),
+                  Parser.Case ("t"              , p_true                         , expected_true   ),
+                  Parser.Case ("f"              , p_false                        , expected_false  ),
+                  Parser.Case ("n"              , p_null                         , expected_null   )
                   )
                .KeepLeft (p_spaces);
 
@@ -318,8 +325,8 @@ namespace MicroParser.Json
             var p_root = Parser
                .Switch (
                   Parser.SwitchCharacterBehavior.Leave,
-                  Tuple.Create ("{", p_object),
-                  Tuple.Create ("[", p_array)
+                  Parser.Case ("{", p_object),
+                  Parser.Case ("[", p_array)
                   )
                .KeepLeft (p_spaces);
 
@@ -335,6 +342,7 @@ namespace MicroParser.Json
             // There's a problem with the error reporter if there's spaces in the beginning
             // Refine Switch/Case parser combinator. Replace Tuple with Switch.Case
             // Add support for expected error message if Case fails
+            // Update Hex parser to report that it expects HexDigit
 
             var result = Parser.Parse (s_parser, str);
 
