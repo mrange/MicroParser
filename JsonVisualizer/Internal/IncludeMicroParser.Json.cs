@@ -322,7 +322,7 @@ namespace MicroParser
             return ParserReply.Create (
                advanceResult,
                state,
-               ParserErrorMessages.Expected_Digit,
+               ParserErrorMessages.Expected_HexDigit,
                () =>
                {
                   var accumulated = 0u;
@@ -1528,16 +1528,13 @@ namespace MicroParser
 
          var errorMessages = cases
             .SelectMany(
-               (@case, i) =>
-                  {
-                     return
-                        @case.Expected.IsNullOrEmpty()
-                           ? @case
-                                .Case
-                                .Select(ch => new ParserErrorMessage_Expected(Strings.CharSatisfy.FormatChar_1.FormatWith(ch)))
-                           : new[] { new ParserErrorMessage_Expected(@case.Expected) }
-                           ;
-                  })
+               (@case, i) => @case.Expected.IsNullOrEmpty()
+                                ? @case
+                                     .Case
+                                     .Select(ch => Strings.CharSatisfy.FormatChar_1.FormatWith(ch))
+                                : new[] { @case.Expected })
+            .Distinct ()
+            .Select (message => new ParserErrorMessage_Expected (message))            
             .ToArray();
 
          var errorMessage = new ParserErrorMessage_Group (
@@ -1865,18 +1862,19 @@ namespace MicroParser
    static partial class ParserErrorMessages
    {
       [Obsolete]
-      public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
-      public readonly static IParserErrorMessage Message_Unknown = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Unknown);
+      public readonly static IParserErrorMessage Message_TODO           = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
+      public readonly static IParserErrorMessage Message_Unknown        = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Unknown);
 
-      public readonly static IParserErrorMessage Expected_EndOfStream = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Eos);
-      public readonly static IParserErrorMessage Expected_Digit = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Digit);
-      public readonly static IParserErrorMessage Expected_WhiteSpace = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
-      public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
-      public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
-      public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
-      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
+      public readonly static IParserErrorMessage Expected_EndOfStream   = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Expected_Digit         = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Digit);
+      public readonly static IParserErrorMessage Expected_HexDigit      = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.HexDigit);
+      public readonly static IParserErrorMessage Expected_WhiteSpace    = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
+      public readonly static IParserErrorMessage Expected_Choice        = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
+      public readonly static IParserErrorMessage Expected_Any           = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
+      public readonly static IParserErrorMessage Expected_Letter        = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
+      public readonly static IParserErrorMessage Expected_LineBreak     = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
 
-      public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Unexpected_Eos         = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
    }
 
 
@@ -2700,6 +2698,7 @@ namespace MicroParser
          public const string Eos          = "end of stream";
          public const string WhiteSpace   = "whitespace";
          public const string Digit        = "digit";
+         public const string HexDigit     = "hexdigit";
          public const string Letter       = "letter";
          public const string Any          = "any";
          public const string LineBreak    = "linebreak";
@@ -3171,16 +3170,14 @@ namespace MicroParser.Json
 
             var p_spaces = CharParser.SkipWhiteSpace ();
 
-            var expected_true    = "'true'";
-            var expected_false   = "'false'";
-            var expected_string  = "string";
-            var expected_number  = "object";
-            var expected_array   = "array";
-            var expected_null    = "'null'";
+            const string expected_bool    = "bool"    ;
+            const string expected_string  = "string"  ;
+            const string expected_number  = "number"  ;
+            const string expected_null    = "null"    ;
 
-            var p_null     = p_str (expected_null).Map (null as object);
-            var p_true     = p_str (expected_true).Map (true as object);
-            var p_false    = p_str (expected_false).Map (false as object);
+            var p_null     = p_str ("null").Map (null as object);
+            var p_true     = p_str ("true").Map (true as object);
+            var p_false    = p_str ("false").Map (false as object);
             var p_number   = Parser.Choice (
                 p_str ("0").Map (0.0 as object),
                 p_str ("-0").Map (0.0 as object).Attempt (),
@@ -3239,8 +3236,8 @@ namespace MicroParser.Json
                   Parser.Case ("-0123456789"    , p_number                       , expected_number ),
                   Parser.Case ("{"              , p_object                                         ),
                   Parser.Case ("["              , p_array                                          ),
-                  Parser.Case ("t"              , p_true                         , expected_true   ),
-                  Parser.Case ("f"              , p_false                        , expected_false  ),
+                  Parser.Case ("t"              , p_true                         , expected_bool   ),
+                  Parser.Case ("f"              , p_false                        , expected_bool   ),
                   Parser.Case ("n"              , p_null                         , expected_null   )
                   )
                .KeepLeft (p_spaces);
@@ -3291,13 +3288,6 @@ namespace MicroParser.Json
 
         public static object Unserialize (string str)
         {
-            // TODO: Parser bugs
-            // 0123 -> Parse as decimal, not double
-            // There's a problem with the error reporter if there's spaces in the beginning
-            // Refine Switch/Case parser combinator. Replace Tuple with Switch.Case
-            // Add support for expected error message if Case fails
-            // Update Hex parser to report that it expects HexDigit
-
             var result = Parser.Parse (s_parser, str);
 
             return result.IsSuccessful ? result.Value : new JsonUnserializeError (result.ErrorMessage, result.Unconsumed.Begin);
