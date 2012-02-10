@@ -283,7 +283,7 @@ namespace MicroParser
             return ParserReply.Create (
                advanceResult,
                state,
-               ParserErrorMessages.Expected_Digit,
+               ParserErrorMessages.Expected_HexDigit,
                () =>
                {
                   var accumulated = 0u;
@@ -1468,16 +1468,13 @@ namespace MicroParser
 
          var errorMessages = cases
             .SelectMany(
-               (@case, i) =>
-                  {
-                     return
-                        @case.Expected.IsNullOrEmpty()
-                           ? @case
-                                .Case
-                                .Select(ch => new ParserErrorMessage_Expected(Strings.CharSatisfy.FormatChar_1.FormatWith(ch)))
-                           : new[] { new ParserErrorMessage_Expected(@case.Expected) }
-                           ;
-                  })
+               (@case, i) => @case.Expected.IsNullOrEmpty()
+                                ? @case
+                                     .Case
+                                     .Select(ch => Strings.CharSatisfy.FormatChar_1.FormatWith(ch))
+                                : new[] { @case.Expected })
+            .Distinct ()
+            .Select (message => new ParserErrorMessage_Expected (message))            
             .ToArray();
 
          var errorMessage = new ParserErrorMessage_Group (
@@ -1802,18 +1799,19 @@ namespace MicroParser
    static partial class ParserErrorMessages
    {
       [Obsolete]
-      public readonly static IParserErrorMessage Message_TODO = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
-      public readonly static IParserErrorMessage Message_Unknown = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Unknown);
+      public readonly static IParserErrorMessage Message_TODO           = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Todo);
+      public readonly static IParserErrorMessage Message_Unknown        = new ParserErrorMessage_Message (Strings.ParserErrorMessages.Unknown);
 
-      public readonly static IParserErrorMessage Expected_EndOfStream = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Eos);
-      public readonly static IParserErrorMessage Expected_Digit = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Digit);
-      public readonly static IParserErrorMessage Expected_WhiteSpace = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
-      public readonly static IParserErrorMessage Expected_Choice = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
-      public readonly static IParserErrorMessage Expected_Any = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
-      public readonly static IParserErrorMessage Expected_Letter = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
-      public readonly static IParserErrorMessage Expected_LineBreak = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
+      public readonly static IParserErrorMessage Expected_EndOfStream   = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Expected_Digit         = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Digit);
+      public readonly static IParserErrorMessage Expected_HexDigit      = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.HexDigit);
+      public readonly static IParserErrorMessage Expected_WhiteSpace    = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.WhiteSpace);
+      public readonly static IParserErrorMessage Expected_Choice        = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Choice);
+      public readonly static IParserErrorMessage Expected_Any           = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Any);
+      public readonly static IParserErrorMessage Expected_Letter        = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.Letter);
+      public readonly static IParserErrorMessage Expected_LineBreak     = new ParserErrorMessage_Expected (Strings.ParserErrorMessages.LineBreak);
 
-      public readonly static IParserErrorMessage Unexpected_Eos = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
+      public readonly static IParserErrorMessage Unexpected_Eos         = new ParserErrorMessage_Unexpected (Strings.ParserErrorMessages.Eos);
    }
 
 
@@ -2619,6 +2617,7 @@ namespace MicroParser
          public const string Eos          = "end of stream";
          public const string WhiteSpace   = "whitespace";
          public const string Digit        = "digit";
+         public const string HexDigit     = "hexdigit";
          public const string Letter       = "letter";
          public const string Any          = "any";
          public const string LineBreak    = "linebreak";
