@@ -1,5 +1,6 @@
-﻿3. Improve parser error messages
+﻿1. Improve parser error messages
    For instance should optional parsers be listed when reporting an error.
    How to handle inner non-critical failures.
-4. Improve unit test coverage
-5. Improve documentation of parser functions
+2. Improve unit test coverage
+3. Improve documentation of parser functions
+4. JSON: 0123 -> Parse as decimal, not double
