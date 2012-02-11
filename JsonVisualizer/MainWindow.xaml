@@ -9,6 +9,7 @@
     Foreground="White"
     FontFamily="Consolas"
     FontSize="18"
+    Hyperlink.Click="OnHyperLinkClicked"
     >
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Copy"  Executed="OnCopy"/>
@@ -89,6 +90,23 @@
                         FontSize="64"
                         Foreground="Purple"
                         />
+                   <LineBreak/>
+                   <LineBreak/>
+                   <LineBreak/>
+                   <Span FontSize="15" Foreground="#666">
+                      <Run
+                         Text="JsonVisualizer is built using"
+                        />
+                      <Hyperlink
+                        NavigateUri="http://microparser.codeplex.com"
+                        Foreground="DodgerBlue"
+                        >
+                           <Run Text="MicroParser"/>
+                      </Hyperlink>
+                      <Run
+                         Text="parser combinator library"
+                        />
+                   </Span>
                 </TextBlock>
                 
             </ContentControl>
