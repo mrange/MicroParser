@@ -1,27 +1,31 @@
 ﻿
-#define MICRO_PARSER_JSON_MAKE_PUBLIC
-
 #define MICRO_PARSER_NET35
+
+#define MICRO_PARSER_JSON_MAKE_PUBLIC
 #define MICRO_PARSER_JSON_NET35
 
-#define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
 
+
+// ----------------------------------------------------------------------------
+// Included defines (C# requires #define to in the first part of a code file)
+// ----------------------------------------------------------------------------
+#define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
+#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NONE_OF
+#define MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
+#define MICRO_PARSER_SUPPRESS_EXTENSIONS_EXCEPT
+#define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
 #define MICRO_PARSER_SUPPRESS_PARSER_CHAIN
 #define MICRO_PARSER_SUPPRESS_PARSER_COMBINE
 #define MICRO_PARSER_SUPPRESS_PARSER_EXCEPT
 #define MICRO_PARSER_SUPPRESS_PARSER_FAIL
 #define MICRO_PARSER_SUPPRESS_PARSER_FAIL_WITH_EXPECTED
+// ----------------------------------------------------------------------------
 
-#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_MANY_CHAR_SATISFY_2
-#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NEW_LINE
-#define MICRO_PARSER_SUPPRESS_CHAR_PARSER_SKIP_NONE_OF
-
-#define MICRO_PARSER_SUPPRESS_CHAR_SATISFY_COMPOSITES
-
-#define MICRO_PARSER_SUPPRESS_EXTENSIONS_EXCEPT
-#define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
-
-
+// ----------------------------------------------------------------------------
+// Included code
+// ----------------------------------------------------------------------------
 
 
 // #define MICRO_PARSER_SUPPRESS_ANONYMOUS_TYPE
@@ -42,6 +46,11 @@
 // #define MICRO_PARSER_SUPPRESS_EXTENSIONS_OR
 
 
+
+
+// ----------------------------------------------------------------------------
+// Included code
+// ----------------------------------------------------------------------------
 
 namespace Include
 {
