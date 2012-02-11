@@ -13,16 +13,16 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyDescription ("")]
+[assembly: AssemblyDescription   ("This assembly is part of MicroParser, see microparser.codeplex.com")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("microparser.codeplex.com")]
-[assembly: AssemblyProduct ("MicroParser")]
-[assembly: AssemblyCopyright ("Copyright © Mårten Rånge 2010")]
-[assembly: AssemblyTrademark ("")]
-[assembly: AssemblyCulture ("")]
+[assembly: AssemblyCompany       ("microparser.codeplex.com")]
+[assembly: AssemblyProduct       ("MicroParser")]
+[assembly: AssemblyCopyright     ("Copyright © Mårten Rånge 2012")]
+[assembly: AssemblyTrademark     ("")]
+[assembly: AssemblyCulture       ("")]
 
-[assembly: CLSCompliant (true)]
-[assembly: ComVisible (false)]
+[assembly: CLSCompliant          (true)]
+[assembly: ComVisible            (false)]
 
-[assembly: AssemblyVersion ("0.1.0.0")]
-[assembly: AssemblyFileVersion ("0.1.0.0")]
+[assembly: AssemblyVersion       ("1.1.0.0")]
+[assembly: AssemblyFileVersion   ("1.1.0.0")]

@@ -5,6 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroParser", "MicroParser\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. Solution Items", "9. Solution Items", "{E70B1E0E-E7F0-4C48-BF35-6FAF707CA410}"
 	ProjectSection(SolutionItems) = preProject
+		LinkableCode\GlobalAssemblyInfo.cs = LinkableCode\GlobalAssemblyInfo.cs
 		Local.testsettings = Local.testsettings
 		MicroParser.vsmdi = MicroParser.vsmdi
 		MicroParser1.vsmdi = MicroParser1.vsmdi
