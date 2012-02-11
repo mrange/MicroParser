@@ -16,9 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Expandos", "1. Expandos", "{D0ECEF34-E447-4820-9D64-7C02DEACABAB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Parser lib", "0. Parser lib", "{BE182199-90F3-48DB-91AF-91D83D937714}"
-	ProjectSection(SolutionItems) = preProject
-		LinkableCode\IncludeProject.ttinclude = LinkableCode\IncludeProject.ttinclude
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightDynamicJson", "SilverlightDynamicJson\SilverlightDynamicJson.csproj", "{F8F54B1D-2988-4EBF-BF80-893BC6953DC4}"
 EndProject
@@ -45,6 +42,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SilverlightDynamicJsonLib", "SilverlightDynamicJsonLib\SilverlightDynamicJsonLib.csproj", "{516CF1B6-854A-4FE1-8FFD-193420659C89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonVisualizer", "JsonVisualizer\JsonVisualizer.csproj", "{88DAF4B5-FBE5-461A-A740-8EB445A32419}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8. T4", "8. T4", "{D33DDF33-891D-437B-A280-07CE82FD8A0F}"
+	ProjectSection(SolutionItems) = preProject
+		LinkableCode\DependencyProperties.ttinclude = LinkableCode\DependencyProperties.ttinclude
+		LinkableCode\Header.ttinclude = LinkableCode\Header.ttinclude
+		LinkableCode\IncludeProject.ttinclude = LinkableCode\IncludeProject.ttinclude
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
