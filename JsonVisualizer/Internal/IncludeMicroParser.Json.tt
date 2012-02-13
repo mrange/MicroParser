@@ -1,5 +1,8 @@
 ﻿<#@ output extension="cs" #>
 
+#define MICRO_PARSER_NET35
+#define MICRO_PARSER_JSON_NET35
+
 <#
    var includeNamespace = "";
    var projectFile = Host.ResolvePath (@"..\..\MicroParser.Json\MicroParser.Json.csproj");

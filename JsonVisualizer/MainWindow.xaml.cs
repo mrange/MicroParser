@@ -28,6 +28,8 @@ namespace JsonVisualizer
    using System.Windows.Threading;
    using JsonVisualizer.Internal;
    using MicroParser.Json;
+   using Include.MicroParser;
+
 
    public partial class MainWindow
    {
