@@ -1080,10 +1080,11 @@ namespace MicroParser
                .ParserErrorMessage
                .DeepTraverse ()
                .GroupBy (msg => msg.Description)
-               .Select (messages =>
+               .OrderBy (group => group.Key)
+               .Select (group =>
                         Strings.Parser.ErrorMessage_2.FormatWith (
-                           messages.Key,
-                           messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
+                           group.Key,
+                           group.Select (message => message.Value.ToString ()).Distinct ().OrderBy (v => v).Concatenate (", ")
                            ))
                .Concatenate (", ");
 
