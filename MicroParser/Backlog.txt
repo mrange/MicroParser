@@ -4,6 +4,4 @@
 2. Improve unit test coverage
 3. Improve documentation of parser functions
 4. JSON: 0123 -> Parse as decimal, not double
-5. Distinct () doesn't work as expected here, should be fixed
-   messages.Distinct ().Select (message => message.Value.ToString ()).Concatenate (", ")
 
