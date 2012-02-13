@@ -225,11 +225,7 @@ namespace MicroParser.Json
             var p_null     = p_str ("null").Map (null as object);
             var p_true     = p_str ("true").Map (true as object);
             var p_false    = p_str ("false").Map (false as object);
-            var p_number   = Parser.Choice (
-                p_str ("0").Map (0.0 as object),
-                p_str ("-0").Map (0.0 as object).Attempt (),
-                CharParser.Double ().Map (d => d as object)
-                );
+            var p_number   = CharParser.Double ().Map (d => d as object);
 
             const string simpleEscape = "\"\\/bfnrt";
             const string simpleEscapeMap = "\"\\/\b\f\n\r\t";

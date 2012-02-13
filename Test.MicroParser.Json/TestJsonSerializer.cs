@@ -34,6 +34,10 @@ namespace Test.MicroParser.Json
                Tuple.Create ("\"Test\""         , "Test"       as object   , "\"Test\""         ),
                Tuple.Create ("\"\\u0041\""      , "A"          as object   , "\"A\""            ),
 
+               Tuple.Create ("0"                , 0.0          as object   , "0"                ),
+               Tuple.Create ("-0"               , 0.0          as object   , "0"                ),
+               Tuple.Create ("0.5"              , 0.5          as object   , "0.5"              ),
+               Tuple.Create ("3"                , 3.0          as object   , "3"                ),
                Tuple.Create ("3"                , 3.0          as object   , "3"                ),
                Tuple.Create ("3.14"             , 3.14         as object   , "3.14"             ),
                Tuple.Create ("3e3"              , 3e3          as object   , "3000"             ),
